@@ -43,7 +43,7 @@ export const AnnotatorOptions = ({
             key={size}
             className={cn(
               "w-6 h-6 cursor-pointer rounded-md flex items-center justify-center",
-              selectedSize === size && "bg-neutral-200"
+              selectedSize === size && "bg-primary"
             )}
             onClick={() => setSize(size)}
           >
@@ -68,7 +68,7 @@ export const AnnotatorOptions = ({
             onClick={() => setColor(color)}
             className={cn(
               "w-6 h-6 cursor-pointer p-1 rounded-md",
-              selectedColor === color && "bg-neutral-200"
+              selectedColor === color && "bg-primary"
             )}
           >
             <div

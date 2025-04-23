@@ -33,7 +33,7 @@ export const TooltipButton = ({
             className={cn(
               "p-2 w-fit h-fit",
               active &&
-                "bg-blue-100/80 text-blue-500 hover:text-blue-600 hover:bg-blue-100",
+                "bg-buttonblue/80 text-blue-500 hover:text-blue-600 hover:bg-buttonblue",
               className
             )}
             {...rest}

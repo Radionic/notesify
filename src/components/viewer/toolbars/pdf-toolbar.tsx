@@ -31,7 +31,7 @@ export const PdfToolbar = ({ pdfId }: { pdfId: string }) => {
         onClick={() =>
           setActiveAnnotator(activeAnnotator === "pen" ? undefined : "pen")
         }
-        className={cn(activeAnnotator === "pen" && "bg-neutral-200")}
+        className={cn(activeAnnotator === "pen" && "bg-secondary")}
       >
         <Pen />
       </TooltipButton>
@@ -42,7 +42,7 @@ export const PdfToolbar = ({ pdfId }: { pdfId: string }) => {
             activeAnnotator === "highlighter" ? undefined : "highlighter"
           )
         }
-        className={cn(activeAnnotator === "highlighter" && "bg-neutral-200")}
+        className={cn(activeAnnotator === "highlighter" && "bg-secondary")}
       >
         <Highlighter />
       </TooltipButton>
@@ -53,7 +53,7 @@ export const PdfToolbar = ({ pdfId }: { pdfId: string }) => {
             activeAnnotator === "eraser" ? undefined : "eraser"
           )
         }
-        className={cn(activeAnnotator === "eraser" && "bg-neutral-200")}
+        className={cn(activeAnnotator === "eraser" && "bg-secondary")}
       >
         <Eraser />
       </TooltipButton>

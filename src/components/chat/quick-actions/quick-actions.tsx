@@ -27,7 +27,7 @@ export const QuickActions = () => {
         {suggestions.map((suggestion) => (
           <button
             key={suggestion.id}
-            className="inline-flex items-center gap-2 px-3 py-1 text-sm bg-neutral-100 hover:bg-neutral-200 rounded-md transition-colors"
+            className="inline-flex items-center gap-2 px-3 py-1 text-sm bg-secondary hover:bg-secondary/80 rounded-md transition-colors"
           >
             <span
               onClick={async () => {

@@ -11,6 +11,7 @@ import { Toaster } from "sonner";
 
 import { routeTree } from "./routeTree.gen";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
+import { ThemeProvider } from "./components/theme-provider";
 
 // const memoryHistory = createMemoryHistory({
 //   initialEntries: ["/"],
@@ -34,8 +35,10 @@ const Root = () => {
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
     <TooltipProvider delayDuration={100}>
-      <Root />
-      <Toaster position="top-right" expand />
+      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+        <Root />
+        <Toaster position="top-right" expand />
+      </ThemeProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );

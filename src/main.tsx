@@ -35,7 +35,7 @@ const Root = () => {
 createRoot(document.getElementById("root")!).render(
   <QueryClientProvider client={queryClient}>
     <TooltipProvider delayDuration={100}>
-      <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
         <Root />
         <Toaster position="top-right" expand />
       </ThemeProvider>

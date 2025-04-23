@@ -31,6 +31,9 @@ export default {
         buttonblue: {
           DEFAULT: "hsl(var(--button-blue))",
         },
+        resizable: {
+          DEFAULT: "hsl(var(--resizable-border))",
+        },
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",

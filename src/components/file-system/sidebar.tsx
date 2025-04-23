@@ -7,6 +7,9 @@ import { FileSystemItem } from "./file-system-item";
 import { DragOverlay } from "@dnd-kit/core";
 import { Logo } from "@/components/logo";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "../theme-provider";
+import { Button } from "../ui/button";
 
 export const FileSystemSidebar = ({
   withUpload,
@@ -19,6 +22,8 @@ export const FileSystemSidebar = ({
   draggingItemId?: string | number;
   onClose?: () => void;
 }) => {
+  const { theme, setTheme } = useTheme()
+
   const rootFilesLoadable = useAtomValue(rootFilesAtomLoadable);
   if (rootFilesLoadable.state !== "hasData") {
     return null;
@@ -33,9 +38,17 @@ export const FileSystemSidebar = ({
     <div className="flex flex-col h-dvh px-4 py-2 overflow-y-auto">
       <div className="flex items-center justify-between">
         <Logo />
-        <a href="https://github.com/Radionic/notesify" target="_blank">
-          <GitHubLogoIcon className="h-5 w-5 text-muted-foreground hover:text-foreground" />
-        </a>
+        <div className="flex items-center gap-2">
+          <button
+            className="h-5 w-5 text-muted-foreground hover:text-foreground"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            {theme === "light" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </button>
+          <a href="https://github.com/Radionic/notesify" target="_blank">
+            <GitHubLogoIcon className="h-5 w-5 text-muted-foreground hover:text-foreground" />
+          </a>
+        </div>
       </div>
 
       {withUpload && <PdfFileUploader thin />}

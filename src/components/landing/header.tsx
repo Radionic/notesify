@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
-import { Menu } from "lucide-react";
+import { Menu, Moon, Sun } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +10,7 @@ import {
 import { Logo } from "../logo";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
+import { useTheme } from "../theme-provider";
 
 const NavItem = ({
   href,
@@ -34,15 +35,22 @@ const NavItem = ({
 };
 
 export const Header = () => {
+  const { theme, setTheme } = useTheme()
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="flex justify-between items-center p-4 w-full max-w-6xl mx-auto">
         <Logo />
 
-        <nav className="flex items-center space-x-2">
+        <nav className="flex items-center justify-center space-x-2">
+          <button
+            className="h-5 w-5 text-muted-foreground hover:text-foreground"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            {theme === "light" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </button>
           <NavItem
             href="https://github.com/Radionic/notesify"
-            className="hover:text-gray-900 gap-2"
+            className="hover:text-primary gap-2"
           >
             GitHub
             <GitHubLogoIcon className="h-5 w-5" />

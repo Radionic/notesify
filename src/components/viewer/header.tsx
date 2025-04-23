@@ -1,9 +1,11 @@
 import {
   AudioLines,
   FileText,
+  Moon,
   PanelLeft,
   Sparkles,
   SquarePen,
+  Sun,
 } from "lucide-react";
 
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
@@ -22,6 +24,8 @@ import {
   recordingStateAtom,
 } from "@/atoms/recording/audio-recorder";
 import { cn } from "@/lib/utils";
+import { Button } from "../ui/button";
+import { useTheme } from "../theme-provider";
 
 export const Header = ({ pdfId }: { pdfId: string }) => {
   const [fileSystemOpen, setFileSystemOpen] = useAtom(fileSystemOpenAtom);
@@ -35,6 +39,8 @@ export const Header = ({ pdfId }: { pdfId: string }) => {
 
   const setOpenSettings = useSetAtom(openSettingsDialogAtom);
   const { navigatePdf } = useNavigatePdf();
+
+  const { theme, setTheme } = useTheme()
 
   // Toggle a panel while ensuring at least one remains open
   const togglePanel = (
@@ -56,7 +62,7 @@ export const Header = ({ pdfId }: { pdfId: string }) => {
   };
 
   return (
-    <Card className="sticky flex flex-row w-full px-0.5 border-2 border-transparent border-b-neutral-50 justify-between z-30 rounded-none">
+    <Card className="sticky flex flex-row w-full px-0.5 py-1 border-2 border-transparent border-b-neutral-50 justify-between z-30 rounded-none">
       <div className="flex flex-row items-center gap-0.5">
         <TooltipButton
           tooltip="Toggle Library"
@@ -121,6 +127,11 @@ export const Header = ({ pdfId }: { pdfId: string }) => {
       </div>
 
       <div className="flex flex-row items-center gap-0.5">
+      <Button variant="ghost" size="icon"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            {theme === "light" ? <Sun /> : <Moon />}
+          </Button>
         <TooltipButton
           tooltip="Manage AI Models"
           onClick={() => setOpenSettings(true)}

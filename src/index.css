@@ -224,3 +224,19 @@
     @apply bg-background text-foreground;
   }
 }
+
+[data-registry="plate"] {
+  cursor: text;
+}
+
+[data-registry="plate"].dark {
+  cursor: text;
+}
+
+[data-registry="plate"] * {
+  cursor: inherit;
+}
+
+[data-registry="plate"].dark * {
+  cursor: inherit;
+}

@@ -32,7 +32,7 @@ export const FileSystemSidebar = ({
   //   (file) => file.type === "pdf" && file.id === draggingItemId
   // );
   const sidebar = (
-    <div className="flex flex-col h-dvh px-4 py-2 overflow-y-auto bg-secondary">
+    <div className="flex flex-col h-dvh px-4 py-2 overflow-y-auto bg-panel">
       <div className="flex items-center justify-between">
         <Logo />
         <div className="flex items-center gap-1">

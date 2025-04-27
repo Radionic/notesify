@@ -43,12 +43,19 @@
     --destructive-foreground: 0 0% 98%;
 
     --resizable-border: 0 0% 89.8%;
+    --resizable-handle: 0 0% 75.7%;
 
     --border: 0 0% 89.8%;
     --input: 0 0% 89.8%;
     --ring: 0 0% 3.9%;
 
     --radius: 0.5rem;
+
+    --header: 0 0% 100%;
+    --header-foreground: 0 0% 3.9%;
+
+    --panel: 0 0% 100%;
+    --panel-foreground: 0 0% 3.9%;
 
     --novel-highlight-default: #ffffff;
     --novel-highlight-purple: #f6f3f8;
@@ -101,11 +108,18 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
 
-    --resizable-border: 0 0% 98%;
+    --resizable-border: 0 0% 18%;
+    --resizable-handle: 0 0% 45%;
 
     --border: 0 0% 14.9%;
     --input: 0 0% 14.9%;
     --ring: 0 0% 83.1%;
+
+    --header: 0 0% 9%;
+    --header-foreground: 0 0% 98%;
+
+    --panel: 0 0% 12%;
+    --panel-foreground: 0 0% 98%;
 
     --novel-highlight-default: #000000;
     --novel-highlight-purple: #3f2c4b;
@@ -202,7 +216,7 @@
   }
 
   div {
-    @apply scrollbar-thin scrollbar-track-transparent dark:scrollbar-thumb-neutral-500;
+    @apply scrollbar-thin scrollbar-track-transparent dark:scrollbar-thumb-resizablehandle;
   }
 }
 

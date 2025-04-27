@@ -34,6 +34,9 @@ export default {
         resizable: {
           DEFAULT: "hsl(var(--resizable-border))",
         },
+        resizablehandle: {
+          DEFAULT: "hsl(var(--resizable-handle))",
+        },
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
@@ -45,6 +48,14 @@ export default {
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
+        },
+        header: {
+          DEFAULT: "hsl(var(--header))",
+          foreground: "hsl(var(--header-foreground))",
+        },
+        panel: {
+          DEFAULT: "hsl(var(--panel))",
+          foreground: "hsl(var(--panel-foreground))",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

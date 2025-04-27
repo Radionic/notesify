@@ -57,7 +57,7 @@ export const Header = ({ pdfId }: { pdfId: string }) => {
   };
 
   return (
-    <Card className="sticky flex flex-row w-full px-0.5 py-1 border-2 border-transparent border-b-neutral-50 justify-between z-30 rounded-none">
+    <Card className="sticky flex flex-row w-full px-0.5 py-1 border-2 border-transparent border-b-border justify-between z-30 rounded-none bg-header">
       <div className="flex flex-row items-center gap-0.5">
         <TooltipButton
           tooltip="Toggle Library"

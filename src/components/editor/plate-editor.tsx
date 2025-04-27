@@ -112,7 +112,7 @@ export function PlateEditor({ notesId }: { notesId: string }) {
         }}
       >
         <EditorContainer data-registry="plate" className="h-full flex">
-          <Editor className="h-full flex-1 bg-secondary rounded-none pt-10" />
+          <Editor className="h-full flex-1 bg-panel rounded-none pt-10" />
         </EditorContainer>
 
         {/* <SettingsDialog /> */}

@@ -19,7 +19,7 @@ export const PdfToolbar = ({ pdfId }: { pdfId: string }) => {
   );
 
   return (
-    <Card className="sticky top-0 h-9 flex flex-row items-center gap-0.5 px-2 border-2 border-transparent z-30 rounded-none overflow-y-scroll scrollbar-hide">
+    <Card className="sticky top-0 h-9 flex flex-row items-center gap-0.5 px-2 border-2 border-transparent z-30 rounded-none overflow-y-scroll scrollbar-hide bg-header">
       <span className="truncate max-w-96 min-w-32 mr-2">
         {pdf?.name || "Unknown PDF"}
       </span>

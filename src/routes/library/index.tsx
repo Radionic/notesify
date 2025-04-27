@@ -23,7 +23,7 @@ const RouteComponent = () => {
       )}
       <ResizablePanel
         order={2}
-        className="min-h-dvh flex flex-col justify-center gap-4"
+        className="min-h-dvh flex flex-col justify-center gap-4 bg-panel"
       >
         <PdfFileUploader />
       </ResizablePanel>

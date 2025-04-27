@@ -24,7 +24,7 @@ export const AudioRecorderToolbar = () => {
   // };
 
   return (
-    <Card className="sticky top-0 flex flex-row justify-end px-2 border-2 border-transparent z-30 rounded-none">
+    <Card className="sticky top-0 flex flex-row justify-end px-2 border-2 border-transparent z-30 rounded-none bg-header">
       <TooltipButton
         tooltip="Search recordings"
         onClick={() => {

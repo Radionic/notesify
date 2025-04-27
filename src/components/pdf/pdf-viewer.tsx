@@ -52,7 +52,7 @@ export const PdfViewer = ({ pdfId }: { pdfId: string }) => {
   return (
     <div
       className={cn(
-        "absolute top-0 left-0 mx-auto w-full bg-secondary overflow-y-auto h-full touch-pan-x touch-pan-y",
+        "absolute top-0 left-0 mx-auto w-full bg-neutral-100 dark:bg-panel overflow-y-auto h-full touch-pan-x touch-pan-y",
         annotator && "select-none"
       )}
       ref={containerRef}
@@ -64,7 +64,7 @@ export const PdfViewer = ({ pdfId }: { pdfId: string }) => {
         className={
           inited
             ? "pointer-events-none hidden"
-            : "absolute top-0 left-0 h-full w-full bg-neutral-100 overflow-hidden"
+            : "absolute top-0 left-0 h-full w-full bg-neutral-100 dark:bg-panel overflow-hidden"
         }
       />
       <TextMenu pdfId={pdfId} container={containerRef.current} />

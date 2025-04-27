@@ -1,11 +1,9 @@
 import {
   AudioLines,
   FileText,
-  Moon,
   PanelLeft,
   Sparkles,
   SquarePen,
-  Sun,
 } from "lucide-react";
 
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
@@ -24,8 +22,7 @@ import {
   recordingStateAtom,
 } from "@/atoms/recording/audio-recorder";
 import { cn } from "@/lib/utils";
-import { Button } from "../ui/button";
-import { useTheme } from "../theme-provider";
+import { ThemeSwitch } from "../theme-switch";
 
 export const Header = ({ pdfId }: { pdfId: string }) => {
   const [fileSystemOpen, setFileSystemOpen] = useAtom(fileSystemOpenAtom);
@@ -39,8 +36,6 @@ export const Header = ({ pdfId }: { pdfId: string }) => {
 
   const setOpenSettings = useSetAtom(openSettingsDialogAtom);
   const { navigatePdf } = useNavigatePdf();
-
-  const { theme, setTheme } = useTheme()
 
   // Toggle a panel while ensuring at least one remains open
   const togglePanel = (
@@ -127,11 +122,7 @@ export const Header = ({ pdfId }: { pdfId: string }) => {
       </div>
 
       <div className="flex flex-row items-center gap-0.5">
-      <Button variant="ghost" size="icon"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          >
-            {theme === "light" ? <Sun /> : <Moon />}
-          </Button>
+        <ThemeSwitch />
         <TooltipButton
           tooltip="Manage AI Models"
           onClick={() => setOpenSettings(true)}

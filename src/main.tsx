@@ -11,7 +11,7 @@ import { Toaster } from "sonner";
 
 import { routeTree } from "./routeTree.gen";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
-import { ThemeProvider } from "./components/theme-provider";
+import { ThemeProvider, useTheme } from "./components/theme-provider";
 
 // const memoryHistory = createMemoryHistory({
 //   initialEntries: ["/"],
@@ -29,7 +29,13 @@ declare module "@tanstack/react-router" {
 const queryClient = new QueryClient();
 
 const Root = () => {
-  return <RouterProvider router={router} />;
+  const { theme } = useTheme();
+  return (
+    <>
+      <RouterProvider router={router} />
+      <Toaster position="top-right" invert={theme === "dark"} expand />
+    </>
+  );
 };
 
 createRoot(document.getElementById("root")!).render(
@@ -37,7 +43,6 @@ createRoot(document.getElementById("root")!).render(
     <TooltipProvider delayDuration={100}>
       <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
         <Root />
-        <Toaster position="top-right" expand />
       </ThemeProvider>
     </TooltipProvider>
   </QueryClientProvider>

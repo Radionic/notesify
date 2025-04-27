@@ -200,6 +200,10 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  div {
+    @apply scrollbar-thin scrollbar-track-transparent dark:scrollbar-thumb-neutral-500;
+  }
 }
 
 @font-face {

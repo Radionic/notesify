@@ -15,7 +15,7 @@ interface CodeProps {
 }
 
 export const markdownClassname =
-  "max-w-full prose prose-h1:my-3 prose-h2:my-2 prose-h3:my-1 prose-h4:my-0 prose-h5:my-0 prose-h6:my-0 prose-p:my-2 prose-pre:my-1 prose-hr:my-4";
+  "max-w-full prose dark:prose-invert prose-h1:my-3 prose-h2:my-2 prose-h3:my-1 prose-h4:my-0 prose-h5:my-0 prose-h6:my-0 prose-p:my-2 prose-pre:my-1 prose-hr:my-4";
 
 const components: any = {
   code: ({ node, inline, className, children, ...props }: CodeProps) => {

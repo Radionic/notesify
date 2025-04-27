@@ -35,20 +35,20 @@ export const AnnotatorOptions = ({
   const colors = isPen ? penColors : highlighterColors;
 
   return (
-    <div className="flex flex-row gap-1 p-1">
+    <div className="flex flex-row items-center gap-1 p-1">
       {/* Sizes */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1">
         {sizes.map((size, i) => (
           <div
             key={size}
             className={cn(
-              "w-6 h-6 cursor-pointer rounded-md flex items-center justify-center",
-              selectedSize === size && "bg-primary"
+              "size-8 cursor-pointer rounded-md flex items-center justify-center",
+              selectedSize === size && "bg-secondary"
             )}
             onClick={() => setSize(size)}
           >
             <div
-              className="rounded-full bg-black"
+              className="rounded-full bg-primary"
               style={{
                 width: `${i * 0.2 + 0.4}rem`,
                 height: `${i * 0.2 + 0.4}rem`,
@@ -61,14 +61,14 @@ export const AnnotatorOptions = ({
       <Separator orientation="vertical" className="mx-1 h-6" />
 
       {/* Colors */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1">
         {colors.map((color) => (
           <div
             key={color}
             onClick={() => setColor(color)}
             className={cn(
-              "w-6 h-6 cursor-pointer p-1 rounded-md",
-              selectedColor === color && "bg-primary"
+              "size-8 cursor-pointer p-2 rounded-md",
+              selectedColor === color && "bg-secondary"
             )}
           >
             <div

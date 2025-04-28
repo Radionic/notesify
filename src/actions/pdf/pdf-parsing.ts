@@ -74,17 +74,30 @@ export const getPdftextAtom = atom(
     {
       pdfId,
       pages,
-      startPage,
+      startPage = 1,
       endPage,
     }: { pdfId: string; pages?: number[]; startPage?: number; endPage?: number }
   ): Promise<string> => {
     const parsedPdf = await set(parsePdfAtom, { pdfId });
+    const maxPage = parsedPdf.length;
+
+    // Validate input parameters
+    if (startPage > (endPage ?? maxPage)) {
+      throw new ActionError(`Invalid page range: ${startPage} - ${endPage}`);
+    }
+    if (startPage < 1 || startPage > maxPage) {
+      throw new ActionError(`Invalid start page: ${startPage}`);
+    }
+    if (endPage && (endPage < 1 || endPage > maxPage)) {
+      throw new ActionError(`Invalid end page: ${endPage}`);
+    }
+
     return parsedPdf
-      .filter(
-        (p) =>
-          p.page >= (startPage ?? 1) && p.page <= (endPage ?? parsedPdf.length)
-      )
-      .filter((p) => !pages || pages.includes(p.page))
+      .filter((p) => {
+        const inRange = p.page >= startPage && p.page <= (endPage ?? maxPage);
+        const inSpecifiedPages = !pages || pages.includes(p.page);
+        return inRange && inSpecifiedPages;
+      })
       .map((p) => `<page_${p.page}>\n${p.text}\n</page_${p.page}>`)
       .join("\n\n");
   }

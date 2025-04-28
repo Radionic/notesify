@@ -12,8 +12,8 @@ export const tools = {
     description: "Get the text of PDF pages",
     parameters: z.object({
       pdfId: z.string().describe("The PDF ID"),
-      startPage: z.number().describe("The start page number"),
-      endPage: z.number().describe("The end page number"),
+      startPage: z.number().describe("The start page number (min: 1)"),
+      endPage: z.number().describe("The end page number (min: 1)"),
     }),
   }),
   searchPages: tool({

@@ -36,7 +36,7 @@ export const ChatMessage = ({
       className={cn(
         "w-fit px-2 py-1",
         message.role === "user" &&
-          "bg-neutral-50 border border-neutral-100 self-end rounded-md max-w-[90%]"
+          "bg-secondary border border-secondary/50 self-end rounded-md max-w-[90%]"
       )}
     >
       {message.role === "user" ? (

@@ -28,6 +28,15 @@ export default {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
         },
+        buttonblue: {
+          DEFAULT: "hsl(var(--button-blue))",
+        },
+        resizable: {
+          DEFAULT: "hsl(var(--resizable-border))",
+        },
+        resizablehandle: {
+          DEFAULT: "hsl(var(--resizable-handle))",
+        },
         muted: {
           DEFAULT: "hsl(var(--muted))",
           foreground: "hsl(var(--muted-foreground))",
@@ -39,6 +48,14 @@ export default {
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
+        },
+        header: {
+          DEFAULT: "hsl(var(--header))",
+          foreground: "hsl(var(--header-foreground))",
+        },
+        panel: {
+          DEFAULT: "hsl(var(--panel))",
+          foreground: "hsl(var(--panel-foreground))",
         },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -175,5 +192,6 @@ export default {
     require("tailwindcss-animate"),
     require("@tailwindcss/typography"),
     require("tailwind-scrollbar-hide"),
+    require("tailwind-scrollbar"),
   ],
 };

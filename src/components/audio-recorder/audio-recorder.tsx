@@ -21,7 +21,7 @@ export const AudioRecorder = () => {
   }, [initialize, cleanup]);
 
   return (
-    <div className="flex flex-col h-full bg-white">
+    <div className="flex flex-col h-full bg-panel">
       <AudioRecorderToolbar />
       <RecordingsList className="flex-1 overflow-y-auto" />
       <RecordingControls />

@@ -10,7 +10,7 @@ export const RecordingsList = ({ className }: { className?: string }) => {
     return (
       <div
         className={cn(
-          "flex flex-col items-center justify-center h-full text-slate-500",
+          "flex flex-col items-center justify-center h-full",
           className
         )}
       >

@@ -13,9 +13,9 @@ export const RecordingItem = ({ recording }: { recording: Recording }) => {
   const playRecording = useSetAtom(playRecordingAtom);
   const isSelected = selectedRecordingId === recording.id;
   return (
-    <div className={cn("flex flex-col", isSelected && "bg-neutral-50")}>
+    <div className={cn("flex flex-col", isSelected && "bg-primary/10")}>
       <div
-        className="flex items-center justify-between p-3 hover:bg-neutral-100 cursor-pointer"
+        className="flex items-center justify-between p-3 hover:bg-primary/5 cursor-pointer"
         onClick={() => playRecording(recording.id)}
       >
         <div className="flex items-center gap-3">

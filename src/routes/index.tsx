@@ -6,10 +6,10 @@ import { isTauri } from "@/lib/tauri";
 
 const Landing = () => {
   return (
-    <>
+    <div className="bg-panel min-h-screen">
       <Header />
       <HeroSection />
-    </>
+    </div>
   );
 };
 

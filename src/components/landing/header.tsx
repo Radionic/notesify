@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "@tanstack/react-router";
-import { Menu } from "lucide-react";
+import { Menu, Moon, Sun } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +10,7 @@ import {
 import { Logo } from "../logo";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
+import { ThemeSwitch } from "../theme-switch";
 
 const NavItem = ({
   href,
@@ -35,14 +36,15 @@ const NavItem = ({
 
 export const Header = () => {
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="sticky top-0 z-50 w-full border-b bg-header/95 backdrop-blur supports-[backdrop-filter]:bg-header/60">
       <div className="flex justify-between items-center p-4 w-full max-w-6xl mx-auto">
         <Logo />
 
-        <nav className="flex items-center space-x-2">
+        <nav className="flex items-center justify-center space-x-2">
+          <ThemeSwitch />
           <NavItem
             href="https://github.com/Radionic/notesify"
-            className="hover:text-gray-900 gap-2"
+            className="hover:text-primary gap-2"
           >
             GitHub
             <GitHubLogoIcon className="h-5 w-5" />

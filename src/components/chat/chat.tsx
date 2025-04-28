@@ -28,7 +28,7 @@ export const Chat = () => {
   return threadFinderOpen ? (
     <ThreadFinder />
   ) : (
-    <div className="flex flex-col justify-between gap-1 h-full w-full">
+    <div className="flex flex-col justify-between gap-1 h-full w-full bg-panel">
       <ChatHeader />
       <ChatMessageList className="grow p-2" />
       <div className="space-y-2 flex-none p-2">

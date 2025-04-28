@@ -24,7 +24,7 @@ export const ChatHeader = () => {
 
   if (activeChat.state !== "hasData") return null;
   return (
-    <Card className="sticky top-0 flex flex-col px-2 border-2 border-transparent z-30 rounded-none">
+    <Card className="sticky top-0 flex flex-col px-2 border-2 border-transparent z-30 rounded-none bg-header">
       <div className="flex flex-row items-center gap-0.5 justify-between">
         <span className="truncate max-w-96 min-w-32 mr-2">
           {activeChat?.data.title || "New Chat"}

@@ -14,15 +14,15 @@ import { pdfViewerOpenAtom } from "@/atoms/pdf/pdf-viewer";
 import { Separator } from "../ui/separator";
 import { notesOpenAtom } from "@/atoms/notes/notes";
 import { chatsOpenAtom } from "@/atoms/chat/chats";
-import { useNavigatePdf } from "@/hooks/pdf/use-navigate-pdf";
 import { openSettingsDialogAtom } from "@/atoms/setting/providers";
 import { fileSystemOpenAtom } from "@/atoms/file-system/file-system";
 import {
   audioRecorderOpenAtom,
-  recordingStateAtom,
+  isRecordingAtom,
 } from "@/atoms/recording/audio-recorder";
 import { cn } from "@/lib/utils";
 import { ThemeSwitch } from "../theme-switch";
+import { useNavigatePdf } from "@/queries/pdf/use-pdf";
 
 export const Header = ({ pdfId }: { pdfId: string }) => {
   const [fileSystemOpen, setFileSystemOpen] = useAtom(fileSystemOpenAtom);
@@ -32,7 +32,7 @@ export const Header = ({ pdfId }: { pdfId: string }) => {
   const [audioRecorderOpen, setAudioRecorderOpen] = useAtom(
     audioRecorderOpenAtom
   );
-  const recordingState = useAtomValue(recordingStateAtom);
+  const isRecording = useAtomValue(isRecordingAtom);
 
   const setOpenSettings = useSetAtom(openSettingsDialogAtom);
   const { navigatePdf } = useNavigatePdf();
@@ -110,7 +110,7 @@ export const Header = ({ pdfId }: { pdfId: string }) => {
           tooltip="Toggle Audio Recorder"
           active={audioRecorderOpen}
           className={cn(
-            recordingState === "recording" &&
+            isRecording &&
               "bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-100"
           )}
           onClick={() =>

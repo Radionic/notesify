@@ -10,8 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Recording } from "@/db/schema";
-import { renameRecordingAtom } from "@/actions/recording/audio-recorder";
-import { useSetAtom } from "jotai";
+import { useRenameRecording } from "@/queries/recording/use-recording";
 
 export const RenameDialog = ({
   isOpen,
@@ -20,9 +19,9 @@ export const RenameDialog = ({
 }: {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  recording: Recording | null;
+  recording: Recording;
 }) => {
-  const renameRecording = useSetAtom(renameRecordingAtom);
+  const { mutateAsync: renameRecording } = useRenameRecording();
   const [newName, setNewName] = useState("");
 
   useEffect(() => {
@@ -33,7 +32,7 @@ export const RenameDialog = ({
 
   const handleRename = () => {
     if (newName.trim()) {
-      renameRecording(newName.trim());
+      renameRecording({ id: recording?.id, name: newName.trim() });
       onOpenChange(false);
     }
   };

@@ -1,34 +1,50 @@
 import { Mic, Pause, Play, Square } from "lucide-react";
-import { useAtom, useSetAtom } from "jotai";
 import { Button } from "@/components/ui/button";
-import { formatDuration } from "../../lib/audio/utils";
-import { recordingStateAtom, recordingTimeAtom } from "@/atoms/recording/audio-recorder";
-import {
-  startRecordingAtom,
-  stopRecordingAtom,
-  pauseRecordingAtom,
-  resumeRecordingAtom,
-} from "@/actions/recording/audio-recorder";
+import { useRecorder } from "@/hooks/recording/use-recorder";
+import { generateId } from "@/lib/id";
+import { Recording } from "@/db/schema";
+import { useAddRecording } from "@/queries/recording/use-recording";
+import { formatDuration } from "@/lib/audio/utils";
+import { useSetAtom } from "jotai";
+import { isRecordingAtom } from "@/atoms/recording/audio-recorder";
 
 export const RecordingControls = () => {
-  const [recordingState] = useAtom(recordingStateAtom);
-  const [recordingTime] = useAtom(recordingTimeAtom);
+  const { mutateAsync: addRecording } = useAddRecording();
+  const setIsRecording = useSetAtom(isRecordingAtom);
 
-  const startRecording = useSetAtom(startRecordingAtom);
-  const stopRecording = useSetAtom(stopRecordingAtom);
-  const pauseRecording = useSetAtom(pauseRecordingAtom);
-  const resumeRecording = useSetAtom(resumeRecordingAtom);
+  const {
+    status,
+    duration,
+    startRecording,
+    stopRecording,
+    pauseRecording,
+    resumeRecording,
+  } = useRecorder({
+    onStart: () => setIsRecording(true),
+    onPause: () => setIsRecording(false),
+    onResume: () => setIsRecording(true),
+    onStop: async ({ blob, duration }) => {
+      setIsRecording(false);
+
+      const recordingId = generateId();
+      const recording: Recording = {
+        id: recordingId,
+        name: `New Recording`,
+        duration: Math.max(duration, 1), // Min 1 second
+        createdAt: new Date(),
+      };
+      await addRecording({ recording, recordingData: blob });
+    },
+  });
 
   return (
     <div className="border-t p-4">
       <div className="flex flex-col items-center gap-4">
-        {recordingState !== "inactive" && (
-          <div className="text-lg font-medium">
-            {formatDuration(recordingTime)}
-          </div>
+        {status !== "inactive" && (
+          <div className="text-lg font-medium">{formatDuration(duration)}</div>
         )}
         <div className="flex justify-center items-center gap-6">
-          {recordingState === "inactive" ? (
+          {status === "inactive" ? (
             <Button
               variant="ghost"
               size="icon"
@@ -37,7 +53,7 @@ export const RecordingControls = () => {
             >
               <Mic className="h-6 w-6 text-red-600" />
             </Button>
-          ) : recordingState === "recording" ? (
+          ) : status === "recording" ? (
             <>
               <Button
                 variant="ghost"

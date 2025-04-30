@@ -1,11 +1,11 @@
 import { Badge } from "@/components/badge";
 import { PageBadges } from "@/components/chat/tools/page-badges";
 import { Check, CircleAlert } from "lucide-react";
-import { getPdfMetadataAtom, jumpToPageAtom } from "@/actions/pdf/pdf-viewer";
-import { useEffect, useState } from "react";
+import { jumpToPageAtom } from "@/actions/pdf/pdf-viewer";
 import { cn } from "@/lib/utils";
 import { useAction } from "@/hooks/state/use-action";
 import { ToolInvocation } from "ai";
+import { useFile } from "@/queries/file-system/use-file-system";
 
 export const PageTool = ({
   tool,
@@ -22,21 +22,15 @@ export const PageTool = ({
     failed: string;
   };
 }) => {
-  const [getPdfMetadata] = useAction(getPdfMetadataAtom);
   const [jumpToPage] = useAction(jumpToPageAtom);
 
-  const [pdfName, setPdfName] = useState<string | undefined>("");
   const { pdfId } = tool.args || {};
   const running = tool.state !== "result";
-
-  useEffect(() => {
-    (async () => {
-      if (!pdfId || running) return;
-      const metadata = await getPdfMetadata(pdfId);
-      const pdfName = metadata?.name;
-      setPdfName(pdfName);
-    })();
-  }, [pdfId, running]);
+  const { data: pdfFile } = useFile({
+    id: pdfId,
+    enabled: !!pdfId && !running,
+  });
+  const pdfName = pdfFile?.name;
 
   const renderContent = () => {
     if (running) {

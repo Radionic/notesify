@@ -1,52 +1,33 @@
 import { cn } from "@/lib/utils";
-import { useEffect, useRef, useState } from "react";
 
 import { ChatMessage } from "./chat-message";
 import { ImageContextsPreview } from "./contexts/image-context-preview";
 import { TextContextsPreview } from "./contexts/text-content-preview";
-import { useChat } from "@/hooks/chat/use-chat";
+import { useChatAI } from "@/hooks/chat/use-chat-ai";
 import { ChatGuide } from "./chat-guide";
-import { useChatHelpers } from "@/hooks/chat/use-chat-helpers";
 import { useAtomValue } from "jotai";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
 import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
+import { useAutoScroll } from "@/hooks/chat/use-auto-scroll";
+import { useEffect } from "react";
+import { useCreateNewChat } from "@/queries/chat/use-chat";
 
-interface ChatMessageListProps {
-  className?: string;
-}
-
-export const ChatMessageList = ({ className }: ChatMessageListProps) => {
+export const ChatMessageList = ({ className }: { className?: string }) => {
   const pdfId = useAtomValue(activePdfIdAtom);
   const chatId = useAtomValue(activeChatIdAtom);
 
-  const { messages, status } = useChat({ chatId, pdfId });
+  const { messages, status } = useChatAI({ chatId, pdfId });
   const isLoading = status === "submitted" || status === "streaming";
-
-  useChatHelpers({ chatId, isLoading, messages });
-
-  const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "instant" });
-  };
-
-  const handleScroll = () => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    const isAtBottom =
-      container.scrollHeight - container.scrollTop - container.clientHeight <
-      10;
-    setShouldAutoScroll(isAtBottom);
-  };
+  const { mutateAsync: createNewChat } = useCreateNewChat();
 
   useEffect(() => {
-    if (shouldAutoScroll) {
-      scrollToBottom();
+    if (chatId === "TMP") {
+      createNewChat();
     }
-  }, [messages, shouldAutoScroll]);
+  }, [chatId]);
+
+  const { containerRef, messagesEndRef, handleScroll } =
+    useAutoScroll(messages);
 
   if (messages?.length === 0) {
     return <ChatGuide />;

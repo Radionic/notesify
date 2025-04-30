@@ -1,10 +1,10 @@
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { useHotkeys } from "react-hotkeys-hook";
 
 import { activePdfIdAtom, viewerAtomFamily } from "@/atoms/pdf/pdf-viewer";
 import { useEffect, useRef } from "react";
 import { useGesture } from "@use-gesture/react";
-import { updatePdfAtom } from "@/actions/pdf/pdf-viewer";
+import { useUpdatePdf } from "@/queries/pdf/use-pdf";
 
 export const useZoom = (
   pdfId: string,
@@ -12,10 +12,9 @@ export const useZoom = (
 ) => {
   const activePdfId = useAtomValue(activePdfIdAtom);
   const activeViewer = useAtomValue(viewerAtomFamily(activePdfId));
-  const setActiveViewerZoomScale = useSetAtom(updatePdfAtom);
+  const { mutate: updatePdfMetadata } = useUpdatePdf();
 
   const viewer = useAtomValue(viewerAtomFamily(pdfId));
-  const setZoomScale = useSetAtom(updatePdfAtom);
 
   const isPinching = useRef(false);
   const lastUpdateTime = useRef(0);
@@ -37,13 +36,13 @@ export const useZoom = (
     if (now - lastUpdateTime.current >= THROTTLE_DELAY) {
       if (activeTarget) {
         activeViewer?.updateScale({ steps, scaleFactor, origin });
-        setActiveViewerZoomScale({
+        updatePdfMetadata({
           pdfId,
           zoom: activeViewer?.currentScale || 1,
         });
       } else {
         viewer?.updateScale({ steps, scaleFactor, origin });
-        setZoomScale({
+        updatePdfMetadata({
           pdfId,
           zoom: viewer?.currentScale || 1,
         });

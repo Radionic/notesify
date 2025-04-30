@@ -1,5 +1,3 @@
-import { useAtomValue } from "jotai";
-import { rootFilesAtomLoadable } from "@/atoms/file-system/file-system";
 import { PdfFileUploader } from "@/components/file-system/file-uploader";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { Draggable } from "@/components/dnd/draggable";
@@ -9,6 +7,7 @@ import { Logo } from "@/components/logo";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { ThemeSwitch } from "../theme-switch";
 import { TooltipButton } from "../tooltip/tooltip-button";
+import { useFiles } from "@/queries/file-system/use-file-system";
 
 export const FileSystemSidebar = ({
   withUpload,
@@ -21,13 +20,7 @@ export const FileSystemSidebar = ({
   draggingItemId?: string | number;
   onClose?: () => void;
 }) => {
-  const rootFilesLoadable = useAtomValue(rootFilesAtomLoadable);
-  if (rootFilesLoadable.state !== "hasData") {
-    return null;
-  }
-
-  const rootFiles = rootFilesLoadable.data;
-
+  const { data: rootFiles } = useFiles({ parentId: null });
   // const draggingItem = rootFiles.find(
   //   (file) => file.type === "pdf" && file.id === draggingItemId
   // );
@@ -44,7 +37,7 @@ export const FileSystemSidebar = ({
       </div>
 
       {withUpload && <PdfFileUploader thin />}
-      {rootFiles.length > 0 ? (
+      {rootFiles && rootFiles.length > 0 ? (
         <div>
           {rootFiles
             .filter((file) => file.type === "pdf")

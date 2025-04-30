@@ -3,20 +3,28 @@ import { RecordingItemMenu } from "./recording-item-menu";
 import { cn } from "@/lib/utils";
 import { formatDuration } from "../../lib/audio/utils";
 import { AudioPlayer } from "./audio-player";
-import { useAtomValue, useSetAtom } from "jotai";
-import { playRecordingAtom } from "@/actions/recording/audio-recorder";
+import { useAtom } from "jotai";
 import { selectedRecordingIdAtom } from "@/atoms/recording/audio-recorder";
 import { Recording } from "@/db/schema";
+import { useRecordingData } from "@/queries/recording/use-recording";
 
 export const RecordingItem = ({ recording }: { recording: Recording }) => {
-  const selectedRecordingId = useAtomValue(selectedRecordingIdAtom);
-  const playRecording = useSetAtom(playRecordingAtom);
+  const [selectedRecordingId, setSelectedRecordingId] = useAtom(
+    selectedRecordingIdAtom
+  );
   const isSelected = selectedRecordingId === recording.id;
+  const { data: recordingData } = useRecordingData({
+    id: recording.id,
+    enabled: isSelected,
+  });
+
   return (
     <div className={cn("flex flex-col", isSelected && "bg-primary/10")}>
       <div
         className="flex items-center justify-between p-3 hover:bg-primary/5 cursor-pointer"
-        onClick={() => playRecording(recording.id)}
+        onClick={() => {
+          setSelectedRecordingId(recording.id);
+        }}
       >
         <div className="flex items-center gap-3">
           <div>
@@ -30,7 +38,12 @@ export const RecordingItem = ({ recording }: { recording: Recording }) => {
         </div>
         <RecordingItemMenu recording={recording} />
       </div>
-      {isSelected && <AudioPlayer duration={recording.duration} />}
+      {isSelected && recordingData && (
+        <AudioPlayer
+          duration={recording.duration}
+          recordingUrl={URL.createObjectURL(recordingData)}
+        />
+      )}
     </div>
   );
 };

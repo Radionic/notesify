@@ -1,13 +1,11 @@
 import { BsFiletypePdf, BsFiletypeDoc, BsFiletypePpt } from "react-icons/bs";
 import { FileInput, FileUploader } from "@/components/ui/file-uploader";
-import { convertToPdfAtom, savePdfAtom } from "@/actions/pdf/pdf";
 import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
 import { useMediaQuery } from "react-responsive";
 import { toast } from "sonner";
-import { generateId } from "@/lib/id";
-import { useNavigatePdf } from "@/hooks/pdf/use-navigate-pdf";
-import { useAction } from "@/hooks/state/use-action";
+import { useAddPdf } from "@/queries/file-system/use-file-system";
+import { useConvertPdf, useNavigatePdf } from "@/queries/pdf/use-pdf";
 
 const FileSvgDraw = ({ thin }: { thin?: boolean }) => {
   return (
@@ -46,12 +44,8 @@ export const PdfFileUploader = ({
   const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
 
   const { navigatePdf } = useNavigatePdf();
-  const [convertToPdf] = useAction(convertToPdfAtom, (_, filename) => ({
-    loading: `Converting ${filename} to PDF...`,
-    success: `Converted ${filename} to PDF`,
-    error: `Failed to convert ${filename} to PDF`,
-  }));
-  const [savePdf] = useAction(savePdfAtom);
+  const { mutateAsync: convertToPdf } = useConvertPdf();
+  const { mutateAsync: addPdf } = useAddPdf();
 
   const loadPdfFromBlob = async (
     data: Blob,
@@ -64,22 +58,22 @@ export const PdfFileUploader = ({
       );
       return;
     }
-    const pdfData =
-      originalType === "application/pdf"
-        ? data
-        : await convertToPdf(data, fileName);
-    if (!pdfData) {
-      return;
+
+    if (originalType !== "application/pdf") {
+      data = await toast
+        .promise(convertToPdf({ file: data, filename: fileName }), {
+          loading: `Converting ${fileName} to PDF...`,
+          success: `Converted ${fileName} to PDF`,
+          error: `Failed to convert ${fileName} to PDF`,
+        })
+        .unwrap();
     }
 
-    const pdf = {
-      id: generateId(),
-      data: pdfData,
-    };
-    const saved = await savePdf(fileName, pdf);
-    if (saved) {
-      navigatePdf({ pdfId: pdf.id });
+    const { newPdf } = await addPdf({ name: fileName, pdfData: data });
+    if (!newPdf) {
+      return;
     }
+    navigatePdf({ pdfId: newPdf.id });
   };
 
   const dropZoneConfig = {

@@ -1,5 +1,4 @@
-import { atom } from "jotai";
-import { atomFamily, atomWithDefault, loadable } from "jotai/utils";
+import { atomFamily, atomWithDefault } from "jotai/utils";
 import { atomWithStorage } from "jotai/utils";
 import { getDB } from "@/db/sqlite";
 import { Annotation, annotationsTable } from "@/db/schema";
@@ -49,25 +48,3 @@ export const annotationsAtomFamily = atomFamily((pdfId?: string) =>
     return annos;
   })
 );
-
-// Derived atom for annotations grouped by page number
-export const annotationsByPageAtomFamily = atomFamily((pdfId?: string) =>
-  atom(async (get) => {
-    if (!pdfId) return {};
-
-    const annotations = await get(annotationsAtomFamily(pdfId));
-    const annotationsByPage: Record<number, Annotation[]> = {};
-
-    annotations.forEach((annotation) => {
-      if (!annotationsByPage[annotation.page]) {
-        annotationsByPage[annotation.page] = [];
-      }
-      annotationsByPage[annotation.page].push(annotation);
-    });
-
-    return annotationsByPage;
-  })
-);
-
-export const annotationsByPageAtomFamilyLoadable = (pdfId?: string) =>
-  loadable(annotationsByPageAtomFamily(pdfId));

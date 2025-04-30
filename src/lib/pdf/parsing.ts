@@ -1,5 +1,5 @@
 import { Mistral } from "@mistralai/mistralai";
-import { PDFDocumentProxy } from "pdfjs-dist";
+import { type PDFDocumentProxy } from "pdfjs-dist";
 
 export type ParsedPDF = {
   id: string;

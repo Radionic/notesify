@@ -1,11 +1,12 @@
 import "./index.css";
+import { GlobalWorkerOptions } from "pdfjs-dist";
+GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url
+).toString();
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import {
-  createMemoryHistory,
-  createRouter,
-  RouterProvider,
-} from "@tanstack/react-router";
+import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { createRoot } from "react-dom/client";
 import { Toaster } from "sonner";
 
@@ -13,9 +14,6 @@ import { routeTree } from "./routeTree.gen";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { ThemeProvider, useTheme } from "./components/theme-provider";
 
-// const memoryHistory = createMemoryHistory({
-//   initialEntries: ["/"],
-// });
 export const router = createRouter({
   routeTree,
 });

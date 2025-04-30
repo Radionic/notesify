@@ -3,13 +3,9 @@ import {
   useEditorRef,
   usePlateState,
 } from "@udecode/plate/react";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { generatingNotesAtom } from "@/atoms/notes/notes";
 import { StatesPlugin } from "./states";
-import {
-  generateSummaryAtom,
-  stopGeneratingNotesAtom,
-} from "@/actions/notes/summary";
 import { PenOff, Sparkles } from "lucide-react";
 import { ToolbarButton } from "../toolbar";
 import {
@@ -24,18 +20,20 @@ import { SkeletonPlugin } from "./skeleton";
 import { getSelectedModelAtom } from "@/actions/setting/providers";
 import { useState } from "react";
 import { useAction } from "@/hooks/state/use-action";
+import { useGenerateSummary } from "@/queries/notes/use-notes";
 
 export const GeneratingButton = () => {
   const { getOption } = useEditorPlugin(StatesPlugin);
   const notesId = getOption("notesId");
-  const generatingSignal = useAtomValue(generatingNotesAtom(notesId));
-  const stopGenerating = useSetAtom(stopGeneratingNotesAtom);
+  const [generatingSignal, setGeneratingSignal] = useAtom(
+    generatingNotesAtom(notesId)
+  );
   const [readOnly, setReadOnly] = usePlateState("readOnly");
   const [generating, setGenerating] = useState(false);
   const editor = useEditorRef();
   const pdfId = useAtomValue(activePdfIdAtom);
-  const [generateSummary] = useAction(generateSummaryAtom);
   const [getModel] = useAction(getSelectedModelAtom);
+  const { mutateAsync: generateSummary } = useGenerateSummary({ notesId });
 
   const handleGenerate = async (quality: QualityType, length: LengthType) => {
     if (generatingSignal) {
@@ -76,7 +74,7 @@ export const GeneratingButton = () => {
       }
     };
 
-    await generateSummary({ notesId, pdfId, quality, length, onUpdate });
+    await generateSummary({ pdfId, quality, length, onUpdate });
 
     editor.tf.removeNodes({
       match: (n) => n.type === SkeletonPlugin.key,
@@ -88,12 +86,19 @@ export const GeneratingButton = () => {
     setReadOnly(false);
   };
 
+  const stopGenerate = async () => {
+    if (generatingSignal) {
+      generatingSignal?.abort();
+      setGeneratingSignal(undefined);
+    }
+  };
+
   if (generating && notesId) {
     return (
       <ToolbarButton
         className="text-red-500 hover:text-red-600 px-2 py-1"
         onClick={() => {
-          stopGenerating(notesId);
+          stopGenerate();
           setReadOnly(false);
           setGenerating(false);
         }}

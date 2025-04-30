@@ -5,7 +5,7 @@ import {
   activeContextsAtom,
   Context,
 } from "@/atoms/chat/contexts";
-import { getPageAtom } from "../pdf/pdf-viewer";
+import { jumpToPageAtom } from "../pdf/pdf-viewer";
 
 export const addContextAtom = atom(null, (get, set, context: Context) => {
   set(activeContextsAtom, (currentContexts) => [...currentContexts, context]);
@@ -17,16 +17,8 @@ export const removeContextAtom = atom(null, (get, set, id: string) => {
   );
 });
 
-export const jumpToContextAtom = atom(
-  null,
-  async (get, set, context: Context) => {
-    set(activeBoundingContextAtom, context);
-    const pdfId = context.pdfId;
-    const page = await set(getPageAtom, pdfId, context.page);
-    page?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-      inline: "center",
-    });
-  }
-);
+export const jumpToContextAtom = atom(null, (get, set, context: Context) => {
+  const pdfId = context.pdfId;
+  set(activeBoundingContextAtom, context);
+  set(jumpToPageAtom, pdfId, context.page);
+});

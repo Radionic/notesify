@@ -5,7 +5,7 @@ import { AutogrowingTextarea } from "@/components/origin-ui/inputs";
 import { SelectAreaContextButton } from "./action-button/select-context-button";
 import { SendButton } from "./action-button/send-button";
 import { ModelSelector } from "../pdf/model-selector";
-import { useChat } from "@/hooks/chat/use-chat";
+import { useChatAI } from "@/hooks/chat/use-chat-ai";
 import { activeContextsAtom } from "@/atoms/chat/contexts";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
 import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
@@ -18,7 +18,7 @@ export const ChatInput = () => {
   const contexts = useAtomValue(activeContextsAtom);
   const pdfId = useAtomValue(activePdfIdAtom);
   const chatId = useAtomValue(activeChatIdAtom);
-  const { input, setInput, handleInputChange, append, stop, status } = useChat({
+  const { input, setInput, handleInputChange, append, stop, status } = useChatAI({
     chatId,
     pdfId,
   });

@@ -1,5 +1,4 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-
 import { Header } from "@/components/landing/header";
 import { HeroSection } from "@/components/landing/hero-section";
 import { isTauri } from "@/lib/tauri";

@@ -155,6 +155,7 @@
     "react-responsive": "^10.0.1",
     "react-textarea-autosize": "^8.5.9",
     "react-tweet": "^3.2.2",
+    "react-use": "^17.6.0",
     "rehype-katex": "^7.0.1",
     "remark-gfm": "^4.0.1",
     "remark-math": "^6.0.0",

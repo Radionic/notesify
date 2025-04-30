@@ -9,52 +9,56 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { formatDuration } from "../../lib/audio/utils";
-import { useAtomValue, useSetAtom } from "jotai";
-import {
-  isPlayingAtom,
-  currentTimeAtom,
-  playbackSpeedAtom,
-  selectedRecordingIdAtom,
-} from "@/atoms/recording/audio-recorder";
-import {
-  playRecordingAtom,
-  changePlaybackTimeAtom,
-  skipForwardAtom,
-  skipBackwardAtom,
-  changePlaybackSpeedAtom,
-} from "@/actions/recording/audio-recorder";
 import { GrBackTen, GrForwardTen } from "react-icons/gr";
+import { useAudio } from "react-use";
+import { useEffect, useState } from "react";
 
-export const AudioPlayer = ({ duration }: { duration: number }) => {
-  const isPlaying = useAtomValue(isPlayingAtom);
-  const currentTime = useAtomValue(currentTimeAtom);
-  const playbackSpeed = useAtomValue(playbackSpeedAtom);
-  const selectedRecordingId = useAtomValue(selectedRecordingIdAtom);
-
-  const playRecording = useSetAtom(playRecordingAtom);
-  const changePlaybackTime = useSetAtom(changePlaybackTimeAtom);
-  const skipForward = useSetAtom(skipForwardAtom);
-  const skipBackward = useSetAtom(skipBackwardAtom);
-  const changePlaybackSpeed = useSetAtom(changePlaybackSpeedAtom);
-
-  const handlePlayPause = () => {
-    if (selectedRecordingId) {
-      playRecording(selectedRecordingId);
-    }
-  };
+export const AudioPlayer = ({
+  duration,
+  recordingUrl,
+}: {
+  duration: number;
+  recordingUrl: string;
+}) => {
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
   const speedOptions = [0.5, 0.75, 1, 1.25, 1.5, 2];
+
+  const [audio, state, controls, ref] = useAudio({
+    src: recordingUrl,
+    autoPlay: false,
+  });
+
+  // Update playback speed when it changes
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.playbackRate = playbackSpeed;
+    }
+  }, [playbackSpeed, ref]);
+
+  const handleSkipBackward = () => {
+    controls.seek(Math.max(0, state.time - 10));
+  };
+
+  const handleSkipForward = () => {
+    controls.seek(Math.min(duration, state.time + 10));
+  };
+
+  const handleChangePlaybackTime = (value: number) => {
+    controls.seek(value);
+  };
 
   return (
     <div className="p-3 flex flex-col gap-2">
+      {audio}
       <div className="flex items-center gap-2">
-        <div className="text-xs">{formatDuration(currentTime)}</div>
+        <div className="text-xs">{formatDuration(state.time)}</div>
         <Slider
-          value={[currentTime]}
+          value={[state.time]}
           min={0}
           max={duration}
           step={0.1}
           className="flex-1"
-          onValueChange={(value) => changePlaybackTime(value[0])}
+          onValueChange={(value) => handleChangePlaybackTime(value[0])}
         />
         <div className="text-xs">{formatDuration(duration)}</div>
       </div>
@@ -64,7 +68,7 @@ export const AudioPlayer = ({ duration }: { duration: number }) => {
             variant="ghost"
             size="icon"
             className="h-8 w-8 rounded-full"
-            onClick={skipBackward}
+            onClick={handleSkipBackward}
           >
             <GrBackTen />
           </Button>
@@ -72,9 +76,9 @@ export const AudioPlayer = ({ duration }: { duration: number }) => {
             variant="ghost"
             size="icon"
             className="h-8 w-8 rounded-full"
-            onClick={handlePlayPause}
+            onClick={state.playing ? controls.pause : controls.play}
           >
-            {isPlaying ? (
+            {state.playing ? (
               <Pause className="h-4 w-4" />
             ) : (
               <Play className="h-4 w-4" />
@@ -84,7 +88,7 @@ export const AudioPlayer = ({ duration }: { duration: number }) => {
             variant="ghost"
             size="icon"
             className="h-8 w-8 rounded-full"
-            onClick={skipForward}
+            onClick={handleSkipForward}
           >
             <GrForwardTen />
           </Button>
@@ -100,7 +104,7 @@ export const AudioPlayer = ({ duration }: { duration: number }) => {
             {speedOptions.map((speed) => (
               <DropdownMenuItem
                 key={speed}
-                onClick={() => changePlaybackSpeed(speed)}
+                onClick={() => setPlaybackSpeed(speed)}
                 className={cn(
                   "text-xs",
                   playbackSpeed === speed && "bg-neutral-100 font-medium"

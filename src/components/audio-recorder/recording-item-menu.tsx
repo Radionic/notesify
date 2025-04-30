@@ -64,6 +64,7 @@ export const RecordingItemMenu = ({ recording }: { recording: Recording }) => {
         <DeleteDialog
           isOpen={isDeleteDialogOpen}
           onOpenChange={setIsDeleteDialogOpen}
+          recording={recording}
         />
       )}
     </>

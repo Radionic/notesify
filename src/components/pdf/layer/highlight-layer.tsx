@@ -1,8 +1,5 @@
-import { useAtomValue } from "jotai";
-
-import { highlightsByPageAtomFamilyLoadable } from "@/atoms/pdf/highlights";
-
 import { Highlight } from "./components/highlight";
+import { useHighlightsByPage } from "@/queries/pdf/use-highlight";
 
 export const HighlightLayer = ({
   pdfId,
@@ -13,12 +10,7 @@ export const HighlightLayer = ({
   pageNumber: number;
   disabled?: boolean;
 }) => {
-  const highlightsByPageLoadable = useAtomValue(
-    highlightsByPageAtomFamilyLoadable(pdfId)
-  );
-  if (highlightsByPageLoadable.state !== "hasData") return null;
-
-  const highlightsByPage = highlightsByPageLoadable.data;
+  const highlightsByPage = useHighlightsByPage({ pdfId });
   const highlights = highlightsByPage?.[pageNumber] || [];
   return highlights.map((highlight: any) => (
     <Highlight key={highlight.id} highlight={highlight} disabled={disabled} />

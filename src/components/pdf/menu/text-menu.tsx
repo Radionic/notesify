@@ -4,7 +4,6 @@ import { LuHighlighter } from "react-icons/lu";
 import { MdTranslate } from "react-icons/md";
 
 import { addContextAtom } from "@/actions/chat/contexts";
-import { addHighlightAtom } from "@/actions/pdf/highlights";
 import { selectedHighlightColorAtom } from "@/atoms/pdf/highlight-options";
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
 import { Separator } from "@/components/ui/separator";
@@ -15,6 +14,7 @@ import { Menu } from "./menu";
 import { toast } from "sonner";
 import { generateId } from "@/lib/id";
 import { chatsOpenAtom } from "@/atoms/chat/chats";
+import { useAddHighlight } from "@/queries/pdf/use-highlight";
 
 export const TextMenu = ({
   pdfId,
@@ -25,7 +25,7 @@ export const TextMenu = ({
 }) => {
   const setChatsOpen = useSetAtom(chatsOpenAtom);
   const addContext = useSetAtom(addContextAtom);
-  const addHighlight = useSetAtom(addHighlightAtom);
+  const { mutateAsync: addHighlight } = useAddHighlight();
   const selectedColor = useAtomValue(selectedHighlightColorAtom);
   const { isSelecting, activeTextSelection, clearSelection } = useTextSelection(
     { pdfId, container }

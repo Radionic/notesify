@@ -1,7 +1,7 @@
 import { atom } from "jotai";
-import { atomFamily, atomWithStorage } from "jotai/utils";
-import { PDFDocumentProxy } from "pdfjs-dist";
-import { PDFViewer } from "pdfjs-dist/types/web/pdf_rendering_queue";
+import { atomFamily } from "jotai/utils";
+import { type PDFDocumentProxy } from "pdfjs-dist";
+import { type PDFViewer } from "pdfjs-dist/types/web/pdf_rendering_queue";
 
 import { TextSelection } from "@/lib/types";
 
@@ -19,7 +19,6 @@ export const renderedPagesAtomFamily = atomFamily((pdfId?: string) =>
 export const currentPageAtomFamily = atomFamily((pdfId?: string) =>
   atom<number>()
 );
-
 
 export const openedPdfIdsAtom = atom<string[]>([]);
 export const activePdfIdAtom = atom<string>();

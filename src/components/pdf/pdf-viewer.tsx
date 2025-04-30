@@ -1,5 +1,4 @@
 import "pdfjs-dist/web/pdf_viewer.css";
-
 import { ContextBoundingBox } from "../chat/contexts/context-bounding-box";
 import { PreviewImageDialog } from "./dialog/preview-image-dialog";
 import { HighlightLayer } from "./layer/highlight-layer";
@@ -11,37 +10,33 @@ import { TextMenu } from "./menu/text-menu";
 import { useZoom } from "../../hooks/pdf/use-zoom";
 import { useEffect, useRef } from "react";
 import { useAtomValue, useSetAtom } from "jotai";
-import { loadPdfAtom, unloadPdfAtom } from "@/actions/pdf/pdf";
 import { useScrollPosition } from "@/hooks/pdf/use-scroll-position";
 import { AnnotatorLayer } from "./layer/annotator-layer";
 import { useHistoryShortcuts } from "@/hooks/pdf/use-history-shortcuts";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
 import { activeAnnotatorAtomFamily } from "@/atoms/pdf/annotator-options";
 import { activePdfIdAtom, currentPageAtomFamily } from "@/atoms/pdf/pdf-viewer";
-import { useAction } from "@/hooks/state/use-action";
+import { useLoadPdf } from "@/queries/pdf/use-pdf";
 
 export const PdfViewer = ({ pdfId }: { pdfId: string }) => {
   const navigate = useNavigate();
-  const [loadPdf] = useAction(loadPdfAtom);
-  const [unloadPdf] = useAction(unloadPdfAtom);
   const inited = !!useAtomValue(currentPageAtomFamily(pdfId));
   const annotator = useAtomValue(activeAnnotatorAtomFamily(pdfId));
   const containerRef = useRef<HTMLDivElement>(null);
-
+  const { loadPdf, unloadPdf } = useLoadPdf();
   const setActivePdfId = useSetAtom(activePdfIdAtom);
 
   useEffect(() => {
     if (!containerRef.current) return;
-    loadPdf({ pdfId, container: containerRef.current }).then((loaded) => {
-      if (!loaded) {
-        toast.error("PDF not found");
-        navigate({ to: "/library" });
-      }
+    loadPdf({
+      pdfId,
+      container: containerRef.current,
+    }).catch(() => {
+      navigate({ to: "/library" });
     });
     return () => {
-      unloadPdf(pdfId);
+      unloadPdf({ pdfId });
     };
   }, [pdfId]);
 

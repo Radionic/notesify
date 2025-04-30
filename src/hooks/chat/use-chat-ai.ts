@@ -1,28 +1,26 @@
-import { getOpenedPdfsMetadataAtom } from "@/actions/pdf/pdf-viewer";
 import { withThinkingAtom } from "@/atoms/chat/chats";
 import { activeContextsAtom } from "@/atoms/chat/contexts";
-import { messagesAtomFamilyLoadable } from "@/atoms/chat/messages";
 import { currentPageAtomFamily } from "@/atoms/pdf/pdf-viewer";
 import { buildMessages, buildSystemMessage } from "@/lib/chat/chat";
-import { Message } from "ai";
-import { useChat as useBaseChat } from "@ai-sdk/react";
+import { createDataStreamResponse, Message, streamText } from "ai";
+import { useChat } from "@ai-sdk/react";
 import { useAtomValue, useSetAtom } from "jotai";
 import { evaluate } from "mathjs";
-import { createChatStreamAtom } from "@/actions/chat/ai";
-import { useLoadable } from "../state/use-loadable";
-import { saveMessageAtom } from "@/actions/chat/messages";
 import { getSelectedModelAtom } from "@/actions/setting/providers";
 import { useAction } from "../state/use-action";
 import { toast } from "sonner";
-import { getPdftextAtom } from "@/actions/pdf/pdf-parsing";
-import { searchPagesAtom } from "@/actions/pdf/pdf-indexing";
 import {
+  tools,
   CalculateParameters,
   GetPDFPageTextParameters,
   SearchPagesParameters,
 } from "@/lib/chat/tools";
+import { useMessages, useSaveMessage } from "@/queries/chat/use-messages";
+import { useSearchPdfPages } from "@/queries/pdf/use-indexed-pdf";
+import { useOpenedPdfs } from "@/queries/pdf/use-pdf";
+import { useGetPdfTexts } from "@/queries/pdf/use-parsed-pdf";
 
-export const useChat = ({
+export const useChatAI = ({
   chatId,
   pdfId,
 }: {
@@ -31,19 +29,18 @@ export const useChat = ({
 }) => {
   const [getModel] = useAction(getSelectedModelAtom);
   const viewingPage = useAtomValue(currentPageAtomFamily(pdfId));
-  const initialMessages = useLoadable(messagesAtomFamilyLoadable(chatId));
+  const { data: initialMessages } = useMessages(chatId);
   const withThinking = useAtomValue(withThinkingAtom);
   const setActiveContexts = useSetAtom(activeContextsAtom);
-  const [getOpenedPdfsMetadata] = useAction(getOpenedPdfsMetadataAtom);
-  const [createChatStream] = useAction(createChatStreamAtom);
-  const [saveMessage] = useAction(saveMessageAtom);
+  const { data: openedPdfs } = useOpenedPdfs();
+  const { mutate: saveMessage } = useSaveMessage();
 
   // For tool calls
-  const [getPageText] = useAction(getPdftextAtom);
-  const [searchPages] = useAction(searchPagesAtom);
+  const { mutateAsync: getPdfTexts } = useGetPdfTexts();
+  const { mutateAsync: searchPages } = useSearchPdfPages();
   // const [searchTexts] = useAction(searchTextsAtom);
 
-  return useBaseChat({
+  return useChat({
     id: chatId,
     // api: import.meta.env.VITE_CHAT_ENDPOINT,
     maxSteps: 10,
@@ -61,7 +58,7 @@ export const useChat = ({
         const { pdfId, startPage, endPage } =
           toolCall.args as GetPDFPageTextParameters;
 
-        const text = await getPageText({
+        const text = await getPdfTexts({
           pdfId,
           startPage,
           endPage,
@@ -72,7 +69,7 @@ export const useChat = ({
 
       if (toolCall.toolName === "searchPages") {
         const { pdfId, query } = toolCall.args as SearchPagesParameters;
-        const result = await searchPages(pdfId, query);
+        const result = await searchPages({ pdfId, query });
         return result;
       }
 
@@ -83,7 +80,6 @@ export const useChat = ({
       // }
     },
     fetch: async (input, init) => {
-      const openedPdfs = await getOpenedPdfsMetadata();
       if (!openedPdfs || openedPdfs.length === 0) {
         toast.error("No opened PDFs");
         return new Response("No opened PDFs");
@@ -127,12 +123,21 @@ export const useChat = ({
       const messagesWithContext = buildMessages(messages, data?.contexts);
       setActiveContexts([]);
 
-      const res = await createChatStream({
-        input,
-        init,
-        system,
-        messages: messagesWithContext as any,
-        useCustomModel: true,
+      const res = await createDataStreamResponse({
+        execute: (dataStream) => {
+          dataStream.writeMessageAnnotation({
+            modelId: model.modelId,
+          });
+          const res = streamText({
+            model,
+            system,
+            messages: messagesWithContext as any,
+            tools,
+            toolCallStreaming: true,
+            abortSignal: init?.signal || undefined,
+          });
+          res.mergeIntoDataStream(dataStream);
+        },
       });
       if (!res) {
         return new Response("Something went wrong, please try again");

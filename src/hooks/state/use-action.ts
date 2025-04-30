@@ -1,3 +1,4 @@
+import { useMutation, UseMutationOptions } from "@tanstack/react-query";
 import { WritableAtom, useSetAtom } from "jotai";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -18,23 +19,22 @@ export const useAction = <Value, Args extends unknown[], Result>(
   }
 ) => {
   const actionFn = useSetAtom(atom);
-  const [isRunning, setIsRunning] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const actionFnWrapped = async (
     ...args: Args
   ): Promise<Result | undefined> => {
     try {
-      setIsRunning(true);
-      if (messages) {
-        const { loading, success, error } = messages(...args);
-        const result = toast.promise(actionFn(...args) as Promise<Result>, {
-          loading,
-          success,
-          error,
-        });
-        return await result.unwrap();
-      }
-      return await actionFn(...args);
+      setIsLoading(true);
+
+      const result = await (messages
+        ? toast
+            .promise(actionFn(...args) as Promise<Result>, messages(...args))
+            .unwrap()
+        : actionFn(...args));
+      setHasError(false);
+      return result;
     } catch (error) {
       console.error("Action error:", error);
       const message =
@@ -43,10 +43,22 @@ export const useAction = <Value, Args extends unknown[], Result>(
           ? error.message
           : "An unexpected error occurred");
       toast.error(message);
+      setHasError(true);
     } finally {
-      setIsRunning(false);
+      setIsLoading(false);
     }
   };
-
-  return [actionFnWrapped, isRunning] as const;
+  // return { action: actionFnWrapped, hasError, isLoading };
+  return [actionFnWrapped, isLoading] as const;
 };
+
+// export const useAction = <Value, Arg, Result>(
+//   atom: WritableAtom<Value, [Arg], Result>,
+//   options?: UseMutationOptions<Result, unknown, Arg>
+// ) => {
+//   const actionFn = useSetAtom(atom);
+//   return useMutation({
+//     mutationFn: async (arg) => await actionFn(arg),
+//     ...options,
+//   });
+// };

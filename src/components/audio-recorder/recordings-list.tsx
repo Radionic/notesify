@@ -1,11 +1,11 @@
 import { Mic } from "lucide-react";
-import { recordingsAtomLoadable } from "@/atoms/recording/audio-recorder";
 import { RecordingItem } from "./recording-item";
 import { cn } from "@/lib/utils";
-import { useLoadable } from "@/hooks/state/use-loadable";
+import { useRecordings } from "@/queries/recording/use-recording";
 
 export const RecordingsList = ({ className }: { className?: string }) => {
-  const recordings = useLoadable(recordingsAtomLoadable);
+  const { data: recordings } = useRecordings();
+
   if (!recordings || recordings.length === 0) {
     return (
       <div

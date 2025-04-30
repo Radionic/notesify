@@ -1,27 +1,55 @@
-import { formatDistanceToNowStrict } from "date-fns";
-import { useSetAtom } from "jotai";
+import { format, isToday, isYesterday, startOfDay } from "date-fns";
+import { useMemo } from "react";
+import { type Chat } from "@/db/schema/chat/chats";
+import { ThreadGroup } from "./thread-group";
 
-import { Button } from "@/components/ui/button";
+type GroupedChats = Record<string, Chat[]>;
 
-import { GroupedChats } from "./types";
-import { threadFinderOpenAtom } from "@/atoms/chat/chats";
+const formatDateHeader = (dateStr: string): string => {
+  const date = new Date(dateStr);
+  if (isToday(date)) {
+    return "Today";
+  }
+  if (isYesterday(date)) {
+    return "Yesterday";
+  }
+  return format(date, "MMMM d, yyyy");
+};
 
-interface ThreadListProps {
-  groupedChats: GroupedChats;
-  sortedDates: string[];
-  formatDateHeader: (date: string) => string;
-  activeChatId: string;
-  setActiveChatId: (id: string) => void;
-}
+export const ThreadList = ({ chatrooms }: { chatrooms?: Chat[] }) => {
+  // Group chats by date
+  const { groupedChats, sortedDates } = useMemo(() => {
+    if (!chatrooms) {
+      return { groupedChats: {}, sortedDates: [] };
+    }
 
-export const ThreadList = ({
-  groupedChats,
-  sortedDates,
-  formatDateHeader,
-  activeChatId,
-  setActiveChatId,
-}: ThreadListProps) => {
-  const setThreadFinderOpen = useSetAtom(threadFinderOpenAtom);
+    const grouped: GroupedChats = {};
+    chatrooms.forEach((chat) => {
+      const dateKey = startOfDay(chat.updatedAt).toISOString();
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey].push(chat);
+    });
+
+    Object.values(grouped).forEach((group) => {
+      group.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+    });
+
+    const sortedDates = Object.keys(grouped).sort(
+      (a, b) => new Date(b).getTime() - new Date(a).getTime()
+    );
+
+    return { groupedChats: grouped, sortedDates };
+  }, [chatrooms]);
+
+  if (!chatrooms || chatrooms.length === 0) {
+    return (
+      <div className="text-center text-muted-foreground p-4">
+        No chats found.
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -30,30 +58,8 @@ export const ThreadList = ({
           <div className="text-sm font-medium text-muted-foreground px-2">
             {formatDateHeader(dateStr)}
           </div>
-          {groupedChats[dateStr].map((chat) => {
-            const isActive = chat.id === activeChatId;
 
-            return (
-              <Button
-                key={chat.id}
-                variant={isActive ? "secondary" : "ghost"}
-                className="w-full justify-start"
-                onClick={() => {
-                  setActiveChatId(chat.id);
-                  setThreadFinderOpen(false);
-                }}
-              >
-                <div className="flex flex-row justify-between items-center w-full">
-                  <span className="truncate">{chat.title || "New Chat"}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {formatDistanceToNowStrict(chat.updatedAt, {
-                      addSuffix: true,
-                    })}
-                  </span>
-                </div>
-              </Button>
-            );
-          })}
+          <ThreadGroup chats={groupedChats[dateStr]} />
         </div>
       ))}
     </div>

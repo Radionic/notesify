@@ -1,4 +1,3 @@
-import { deleteRecordingAtom } from "@/actions/recording/audio-recorder";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,19 +8,22 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useSetAtom } from "jotai";
+import { Recording } from "@/db/schema";
+import { useRemoveRecording } from "@/queries/recording/use-recording";
 
 export const DeleteDialog = ({
   isOpen,
   onOpenChange,
+  recording,
 }: {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  recording: Recording;
 }) => {
-  const deleteRecording = useSetAtom(deleteRecordingAtom);
+  const { mutateAsync: removeRecording } = useRemoveRecording();
 
   const handleDelete = () => {
-    deleteRecording();
+    removeRecording({ id: recording.id });
     onOpenChange(false);
   };
 

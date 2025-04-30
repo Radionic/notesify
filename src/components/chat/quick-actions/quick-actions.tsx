@@ -8,7 +8,7 @@ import {
 import { EditSuggestionDialog } from "../../pdf/dialog/edit-suggestion-dialog";
 import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
-import { useChat } from "@/hooks/chat/use-chat";
+import { useChatAI } from "@/hooks/chat/use-chat-ai";
 import { getSelectedModelAtom } from "@/actions/setting/providers";
 import { useAction } from "@/hooks/state/use-action";
 
@@ -18,7 +18,7 @@ export const QuickActions = () => {
   const [editSuggestion, setEditSuggestion] = useAtom(editSuggestionDialogAtom);
   const pdfId = useAtomValue(activePdfIdAtom);
   const chatId = useAtomValue(activeChatIdAtom);
-  const { append, status } = useChat({ chatId, pdfId });
+  const { append, status } = useChatAI({ chatId, pdfId });
   const isLoading = status === "submitted" || status === "streaming";
 
   return (

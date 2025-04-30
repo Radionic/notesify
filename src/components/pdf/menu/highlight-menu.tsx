@@ -3,11 +3,6 @@ import { Copy, Sparkles, Trash } from "lucide-react";
 import { toast } from "sonner";
 
 import { addContextAtom } from "@/actions/chat/contexts";
-import {
-  changeHighlightColorAtom,
-  copyHighlightAtom,
-  deleteHighlightAtom,
-} from "@/actions/pdf/highlights";
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
 import { Separator } from "@/components/ui/separator";
 import { calcBoundingRect } from "@/lib/pdf/rects";
@@ -17,16 +12,20 @@ import { HighlightOptions } from "./highlight-options";
 import { Menu } from "./menu";
 import { generateId } from "@/lib/id";
 import { chatsOpenAtom } from "@/atoms/chat/chats";
-import { useAction } from "@/hooks/state/use-action";
 import { activeHighlightAtom } from "@/atoms/pdf/highlights";
+import {
+  useChangeHighlightColor,
+  useCopyHighlight,
+  useDeleteHighlight,
+} from "@/queries/pdf/use-highlight";
 
 export const HighlightMenu = ({ pdfId }: { pdfId: string }) => {
   const [activeHighlight, setActiveHighlight] = useAtom(activeHighlightAtom);
   const setChatsOpen = useSetAtom(chatsOpenAtom);
   const addContext = useSetAtom(addContextAtom);
-  const [copyHighlight] = useAction(copyHighlightAtom);
-  const [deleteHighlight] = useAction(deleteHighlightAtom);
-  const [changeHighlightColor] = useAction(changeHighlightColorAtom);
+  const { mutateAsync: deleteHighlight } = useDeleteHighlight();
+  const { mutateAsync: copyHighlight } = useCopyHighlight();
+  const { mutateAsync: changeHighlightColor } = useChangeHighlightColor();
   const dismissMenu = () => setActiveHighlight(undefined);
 
   if (!activeHighlight?.rects || activeHighlight.pdfId !== pdfId) {

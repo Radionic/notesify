@@ -1,7 +1,6 @@
 import { atom } from "jotai";
 
 import { Rect } from "@/lib/types";
-import { atomWithStorage } from "jotai/utils";
 
 export type Context = {
   id: string;
@@ -15,8 +14,3 @@ export type Context = {
 export const activeContextsAtom = atom<Context[]>([]);
 export const activePreviewContextAtom = atom<Context>();
 export const activeBoundingContextAtom = atom<Context>();
-
-export const useViewingPagesAtom = atomWithStorage<boolean>(
-  "use-viewing-pages",
-  true
-);

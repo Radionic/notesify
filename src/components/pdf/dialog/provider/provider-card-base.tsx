@@ -5,10 +5,9 @@ import { PasswordInput } from "@/components/origin-ui/inputs";
 import { toast } from "sonner";
 import { useState } from "react";
 import { ProviderSettings } from "@/atoms/setting/providers";
-import { verifySettingsAtom } from "@/actions/setting/providers";
 import { ProviderConfig } from "../provider-settings-dialog";
 import { Pencil, Plus, Trash } from "lucide-react";
-import { useAction } from "@/hooks/state/use-action";
+import { useVerifyKey } from "@/queries/setting/use-api-provider";
 
 const EditForm = ({
   providerConfig,
@@ -22,11 +21,8 @@ const EditForm = ({
   onSave: (settings: ProviderSettings, providerId?: string) => void;
 }) => {
   const [tempSettings, setTempSettings] = useState<ProviderSettings>(settings);
-  const [verifySettings, isVerifying] = useAction(verifySettingsAtom, () => ({
-    loading: "Verifying...",
-    success: "Verified key successfully",
-    error: "Failed to verify key",
-  }));
+  const { mutateAsync: verifySettings, isPending: isVerifying } =
+    useVerifyKey();
 
   const handleVerify = async () => {
     if (!tempSettings.apiKey) {
@@ -34,7 +30,10 @@ const EditForm = ({
       return;
     }
 
-    const verified = await verifySettings(tempSettings, providerConfig.id);
+    const verified = await verifySettings({
+      settings: tempSettings,
+      providerId: providerConfig.id,
+    });
     if (verified) {
       onSave(tempSettings, providerConfig.id);
     }

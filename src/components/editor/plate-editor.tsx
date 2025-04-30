@@ -4,25 +4,22 @@ import { Plate } from "@udecode/plate/react";
 import { useCreateEditor } from "@/components/editor/use-create-editor";
 import { Editor, EditorContainer } from "@/components/plate-ui/editor";
 import { useEffect, useRef, useCallback, useState } from "react";
-import { updateNotesAtom } from "@/actions/notes/notes";
 import { useDebouncedCallback } from "use-debounce";
 import { StatesPlugin } from "../plate-ui/custom/states";
-import { useLoadable } from "@/hooks/state/use-loadable";
-import { notesAtomFamilyLoadable } from "@/atoms/notes/notes";
-import { useAction } from "@/hooks/state/use-action";
+import { useNotes, useUpdateNotes } from "@/queries/notes/use-notes";
 
 export function PlateEditor({ notesId }: { notesId: string }) {
   const initedNotesId = useRef<string>("");
   const editor = useCreateEditor();
-  const notes = useLoadable(notesAtomFamilyLoadable(notesId));
-  const [updateNotes] = useAction(updateNotesAtom);
+  const { data: notes } = useNotes({ notesId });
+  const { mutateAsync: updateNotes } = useUpdateNotes();
   const [readOnly, setReadOnly] = useState(false);
   const hasUnsavedChanges = useRef<boolean>(false);
 
   const saveNotes = useCallback(
     (notesId: string, value: any) => {
       console.log("Saving notes", value);
-      updateNotes({ id: notesId, content: JSON.stringify(value) });
+      updateNotes({ notesId, content: JSON.stringify(value) });
       hasUnsavedChanges.current = false;
     },
     [updateNotes]

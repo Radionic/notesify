@@ -7,13 +7,12 @@ import {
   selectedPenColorAtomFamily,
   selectedPenSizeAtomFamily,
 } from "@/atoms/pdf/annotator-options";
-import {
-  createAnnotationAtom,
-  removeAnnotationAtom,
-} from "@/actions/pdf/annontations";
-import { annotationsByPageAtomFamilyLoadable } from "@/atoms/pdf/annotations";
 import { cn } from "@/lib/utils";
-import { useAction } from "@/hooks/state/use-action";
+import {
+  useAnnotationsByPage,
+  useCreateAnnotation,
+  useRemoveAnnotations,
+} from "@/queries/pdf/use-annotation";
 
 export const AnnotatorLayer = ({
   pdfId,
@@ -25,11 +24,9 @@ export const AnnotatorLayer = ({
   const svgRef = useRef<SVGSVGElement | null>(null);
   const pathRefs = useRef<(SVGPathElement | null)[]>([]);
 
-  const annotationsLoadable = useAtomValue(
-    annotationsByPageAtomFamilyLoadable(pdfId)
-  );
-  const [createAnnotation] = useAction(createAnnotationAtom);
-  const [removeAnnotation] = useAction(removeAnnotationAtom);
+  const annotationsByPage = useAnnotationsByPage({ pdfId });
+  const { mutateAsync: createAnnotation } = useCreateAnnotation();
+  const { mutateAsync: removeAnnotations } = useRemoveAnnotations();
 
   const annotator = useAtomValue(activeAnnotatorAtomFamily(pdfId));
   const penSize = useAtomValue(selectedPenSizeAtomFamily(pdfId));
@@ -58,11 +55,6 @@ export const AnnotatorLayer = ({
       { passive: false }
     );
   }, []);
-
-  if (annotationsLoadable.state !== "hasData") {
-    return null;
-  }
-  const { data: annotations } = annotationsLoadable;
 
   const getActiveToolSize = () => {
     switch (annotator) {
@@ -123,7 +115,7 @@ export const AnnotatorLayer = ({
       });
       setCurrentPath("");
     } else if (annotator === "eraser") {
-      removeAnnotation({ pdfId, ids: Array.from(erasingPaths) });
+      removeAnnotations({ pdfId, ids: Array.from(erasingPaths) });
       setErasingPaths(new Set());
     }
   };
@@ -143,7 +135,7 @@ export const AnnotatorLayer = ({
 
       const newErasingPaths = new Set(erasingPaths);
       pathRefs.current.forEach((pathRef, index) => {
-        const annotation = annotations[pageNumber][index];
+        const annotation = annotationsByPage[pageNumber][index];
         if (pathRef && shouldErasePath(pathRef, x, y, scaledEraserSize)) {
           newErasingPaths.add(annotation.id);
         }
@@ -188,7 +180,7 @@ export const AnnotatorLayer = ({
       onPointerMove={draw}
       onPointerUp={stopDrawing}
     >
-      {annotations[pageNumber]?.map((ann, index) => (
+      {annotationsByPage[pageNumber]?.map((ann, index) => (
         <path
           key={index}
           ref={(el) => {

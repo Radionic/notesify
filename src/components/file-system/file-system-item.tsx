@@ -10,16 +10,14 @@ import { Button } from "@/components/ui/button";
 import { ItemMenu } from "./item-menu";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import {
-  removeNodeAtom,
-  renameNodeAtom,
-} from "@/actions/file-system/file-system";
 import { openedPdfIdsAtom } from "@/atoms/pdf/pdf-viewer";
 import { Badge } from "@/components/badge";
 import { FileNode } from "@/db/schema";
-import { downloadPdfAtom } from "@/actions/pdf/pdf";
-import { useNavigatePdf } from "@/hooks/pdf/use-navigate-pdf";
-import { useAction } from "@/hooks/state/use-action";
+import {
+  useRemovePdf,
+  useRenamePdf,
+} from "@/queries/file-system/use-file-system";
+import { useDownloadPdf, useNavigatePdf } from "@/queries/pdf/use-pdf";
 
 export interface FileSystemItemProps {
   node: FileNode;
@@ -34,18 +32,10 @@ export const FileSystemItem = ({ node, level = 0 }: FileSystemItemProps) => {
   const [isRenaming, setIsRenaming] = useState(false);
   const [newName, setNewName] = useState(node.name);
 
-  const [removeNode] = useAction(removeNodeAtom, () => ({
-    loading: "Removing...",
-    success: "Removed successfully",
-  }));
-  const [renameNode] = useAction(renameNodeAtom, () => ({
-    loading: "Renaming...",
-    success: "Renamed successfully",
-  }));
-  const [downloadPDF] = useAction(downloadPdfAtom, () => ({
-    loading: "Downloading...",
-    success: "Downloaded successfully",
-  }));
+  // For pdf only now
+  const { mutate: removeNode } = useRemovePdf();
+  const { mutate: renameNode } = useRenamePdf();
+  const { mutateAsync: downloadPdf } = useDownloadPdf();
 
   const { navigatePdf } = useNavigatePdf();
 
@@ -71,7 +61,7 @@ export const FileSystemItem = ({ node, level = 0 }: FileSystemItemProps) => {
       return;
     }
 
-    await renameNode({ nodeId: node.id, newName: newName.trim() });
+    await renameNode({ pdfId: node.id, newName: newName.trim() });
     setIsRenaming(false);
   };
 
@@ -80,7 +70,7 @@ export const FileSystemItem = ({ node, level = 0 }: FileSystemItemProps) => {
       toast.error("Not a PDF file");
       return;
     }
-    await downloadPDF(node.id, node.name);
+    await downloadPdf({ pdfId: node.id, filename: node.name });
   };
 
   const handleRemove = async () => {
@@ -92,7 +82,7 @@ export const FileSystemItem = ({ node, level = 0 }: FileSystemItemProps) => {
       toast.error("Cannot remove currently opened PDF");
       return;
     }
-    await removeNode({ id: node.id, pdfId: node.id });
+    await removeNode({ fileId: node.id });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

@@ -1,8 +1,8 @@
-import { CoreUserMessage, Message } from "ai";
+import { CoreUserMessage, generateText, LanguageModelV1, Message } from "ai";
 
 import { Context } from "@/atoms/chat/contexts";
-import { PDFMetadata } from "@/actions/pdf/pdf-viewer";
 import { thinkingPrompt } from "../prompts/thinking";
+import { PDFMetadata } from "@/actions/pdf/pdf-viewer";
 
 const buildTextContent = (content: string, contexts?: Context[]) => {
   const textContext = contexts
@@ -69,4 +69,27 @@ export const buildMessages = (messages: Message[], contexts?: Context[]) => {
       content: [textContent, ...imageContent].filter(Boolean),
     } as CoreUserMessage,
   ];
+};
+
+export const generateTitle = async (
+  model: LanguageModelV1,
+  messages: Message[]
+) => {
+  let text = "";
+  for (const message of messages) {
+    if (message.role === "user") {
+      text += `User: ${message.content}\n`;
+    } else if (message.role === "assistant" && message.content) {
+      text += `AI: ${message.content}\n`;
+    }
+  }
+  text = text.slice(0, 1000);
+
+  const prompt = `Create a short title, starting with a meaningful emoji, for the following text. Do not use Markdown.\n${text}`;
+  const res = await generateText({
+    model,
+    prompt,
+  });
+  const title = res.text;
+  return title;
 };

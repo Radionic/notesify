@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { createRoot, Root } from "react-dom/client";
 import { useAtomValue } from "jotai";
 import { viewerAtomFamily } from "@/atoms/pdf/pdf-viewer";
+import { QueryClientProvider, useQueryClient } from "@tanstack/react-query";
 
 export const Layer = ({
   pdfId,
@@ -19,6 +20,7 @@ export const Layer = ({
   //     {children}
   //   </div>
   // );
+  const queryClient = useQueryClient();
   const myLayer = useRef<HTMLDivElement | null>(null);
   const rootRef = useRef<Root | null>(null);
   const viewer = useAtomValue(viewerAtomFamily(pdfId));
@@ -38,7 +40,12 @@ export const Layer = ({
 
       const root = createRoot(newLayer);
       rootRef.current = root;
-      root.render(children);
+
+      root.render(
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      );
     }
   }, [children, viewer]);
 

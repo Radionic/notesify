@@ -23,11 +23,14 @@ export const ChatMessage = ({
   const renderTool = (tool: ToolInvocation) => {
     if (tool.toolName === "getPDFPageText") {
       return <GetPageTextTool tool={tool} />;
-    } else if (tool.toolName === "searchText") {
+    }
+    if (tool.toolName === "searchText") {
       return <SearchTextTool tool={tool} />;
-    } else if (tool.toolName === "calculate") {
+    }
+    if (tool.toolName === "calculate") {
       return <CalculateTool tool={tool} />;
-    } else if (tool.toolName === "searchPages") {
+    }
+    if (tool.toolName === "searchPages") {
       return <SearchPagesTool tool={tool} />;
     }
   };
@@ -49,7 +52,8 @@ export const ChatMessage = ({
           {message.parts?.map((part) => {
             if (part.type === "text") {
               return <MarkdownRenderer content={part.text} />;
-            } else if (part.type === "tool-invocation") {
+            }
+            if (part.type === "tool-invocation") {
               const tool = part.toolInvocation;
               return renderTool(tool);
             }

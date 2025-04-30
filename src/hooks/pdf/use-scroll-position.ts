@@ -1,12 +1,11 @@
+import { useUpdatePdf } from "@/queries/pdf/use-pdf";
 import { useEffect } from "react";
-import { useSetAtom } from "jotai";
-import { updatePdfAtom } from "@/actions/pdf/pdf-viewer";
 
 export const useScrollPosition = (
   pdfId: string,
   containerRef: React.RefObject<HTMLDivElement | null>
 ) => {
-  const setScrollPositions = useSetAtom(updatePdfAtom);
+  const { mutate: setScrollPositions } = useUpdatePdf();
 
   // Save scroll position when scrolling
   useEffect(() => {

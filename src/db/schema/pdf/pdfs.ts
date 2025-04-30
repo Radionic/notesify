@@ -10,12 +10,15 @@ export const pdfsTable = sqliteTable("pdfs", {
   id: text("id")
     .primaryKey()
     .references(() => filesTable.id, { onDelete: "cascade" }),
-  pageCount: integer("page_count").notNull(),
-  scroll: text("scroll", { mode: "json" }).$type<ScrollPosition>().default({
-    x: 0,
-    y: 0,
-  }),
-  zoom: integer("zoom").default(1),
+  pageCount: integer("page_count").notNull().default(0),
+  scroll: text("scroll", { mode: "json" })
+    .$type<ScrollPosition>()
+    .notNull()
+    .default({
+      x: 0,
+      y: 0,
+    }),
+  zoom: integer("zoom").notNull().default(1),
 });
 
 export type Pdf = typeof pdfsTable.$inferSelect;

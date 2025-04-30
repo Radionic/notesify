@@ -8,6 +8,7 @@ import Markdown from "react-markdown";
 import AnimatedShinyText from "@/components/magic-ui/animated-shiny-text";
 import { markdownClassname } from "./markdown-renderer";
 import rehypeKatex from "rehype-katex";
+import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import "katex/dist/katex.min.css";
 
@@ -39,7 +40,7 @@ export const Thinking = ({
         <AccordionContent className="pb-2 ps-7 text-muted-foreground text-wrap">
           <div className={markdownClassname}>
             <Markdown
-              remarkPlugins={[remarkMath]}
+              remarkPlugins={[remarkGfm, remarkMath]}
               rehypePlugins={[rehypeKatex]}
             >
               {text}

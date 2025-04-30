@@ -3,6 +3,7 @@ import { Thinking } from "./thinking";
 import { ReactNode } from "@tanstack/react-router";
 import React from "react";
 import rehypeKatex from "rehype-katex";
+import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import "@/styles/katex.css";
 
@@ -49,7 +50,7 @@ const MarkdownRenderer = ({ content }: { content: string }) => {
     <div className={markdownClassname}>
       <ReactMarkdown
         components={components}
-        remarkPlugins={[remarkMath]}
+        remarkPlugins={[remarkGfm, remarkMath]}
         rehypePlugins={[rehypeKatex]}
       >
         {content}

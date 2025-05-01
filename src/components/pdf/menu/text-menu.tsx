@@ -14,7 +14,7 @@ import { Menu } from "./menu";
 import { toast } from "sonner";
 import { generateId } from "@/lib/id";
 import { chatsOpenAtom } from "@/atoms/chat/chats";
-import { useAddHighlight } from "@/queries/pdf/use-highlight";
+import { useCreateHighlight } from "@/queries/pdf/use-highlight";
 
 export const TextMenu = ({
   pdfId,
@@ -25,7 +25,7 @@ export const TextMenu = ({
 }) => {
   const setChatsOpen = useSetAtom(chatsOpenAtom);
   const addContext = useSetAtom(addContextAtom);
-  const { mutateAsync: addHighlight } = useAddHighlight();
+  const { mutateAsync: createHighlight } = useCreateHighlight();
   const selectedColor = useAtomValue(selectedHighlightColorAtom);
   const { isSelecting, activeTextSelection, clearSelection } = useTextSelection(
     { pdfId, container }
@@ -66,12 +66,14 @@ export const TextMenu = ({
         <TooltipButton
           tooltip="Highlight"
           onPointerDown={() => {
-            addHighlight({
-              pdfId,
-              text,
-              rects,
-              color: selectedColor,
-              pageNumber: rects[0].page,
+            createHighlight({
+              highlight: {
+                pdfId,
+                text,
+                rects,
+                color: selectedColor,
+                pageNumber: rects[0].page,
+              },
             });
             dismissMenu();
           }}
@@ -79,12 +81,14 @@ export const TextMenu = ({
           <LuHighlighter />
           <HighlightOptions
             onChange={(color) => {
-              addHighlight({
-                pdfId,
-                text,
-                rects,
-                color,
-                pageNumber: rects[0].page,
+              createHighlight({
+                highlight: {
+                  pdfId,
+                  text,
+                  rects,
+                  color,
+                  pageNumber: rects[0].page,
+                },
               });
               dismissMenu();
             }}

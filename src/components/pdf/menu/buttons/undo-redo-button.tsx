@@ -1,14 +1,9 @@
-import { redoAtom, undoAtom } from "@/actions/pdf/history";
-import { canRedoAtom, canUndoAtom } from "@/atoms/pdf/history";
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
-import { useAtomValue, useSetAtom } from "jotai";
+import { useUndoRedo } from "@/queries/pdf/use-pdf-history";
 import { Redo2, Undo2 } from "lucide-react";
 
 export const UndoRedoButton = ({ pdfId }: { pdfId: string }) => {
-  const canUndo = useAtomValue(canUndoAtom(pdfId));
-  const canRedo = useAtomValue(canRedoAtom(pdfId));
-  const undo = useSetAtom(undoAtom);
-  const redo = useSetAtom(redoAtom);
+  const { canUndo, canRedo, undo, redo } = useUndoRedo({ pdfId });
 
   return (
     <>
@@ -16,8 +11,7 @@ export const UndoRedoButton = ({ pdfId }: { pdfId: string }) => {
         tooltip="Undo"
         disabled={!canUndo}
         onClick={() => {
-          if (!pdfId) return;
-          undo(pdfId);
+          undo();
         }}
       >
         <Undo2 />
@@ -26,8 +20,7 @@ export const UndoRedoButton = ({ pdfId }: { pdfId: string }) => {
         tooltip="Redo"
         disabled={!canRedo}
         onClick={() => {
-          if (!pdfId) return;
-          redo(pdfId);
+          redo();
         }}
       >
         <Redo2 />

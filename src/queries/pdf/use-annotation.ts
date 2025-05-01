@@ -1,20 +1,21 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { dbService } from "@/lib/db";
 import { Annotation } from "@/db/schema";
+import { useSetAtom } from "jotai";
+import { pushActionAtom } from "@/actions/pdf/history";
 
-export const useAnnotation = ({ id }: { id: string }) => {
-  return useQuery({
-    queryKey: ["annotations", id],
-    queryFn: () => dbService.annotation.getAnnotation(id),
-  });
-};
+// export const useAnnotation = ({ id }: { id: string }) => {
+//   return useQuery({
+//     queryKey: ["annotations", id],
+//     queryFn: () => dbService.annotation.getAnnotation(id),
+//   });
+// };
 
-export const useAnnotations = ({ pdfId }: { pdfId: string }) => {
-  return useQuery({
+export const useAnnotations = ({ pdfId }: { pdfId: string }) =>
+  useQuery({
     queryKey: ["annotations", "pdf", pdfId],
     queryFn: () => dbService.annotation.getAnnotations({ pdfId }),
   });
-};
 
 export const useAnnotationsByPage = ({ pdfId }: { pdfId: string }) => {
   const { data: annotations } = useAnnotations({ pdfId });
@@ -31,45 +32,78 @@ export const useAnnotationsByPage = ({ pdfId }: { pdfId: string }) => {
   return annotationsByPage;
 };
 
-export const useCreateAnnotation = () => {
+export const useCreateAnnotations = () => {
   const queryClient = useQueryClient();
+  const pushHistory = useSetAtom(pushActionAtom);
 
   return useMutation({
-    mutationFn: async (annotation: Omit<Annotation, "id">) => {
-      const id = await dbService.annotation.createAnnotation({ annotation });
-      return { id, ...annotation };
+    mutationFn: async ({
+      annotations,
+      saveHistory = true,
+    }: {
+      annotations: Omit<Annotation, "id">[];
+      saveHistory?: boolean;
+    }) => {
+      const newAnnotations = await dbService.annotation.createAnnotations({
+        annotations,
+      });
+      if (saveHistory) {
+        pushHistory({
+          action: "create",
+          type: "annotation",
+          pdfId: annotations[0].pdfId,
+          data: newAnnotations,
+        });
+      }
+      return newAnnotations;
     },
-    onSuccess: (annotation) => {
-      queryClient.setQueryData<Annotation>(
-        ["annotations", annotation.id],
-        annotation
-      );
+    onSuccess: (annotations) => {
       queryClient.setQueryData<Annotation[]>(
-        ["annotations", "pdf", annotation.pdfId],
-        (oldData) => {
-          if (!oldData) return [annotation];
-          return [...oldData, annotation];
-        }
+        ["annotations", "pdf", annotations[0].pdfId],
+        (oldData = []) => [...oldData, ...annotations]
       );
     },
   });
 };
 
-export const useRemoveAnnotations = () => {
+export const useDeleteAnnotations = () => {
   const queryClient = useQueryClient();
+  const pushHistory = useSetAtom(pushActionAtom);
 
   return useMutation({
-    mutationFn: async ({ ids }: { pdfId: string; ids: string[] }) => {
-      await dbService.annotation.removeAnnotations({ ids });
+    mutationFn: async ({
+      ids,
+      pdfId,
+      saveHistory = true,
+    }: {
+      ids: string[];
+      pdfId: string;
+      saveHistory?: boolean;
+    }) => {
+      if (ids.length === 0) return;
+
+      await dbService.annotation.deleteAnnotations({ ids });
+      if (saveHistory) {
+        const annotations = queryClient.getQueryData<Annotation[]>([
+          "annotations",
+          "pdf",
+          pdfId,
+        ]);
+        if (annotations) {
+          pushHistory({
+            action: "delete",
+            type: "annotation",
+            data: annotations,
+            pdfId,
+          });
+        }
+      }
     },
-    onSuccess: (_, { pdfId, ids }) => {
-      queryClient.invalidateQueries({
-        queryKey: ["annotations", "pdf", pdfId],
-      });
-      // Invalidate individual annotation queries
-      ids.forEach((id) => {
-        queryClient.invalidateQueries({ queryKey: ["annotations", id] });
-      });
+    onSuccess: (_, { ids, pdfId }) => {
+      queryClient.setQueryData<Annotation[]>(
+        ["annotations", "pdf", pdfId],
+        (oldData = []) => oldData.filter((a) => !ids.includes(a.id))
+      );
     },
   });
 };

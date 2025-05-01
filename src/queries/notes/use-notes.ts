@@ -128,8 +128,6 @@ export const useGenerateSummary = ({ notesId }: { notesId: string }) => {
     const abortSignal = new AbortController();
     setGeneratingSignal(abortSignal);
 
-    console.log("Hi!");
-
     const model = await getModel("Chat");
     if (!model) {
       return;
@@ -140,8 +138,6 @@ export const useGenerateSummary = ({ notesId }: { notesId: string }) => {
       abortSignal: abortSignal.signal,
       maxTokens: 8192,
     });
-
-    console.log("Yo!");
 
     let summaryPart = "";
     let lastUpdateTime = Date.now();

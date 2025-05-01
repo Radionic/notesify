@@ -10,8 +10,8 @@ import {
 import { cn } from "@/lib/utils";
 import {
   useAnnotationsByPage,
-  useCreateAnnotation,
-  useRemoveAnnotations,
+  useCreateAnnotations,
+  useDeleteAnnotations,
 } from "@/queries/pdf/use-annotation";
 
 export const AnnotatorLayer = ({
@@ -25,8 +25,8 @@ export const AnnotatorLayer = ({
   const pathRefs = useRef<(SVGPathElement | null)[]>([]);
 
   const annotationsByPage = useAnnotationsByPage({ pdfId });
-  const { mutateAsync: createAnnotation } = useCreateAnnotation();
-  const { mutateAsync: removeAnnotations } = useRemoveAnnotations();
+  const { mutateAsync: createAnnotations } = useCreateAnnotations();
+  const { mutateAsync: deleteAnnotations } = useDeleteAnnotations();
 
   const annotator = useAtomValue(activeAnnotatorAtomFamily(pdfId));
   const penSize = useAtomValue(selectedPenSizeAtomFamily(pdfId));
@@ -105,17 +105,21 @@ export const AnnotatorLayer = ({
     if (!isDrawing.current || !pdfId) return;
     isDrawing.current = false;
     if (annotator === "pen" || annotator === "highlighter") {
-      createAnnotation({
-        pdfId,
-        type: annotator,
-        page: pageNumber,
-        path: currentPath,
-        color: getActiveToolColor(),
-        size: getActiveToolSize(),
+      createAnnotations({
+        annotations: [
+          {
+            pdfId,
+            type: annotator,
+            page: pageNumber,
+            path: currentPath,
+            color: getActiveToolColor(),
+            size: getActiveToolSize(),
+          },
+        ],
       });
       setCurrentPath("");
     } else if (annotator === "eraser") {
-      removeAnnotations({ pdfId, ids: Array.from(erasingPaths) });
+      deleteAnnotations({ pdfId, ids: Array.from(erasingPaths) });
       setErasingPaths(new Set());
     }
   };
@@ -135,7 +139,7 @@ export const AnnotatorLayer = ({
 
       const newErasingPaths = new Set(erasingPaths);
       pathRefs.current.forEach((pathRef, index) => {
-        const annotation = annotationsByPage[pageNumber][index];
+        const annotation = annotationsByPage[pageNumber]?.[index];
         if (pathRef && shouldErasePath(pathRef, x, y, scaledEraserSize)) {
           newErasingPaths.add(annotation.id);
         }

@@ -19,23 +19,26 @@ export const getAnnotations = async ({ pdfId }: { pdfId: string }) => {
   return annotations;
 };
 
-export const createAnnotation = async ({
-  annotation,
+export const createAnnotations = async ({
+  annotations,
 }: {
-  annotation: Omit<Annotation, "id">;
+  annotations: Omit<Annotation, "id">[];
 }) => {
   const db = await getDB();
-  const id = generateId();
-  await db.insert(annotationsTable).values({ id, ...annotation });
-  return id;
+  const newAnnotations = annotations.map((ann) => ({
+    id: generateId(),
+    ...ann,
+  }));
+  await db.insert(annotationsTable).values(newAnnotations);
+  return newAnnotations;
 };
 
-export const removeAnnotation = async ({ id }: { id: string }) => {
+export const deleteAnnotation = async ({ id }: { id: string }) => {
   const db = await getDB();
   await db.delete(annotationsTable).where(eq(annotationsTable.id, id));
 };
 
-export const removeAnnotations = async ({ ids }: { ids: string[] }) => {
+export const deleteAnnotations = async ({ ids }: { ids: string[] }) => {
   if (ids.length === 0) return;
 
   const db = await getDB();

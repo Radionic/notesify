@@ -5,20 +5,12 @@ import { buildMessages, buildSystemMessage } from "@/lib/chat/chat";
 import { createDataStreamResponse, Message, streamText } from "ai";
 import { useChat } from "@ai-sdk/react";
 import { useAtomValue, useSetAtom } from "jotai";
-import { evaluate } from "mathjs";
 import { getSelectedModelAtom } from "@/actions/setting/providers";
 import { useAction } from "../state/use-action";
 import { toast } from "sonner";
-import {
-  tools,
-  CalculateParameters,
-  GetPDFPageTextParameters,
-  SearchPagesParameters,
-} from "@/lib/chat/tools";
+import { tools } from "@/lib/chat/tools";
 import { useMessages, useSaveMessage } from "@/queries/chat/use-messages";
-import { useSearchPdfPages } from "@/queries/pdf/use-indexed-pdf";
 import { useOpenedPdfs } from "@/queries/pdf/use-pdf";
-import { useGetPdfTexts } from "@/queries/pdf/use-parsed-pdf";
 
 export const useChatAI = ({
   chatId,
@@ -35,50 +27,12 @@ export const useChatAI = ({
   const { data: openedPdfs } = useOpenedPdfs();
   const { mutate: saveMessage } = useSaveMessage();
 
-  // For tool calls
-  const { mutateAsync: getPdfTexts } = useGetPdfTexts();
-  const { mutateAsync: searchPages } = useSearchPdfPages();
-  // const [searchTexts] = useAction(searchTextsAtom);
-
   return useChat({
     id: chatId,
     // api: import.meta.env.VITE_CHAT_ENDPOINT,
     maxSteps: 10,
     sendExtraMessageFields: true,
     initialMessages: initialMessages as Message[],
-    onToolCall: async ({ toolCall }) => {
-      console.log("Executing tool", toolCall.toolName, toolCall.args);
-
-      if (toolCall.toolName === "calculate") {
-        const { expression } = toolCall.args as CalculateParameters;
-        return evaluate(expression);
-      }
-
-      if (toolCall.toolName === "getPDFPageText") {
-        const { pdfId, startPage, endPage } =
-          toolCall.args as GetPDFPageTextParameters;
-
-        const text = await getPdfTexts({
-          pdfId,
-          startPage,
-          endPage,
-        });
-        console.log("Get page text result", text);
-        return text || "No text found";
-      }
-
-      if (toolCall.toolName === "searchPages") {
-        const { pdfId, query } = toolCall.args as SearchPagesParameters;
-        const result = await searchPages({ pdfId, query });
-        return result;
-      }
-
-      // if (toolCall.toolName === "searchText") {
-      //   const { pdfId, texts } = toolCall.args as SearchTextParameters;
-      //   const pageText = await searchTexts(pdfId, texts);
-      //   return pageText || "No text found";
-      // }
-    },
     fetch: async (input, init) => {
       if (!openedPdfs || openedPdfs.length === 0) {
         toast.error("No opened PDFs");

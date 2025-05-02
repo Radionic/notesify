@@ -15,7 +15,7 @@ import {
 } from "@tanstack/react-query";
 import { dbService } from "@/lib/db";
 import { Notes } from "@/db/schema";
-import { useParsePdf } from "../pdf/use-parsed-pdf";
+import { parsePdf } from "@/lib/pdf/parsing";
 
 export const notesQueryOptions = ({
   notesId,
@@ -99,7 +99,6 @@ export const useUpdateNotes = () => {
 
 export const useGenerateSummary = ({ notesId }: { notesId: string }) => {
   const getModel = useSetAtom(getSelectedModelAtom);
-  const { mutateAsync: parsePdf } = useParsePdf();
   const setGeneratingSignal = useSetAtom(generatingNotesAtom(notesId));
 
   const generateSummary = async ({

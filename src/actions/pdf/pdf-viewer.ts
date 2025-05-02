@@ -1,4 +1,4 @@
-import { documentAtomFamily, viewerAtomFamily } from "@/atoms/pdf/pdf-viewer";
+import { viewerAtomFamily } from "@/atoms/pdf/pdf-viewer";
 import { ActionError } from "@/hooks/state/use-action";
 import { atom } from "jotai";
 
@@ -25,7 +25,3 @@ export const jumpToPageAtom = atom(
     });
   }
 );
-
-export const getDocumentAtom = atom(null, (get, set, pdfId: string) => {
-  return get(documentAtomFamily(pdfId));
-});

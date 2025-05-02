@@ -33,14 +33,8 @@ export const CalculateTool = ({
   }, [expression, hasResult]);
 
   return (
-    <div className={cn("flex flex-col gap-2 my-2", className)}>
-      <div className="flex items-center gap-2">
-        <Badge className="bg-neutral-50">
-          <span className="font-mono">
-            <InlineMath>{tex}</InlineMath>
-          </span>
-        </Badge>
-      </div>
-    </div>
+    <Badge className={cn("bg-neutral-50 mt-2 w-fit", className)}>
+      <InlineMath>{tex}</InlineMath>
+    </Badge>
   );
 };

@@ -12,4 +12,4 @@ export const pdfParsingTable = sqliteTable("pdf_parsing", {
   page: integer("page").notNull(),
 });
 
-export type PDFParsing = typeof pdfParsingTable.$inferSelect;
+export type ParsedPDFPage = typeof pdfParsingTable.$inferSelect;

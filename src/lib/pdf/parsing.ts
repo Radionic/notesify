@@ -1,23 +1,56 @@
+import { ParsedPDFPage } from "@/db/schema";
 import { Mistral } from "@mistralai/mistralai";
-import { type PDFDocumentProxy } from "pdfjs-dist";
-
-export type ParsedPDF = {
-  id: string;
-  pdfId: string;
-  model: string;
-  text: string;
-  images: string[] | null;
-  page: number;
-}[];
+import { getDocument } from "pdfjs-dist";
+import { readNativeFile } from "../tauri";
+import { dbService } from "../db";
+import { getDefaultStore } from "jotai";
+import { configuredProvidersAtom } from "@/atoms/setting/providers";
 
 export const parsePdf = async ({
   pdfId,
-  pdfDocument,
+  method,
 }: {
   pdfId: string;
-  pdfDocument: PDFDocumentProxy;
-}): Promise<ParsedPDF> => {
-  const result: ParsedPDF = [];
+  method?: "pdfjs" | "ocr";
+}) => {
+  const parsedPdf = await dbService.pdf.getParsedPdf({ pdfId });
+  if (parsedPdf.length > 0) {
+    console.log("Cached parsed PDF: ", parsedPdf);
+    return parsedPdf;
+  }
+
+  // Default to ocr if no method is specified and API key is available
+  const apiKey = getDefaultStore()
+    .get(configuredProvidersAtom)
+    .find((p) => p.type === "mistral")?.settings.apiKey;
+  method = method || (apiKey ? "ocr" : "pdfjs");
+  console.log("Parsing PDF: ", method);
+
+  const pdfData: Blob = await readNativeFile("pdfs", `${pdfId}.pdf`);
+
+  const result: ParsedPDFPage[] =
+    method === "pdfjs"
+      ? await parsePdfWithPdfjs({ pdfId, pdfData })
+      : await parsePdfWithOcr({
+          pdfId,
+          apiKey,
+          pdfData,
+        });
+  await dbService.pdf.addParsedPdf({ parsedPdf: result });
+  return result;
+};
+
+export const parsePdfWithPdfjs = async ({
+  pdfId,
+  pdfData,
+}: {
+  pdfId: string;
+  pdfData: Blob;
+}) => {
+  const buffer = await pdfData.arrayBuffer();
+  const pdfDocument = await getDocument(buffer).promise;
+
+  const result: ParsedPDFPage[] = [];
   for (let pageNum = 1; pageNum <= pdfDocument.numPages; pageNum++) {
     const page = await pdfDocument.getPage(pageNum);
     const textContent = await page.getTextContent();
@@ -39,10 +72,14 @@ export const parsePdfWithOcr = async ({
   pdfId,
   pdfData,
 }: {
-  apiKey: string;
+  apiKey?: string;
   pdfId: string;
   pdfData: Blob;
-}): Promise<ParsedPDF> => {
+}) => {
+  if (!apiKey) {
+    throw new Error("Please configure the Mistral API key");
+  }
+
   const client = new Mistral({ apiKey });
 
   const uploadedPdf = await client.files.upload({
@@ -68,7 +105,7 @@ export const parsePdfWithOcr = async ({
     includeImageBase64: true,
   });
 
-  const result = ocrResponse.pages.map((page) => ({
+  const result: ParsedPDFPage[] = ocrResponse.pages.map((page) => ({
     id: `${pdfId}-${page.index + 1}`,
     pdfId,
     model: "mistral-ocr-latest",
@@ -81,18 +118,37 @@ export const parsePdfWithOcr = async ({
   return result;
 };
 
-export const parsePageNumbers = (xmlString: string): number[] => {
-  // Get all the page numbers in the text, each page is like <page_x> in the text
+export const getPdfTexts = async ({
+  pdfId,
+  pages,
+  startPage = 1,
+  endPage,
+}: {
+  pdfId: string;
+  pages?: number[];
+  startPage?: number;
+  endPage?: number;
+}) => {
+  const parsedPdf = await parsePdf({ pdfId });
+  const maxPage = parsedPdf.length;
 
-  // Regular expression to match page tags and capture the numbers
-  const pageRegex = /<page_(\d+)>/g;
+  // Validate input parameters
+  if (startPage > (endPage ?? maxPage)) {
+    throw new Error(`Invalid page range: ${startPage} - ${endPage}`);
+  }
+  if (startPage < 1 || startPage > maxPage) {
+    throw new Error(`Invalid start page: ${startPage}`);
+  }
+  if (endPage && (endPage < 1 || endPage > maxPage)) {
+    throw new Error(`Invalid end page: ${endPage}`);
+  }
 
-  // Find all matches
-  const matches = [...xmlString.matchAll(pageRegex)];
-
-  // Extract and convert the captured numbers to integers
-  const pageNumbers = matches.map((match) => parseInt(match[1], 10));
-
-  // Sort the numbers in ascending order
-  return pageNumbers.sort((a, b) => a - b);
+  return parsedPdf
+    .filter((p) => {
+      const inRange = p.page >= startPage && p.page <= (endPage ?? maxPage);
+      const inSpecifiedPages = !pages || pages.includes(p.page);
+      return inRange && inSpecifiedPages;
+    })
+    .map((p) => `<page_${p.page}>\n${p.text}\n</page_${p.page}>`)
+    .join("\n\n");
 };

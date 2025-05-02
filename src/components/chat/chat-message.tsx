@@ -2,7 +2,6 @@ import { dotPulse, ring2 } from "ldrs";
 import { cn } from "@/lib/utils";
 import { Message, ToolInvocation } from "ai";
 import { GetPageTextTool } from "./tools/get-page-text-tool";
-import { SearchTextTool } from "./tools/search-text-tool";
 import { CalculateTool } from "./tools/calculate-tool";
 import MarkdownRenderer from "@/components/markdown/markdown-renderer";
 import { SearchPagesTool } from "./tools/search-pages-tool";
@@ -23,9 +22,6 @@ export const ChatMessage = ({
   const renderTool = (tool: ToolInvocation) => {
     if (tool.toolName === "getPDFPageText") {
       return <GetPageTextTool tool={tool} />;
-    }
-    if (tool.toolName === "searchText") {
-      return <SearchTextTool tool={tool} />;
     }
     if (tool.toolName === "calculate") {
       return <CalculateTool tool={tool} />;

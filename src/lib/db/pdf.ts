@@ -1,8 +1,8 @@
 import {
   Pdf,
   pdfIndexingTable,
-  PDFIndexing,
-  PDFParsing,
+  IndexedPDFPage,
+  ParsedPDFPage,
   pdfParsingTable,
   pdfsTable,
   ScrollPosition,
@@ -69,7 +69,7 @@ export const getParsedPdf = async ({ pdfId }: { pdfId: string }) => {
 export const addParsedPdf = async ({
   parsedPdf,
 }: {
-  parsedPdf: PDFParsing;
+  parsedPdf: ParsedPDFPage[];
 }) => {
   const db = await getDB();
   await db.insert(pdfParsingTable).values(parsedPdf);
@@ -91,7 +91,7 @@ export const getIndexedPdf = async ({ pdfId }: { pdfId: string }) => {
 export const addIndexedPdf = async ({
   indexedPdf,
 }: {
-  indexedPdf: PDFIndexing;
+  indexedPdf: IndexedPDFPage;
 }) => {
   const db = await getDB();
   await db.insert(pdfIndexingTable).values(indexedPdf);

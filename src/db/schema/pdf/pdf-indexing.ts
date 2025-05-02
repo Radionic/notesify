@@ -15,4 +15,4 @@ export const pdfIndexingTable = sqliteTable("pdf_indexing", {
   endPage: integer("end_page"), // null for document and page level
 });
 
-export type PDFIndexing = typeof pdfIndexingTable.$inferSelect;
+export type IndexedPDFPage = typeof pdfIndexingTable.$inferSelect;

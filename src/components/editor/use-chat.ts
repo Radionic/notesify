@@ -5,10 +5,10 @@ import { useChat as useBaseChat } from "@ai-sdk/react";
 
 import { streamText } from "ai";
 import { getSelectedModelAtom } from "@/actions/setting/providers";
-import { useAction } from "@/hooks/state/use-action";
+import { useSetAtom } from "jotai";
 
 export const useChat = () => {
-  const [getModel] = useAction(getSelectedModelAtom);
+  const getModel = useSetAtom(getSelectedModelAtom);
 
   return useBaseChat({
     id: "editor",

@@ -6,15 +6,13 @@ import {
 } from "@udecode/plate/react";
 import { Card } from "@/components/ui/card";
 import { deserializeMd } from "@udecode/plate-markdown";
-import { useAtomValue } from "jotai";
-import { generateSummaryAtom } from "@/actions/notes/summary";
+import { useAtomValue, useSetAtom } from "jotai";
 import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
 import { toast } from "sonner";
 import { generatingNotesAtom } from "@/atoms/notes/notes";
 import { StatesPlugin } from "./states";
 import { SkeletonPlugin } from "./skeleton";
 import { getSelectedModelAtom } from "@/actions/setting/providers";
-import { useAction } from "@/hooks/state/use-action";
 
 const ActionCard = ({
   title,
@@ -50,10 +48,10 @@ export const ActionItemsElement = () => {
   const notesId = getOption("notesId");
 
   const [readOnly, setReadOnly] = usePlateState("readOnly");
-  const [generateSummary] = useAction(generateSummaryAtom);
+  const generateSummary = useSetAtom(generateSummaryAtom);
   const generatingSignal = useAtomValue(generatingNotesAtom(notesId));
 
-  const [getModel] = useAction(getSelectedModelAtom);
+  const getModel = useSetAtom(getSelectedModelAtom);
 
   const startGenerate = async (concise: boolean) => {
     if (generatingSignal) {

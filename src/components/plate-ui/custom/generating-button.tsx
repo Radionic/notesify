@@ -3,7 +3,7 @@ import {
   useEditorRef,
   usePlateState,
 } from "@udecode/plate/react";
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { generatingNotesAtom } from "@/atoms/notes/notes";
 import { StatesPlugin } from "./states";
 import { PenOff, Sparkles } from "lucide-react";
@@ -19,7 +19,6 @@ import { deserializeMd, MarkdownPlugin } from "@udecode/plate-markdown";
 import { SkeletonPlugin } from "./skeleton";
 import { getSelectedModelAtom } from "@/actions/setting/providers";
 import { useState } from "react";
-import { useAction } from "@/hooks/state/use-action";
 import { useGenerateSummary } from "@/queries/notes/use-notes";
 
 export const GeneratingButton = () => {
@@ -32,7 +31,7 @@ export const GeneratingButton = () => {
   const [generating, setGenerating] = useState(false);
   const editor = useEditorRef();
   const pdfId = useAtomValue(activePdfIdAtom);
-  const [getModel] = useAction(getSelectedModelAtom);
+  const getModel = useSetAtom(getSelectedModelAtom);
   const { mutateAsync: generateSummary } = useGenerateSummary({ notesId });
 
   const handleGenerate = async (quality: QualityType, length: LengthType) => {

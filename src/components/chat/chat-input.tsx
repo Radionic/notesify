@@ -1,4 +1,4 @@
-import { useAtom, useAtomValue } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 
 import { AutogrowingTextarea } from "../origin-ui/autogrowing-textarea";
 
@@ -11,10 +11,9 @@ import { activeChatIdAtom } from "@/atoms/chat/chats";
 import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
 import { generateId } from "@/lib/id";
 import { getSelectedModelAtom } from "@/actions/setting/providers";
-import { useAction } from "@/hooks/state/use-action";
 
 export const ChatInput = () => {
-  const [getModel] = useAction(getSelectedModelAtom);
+  const getModel = useSetAtom(getSelectedModelAtom);
   const [contexts, setContexts] = useAtom(activeContextsAtom);
   const pdfId = useAtomValue(activePdfIdAtom);
   const chatId = useAtomValue(activeChatIdAtom);

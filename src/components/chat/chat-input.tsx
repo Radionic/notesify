@@ -1,4 +1,4 @@
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 
 import { AutogrowingTextarea } from "../origin-ui/autogrowing-textarea";
 
@@ -15,16 +15,16 @@ import { useAction } from "@/hooks/state/use-action";
 
 export const ChatInput = () => {
   const [getModel] = useAction(getSelectedModelAtom);
-  const contexts = useAtomValue(activeContextsAtom);
+  const [contexts, setContexts] = useAtom(activeContextsAtom);
   const pdfId = useAtomValue(activePdfIdAtom);
   const chatId = useAtomValue(activeChatIdAtom);
-  const { input, setInput, handleInputChange, append, stop, status } =
+  const { input, setInput, handleInputChange, append, stop, status, error } =
     useChatAI({
       chatId,
       pdfId,
     });
   const isLoading = status === "submitted" || status === "streaming";
-  const disableSending = input.length === 0 || isLoading;
+  const disableSending = input.length === 0 || isLoading || !!error;
 
   const _handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,6 +54,7 @@ export const ChatInput = () => {
       }),
     });
     setInput("");
+    setContexts([]);
   };
 
   return (
@@ -73,6 +74,7 @@ export const ChatInput = () => {
             _handleSubmit(e);
           }
         }}
+        disabled={!!error}
         autoFocus
       />
       <div className="flex flex-row justify-between items-center">

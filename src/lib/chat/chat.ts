@@ -1,7 +1,6 @@
 import { CoreUserMessage, generateText, LanguageModelV1, Message } from "ai";
 
 import { Context } from "@/atoms/chat/contexts";
-import { thinkingPrompt } from "../prompts/thinking";
 import { PDFMetadata } from "@/actions/pdf/pdf-viewer";
 
 const buildTextContent = (content: string, contexts?: Context[]) => {
@@ -29,11 +28,14 @@ const buildImageContent = (contexts?: Context[]) => {
 };
 
 export const buildSystemMessage = (
-  openedPdfs: PDFMetadata[],
-  viewingPdfId: string,
-  viewingPage: number,
-  withThinking: boolean = false
+  openedPdfs?: PDFMetadata[],
+  viewingPdfId?: string,
+  viewingPage?: number
 ) => {
+  if (!openedPdfs || !viewingPdfId || !viewingPage) {
+    return "You are a helpful assistant. Reply in Markdown format.";
+  }
+
   const openedPdfsContext = openedPdfs
     .map(
       (pdf) =>
@@ -44,11 +46,7 @@ export const buildSystemMessage = (
     (pdf) => pdf.id === viewingPdfId
   )?.name;
 
-  let systemMessage = `You are a helpful PDF assistant. The user has opened ${openedPdfs.length} PDFs: ${openedPdfsContext}, and is currently viewing page ${viewingPage} of "${viewingPdfName}". Reply in Markdown format.`;
-  if (withThinking) {
-    systemMessage += `\nFollow the thinking protocol to answer the user's question:
-${thinkingPrompt}`;
-  }
+  const systemMessage = `You are a helpful PDF assistant. The user has opened ${openedPdfs.length} PDFs: ${openedPdfsContext}, and is currently viewing page ${viewingPage} of "${viewingPdfName}". Reply in Markdown format.`;
   // console.log("System message", systemMessage);
   return systemMessage;
 };

@@ -11,12 +11,13 @@ import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
 import { useAutoScroll } from "@/hooks/chat/use-auto-scroll";
 import { useEffect } from "react";
 import { useCreateNewChat } from "@/queries/chat/use-chat";
+import { Badge } from "../badge";
 
 export const ChatMessageList = ({ className }: { className?: string }) => {
   const pdfId = useAtomValue(activePdfIdAtom);
   const chatId = useAtomValue(activeChatIdAtom);
 
-  const { messages, status } = useChatAI({ chatId, pdfId });
+  const { messages, status, error } = useChatAI({ chatId, pdfId });
   const isLoading = status === "submitted" || status === "streaming";
   const { mutateAsync: createNewChat } = useCreateNewChat();
 
@@ -67,6 +68,12 @@ export const ChatMessageList = ({ className }: { className?: string }) => {
           }}
           isLoading
         />
+      )}
+
+      {error && (
+        <Badge variant="red" className="w-fit p-2">
+          Something went wrong. Please start a new chat instead.
+        </Badge>
       )}
 
       <div ref={messagesEndRef} />

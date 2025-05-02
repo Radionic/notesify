@@ -12,7 +12,7 @@ import { HighlightOptions } from "./highlight-options";
 import { Menu } from "./menu";
 import { generateId } from "@/lib/id";
 import { chatsOpenAtom } from "@/atoms/chat/chats";
-import { activeHighlightAtom } from "@/atoms/pdf/highlights";
+import { activeHighlightAtom } from "@/atoms/pdf/pdf-viewer";
 import {
   useChangeHighlightColor,
   useCopyHighlight,

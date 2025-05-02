@@ -4,7 +4,7 @@ import { Highlight as HighlightType } from "@/db/schema";
 import { cn } from "@/lib/utils";
 
 import { toPercentageStyle } from "../../../../lib/pdf/position";
-import { activeHighlightAtom } from "@/atoms/pdf/highlights";
+import { activeHighlightAtom } from "@/atoms/pdf/pdf-viewer";
 
 type Props = {
   highlight: HighlightType;

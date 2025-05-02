@@ -18,7 +18,15 @@ export const ChatMessageList = ({ className }: { className?: string }) => {
   const chatId = useAtomValue(activeChatIdAtom);
 
   const { messages, status, error } = useChatAI({ chatId, pdfId });
-  const isLoading = status === "submitted" || status === "streaming";
+
+  const lastMessage = messages[messages.length - 1];
+  const lastPart = lastMessage?.parts[lastMessage?.parts.length - 1];
+  const isRunningTool =
+    lastPart?.type === "tool-invocation" &&
+    lastPart.toolInvocation.state !== "result";
+  const showLoading =
+    (status === "submitted" || status === "streaming") && !isRunningTool;
+
   const { mutateAsync: createNewChat } = useCreateNewChat();
 
   useEffect(() => {
@@ -59,7 +67,7 @@ export const ChatMessageList = ({ className }: { className?: string }) => {
         );
       })}
 
-      {isLoading && (
+      {showLoading && (
         <ChatMessage
           message={{
             id: "loading",

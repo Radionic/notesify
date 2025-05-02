@@ -10,8 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { type PageDimensions, renderPageToCanvas } from "@/lib/pdf/canvas";
-import { jumpToPageAtom } from "@/actions/pdf/pdf-viewer";
-import { useAction } from "@/hooks/state/use-action";
+import { useNavigatePdf } from "@/queries/pdf/use-pdf";
 
 const PageThumbnail = ({
   pdfDocument,
@@ -90,14 +89,14 @@ export const PagesDialog = ({
   onOpenChange: (open: boolean) => void;
 }) => {
   const pdfDocument = useAtomValue(documentAtomFamily(pdfId));
-  const [jumpToPage] = useAction(jumpToPageAtom);
+  const { navigatePdf } = useNavigatePdf();
 
   if (!pdfDocument) return null;
 
   const pageCount = pdfDocument.numPages;
 
   const handlePageClick = (pageNumber: number) => {
-    jumpToPage(pdfId, pageNumber);
+    navigatePdf({ pdfId, page: pageNumber });
     onOpenChange(false);
   };
 

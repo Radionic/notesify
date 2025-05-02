@@ -2,7 +2,6 @@ import { useAtom, useSetAtom } from "jotai";
 import { Copy, Sparkles, Trash } from "lucide-react";
 import { toast } from "sonner";
 
-import { addContextAtom } from "@/actions/chat/contexts";
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
 import { Separator } from "@/components/ui/separator";
 import { calcBoundingRect } from "@/lib/pdf/rects";
@@ -18,11 +17,12 @@ import {
   useCopyHighlight,
   useDeleteHighlight,
 } from "@/queries/pdf/use-highlight";
+import { useChatContext } from "@/hooks/chat/use-chat-context";
 
 export const HighlightMenu = ({ pdfId }: { pdfId: string }) => {
   const [activeHighlight, setActiveHighlight] = useAtom(activeHighlightAtom);
   const setChatsOpen = useSetAtom(chatsOpenAtom);
-  const addContext = useSetAtom(addContextAtom);
+  const { addContext } = useChatContext();
   const { mutateAsync: deleteHighlight } = useDeleteHighlight();
   const { mutateAsync: copyHighlight } = useCopyHighlight();
   const { mutateAsync: changeHighlightColor } = useChangeHighlightColor();

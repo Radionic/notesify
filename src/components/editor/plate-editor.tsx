@@ -8,10 +8,16 @@ import { useDebouncedCallback } from "use-debounce";
 import { StatesPlugin } from "../plate-ui/custom/states";
 import { useNotes, useUpdateNotes } from "@/queries/notes/use-notes";
 
-export function PlateEditor({ notesId }: { notesId: string }) {
+export function PlateEditor({
+  notesId,
+  pdfId,
+}: {
+  notesId?: string;
+  pdfId?: string;
+}) {
   const initedNotesId = useRef<string>("");
   const editor = useCreateEditor();
-  const { data: notes } = useNotes({ notesId });
+  const { data: notes } = useNotes({ notesId, pdfId });
   const { mutateAsync: updateNotes } = useUpdateNotes();
   const [readOnly, setReadOnly] = useState(false);
   const hasUnsavedChanges = useRef<boolean>(false);
@@ -29,8 +35,8 @@ export function PlateEditor({ notesId }: { notesId: string }) {
 
   // Load initial notes
   useEffect(() => {
-    if (!editor || !notes || initedNotesId.current === notesId) return;
-    console.log("Loading notes", notesId);
+    if (!editor || !notes || initedNotesId.current === notes.id) return;
+    console.log("Loading notes", notes.id);
 
     const parsedData = JSON.parse(notes.content);
 
@@ -69,7 +75,7 @@ export function PlateEditor({ notesId }: { notesId: string }) {
     console.time("Chunked insertion");
     insertDataInChunks(parsedData);
 
-    initedNotesId.current = notesId;
+    initedNotesId.current = notes.id;
     return () => {
       console.log("Flushing notes save");
       debouncedSave.flush();

@@ -10,11 +10,10 @@ import { queryOptions, useQuery } from "@tanstack/react-query";
 import { useAtomValue, useSetAtom } from "jotai";
 import { loadPdfDocumentAtom, unloadPdfDocumentAtom } from "@/actions/pdf/pdf";
 import { useAtom } from "jotai";
-import { useNavigate } from "@tanstack/react-router";
 import { notesOpenAtom } from "@/atoms/notes/notes";
 import { openedPdfIdsAtom } from "@/atoms/pdf/pdf-viewer";
-import { useCreateNotes } from "../notes/use-notes";
 import { fileQueryOptions } from "../file-system/use-file-system";
+import { router } from "@/main";
 
 export const pdfQueryOptions = ({
   pdfId,
@@ -199,35 +198,41 @@ export const useDownloadPdf = () => {
 };
 
 export const useNavigatePdf = () => {
-  const navigate = useNavigate();
   const [notesOpen, setNotesOpen] = useAtom(notesOpenAtom);
-  const { mutateAsync: createNotes } = useCreateNotes();
 
   const navigatePdf = async ({
     pdfId,
     openNotes,
+    page,
   }: {
     pdfId: string;
     openNotes?: boolean;
+    page?: number;
   }) => {
     const open = notesOpen || !!openNotes;
     const notesId = open
-      ? (await dbService.notes.getNotesForPdf(pdfId)) ||
-        (await createNotes({ pdfId })).id
+      ? (await dbService.notes.getNotesForPdf({ pdfId })).id
       : undefined;
     setNotesOpen(open);
 
-    navigate({
+    router.navigate({
       to: "/viewer",
       search: (prev) => ({
         ...prev,
         nid: notesId,
         sid: pdfId,
+        page,
       }),
     });
   };
 
   return { navigatePdf };
+};
+
+export type OpenedPDF = {
+  id: string;
+  name: string;
+  pageCount: number;
 };
 
 export const useOpenedPdfs = () => {

@@ -1,11 +1,14 @@
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import React, { useCallback, useRef, useState } from "react";
 
-import { addContextAtom } from "@/actions/chat/contexts";
-import { selectContextModeAtom, viewerAtomFamily } from "@/atoms/pdf/pdf-viewer";
+import {
+  selectContextModeAtom,
+  viewerAtomFamily,
+} from "@/atoms/pdf/pdf-viewer";
 import { captureScreenshot } from "@/lib/pdf/canvas";
 import { useHotkeys } from "react-hotkeys-hook";
 import { generateId } from "@/lib/id";
+import { useChatContext } from "@/hooks/chat/use-chat-context";
 
 interface SelectionArea {
   startX: number;
@@ -27,7 +30,7 @@ export const SelectContextArea = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [mode, setMode] = useAtom(selectContextModeAtom);
-  const addContext = useSetAtom(addContextAtom);
+  const { addContext } = useChatContext();
 
   useHotkeys("esc", () => setMode(undefined));
 

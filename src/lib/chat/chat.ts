@@ -1,7 +1,7 @@
 import { CoreUserMessage, generateText, LanguageModelV1, Message } from "ai";
 
 import { Context } from "@/atoms/chat/contexts";
-import { PDFMetadata } from "@/actions/pdf/pdf-viewer";
+import { OpenedPDF } from "@/queries/pdf/use-pdf";
 
 const buildTextContent = (content: string, contexts?: Context[]) => {
   const textContext = contexts
@@ -28,7 +28,7 @@ const buildImageContent = (contexts?: Context[]) => {
 };
 
 export const buildSystemMessage = (
-  openedPdfs?: PDFMetadata[],
+  openedPdfs?: OpenedPDF[],
   viewingPdfId?: string,
   viewingPage?: number
 ) => {

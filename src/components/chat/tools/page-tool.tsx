@@ -1,11 +1,12 @@
 import { Badge } from "@/components/badge";
 import { PageBadges } from "@/components/chat/tools/page-badges";
 import { Check, CircleAlert } from "lucide-react";
-import { jumpToPageAtom } from "@/actions/pdf/pdf-viewer";
 import { cn } from "@/lib/utils";
-import { useAction } from "@/hooks/state/use-action";
 import { ToolInvocation } from "ai";
 import { useFile } from "@/queries/file-system/use-file-system";
+import { useAtomValue } from "jotai";
+import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
+import { useNavigatePdf } from "@/queries/pdf/use-pdf";
 
 export const PageTool = ({
   tool,
@@ -22,7 +23,8 @@ export const PageTool = ({
     failed: string;
   };
 }) => {
-  const [jumpToPage] = useAction(jumpToPageAtom);
+  const { navigatePdf } = useNavigatePdf();
+  const activePdfId = useAtomValue(activePdfIdAtom);
 
   const { pdfId } = tool.args || {};
   const running = tool.state !== "result";
@@ -76,10 +78,25 @@ export const PageTool = ({
           pages={pages}
           variant="blue"
           className="cursor-pointer truncate"
-          onClick={(startPage) => jumpToPage(pdfId, startPage)}
+          onClick={(startPage) =>
+            navigatePdf({
+              pdfId,
+              page: startPage,
+            })
+          }
         />
         of
-        <Badge variant="blue">{pdfName}</Badge>
+        <Badge
+          variant="blue"
+          className="cursor-pointer"
+          onClick={() => {
+            if (pdfId !== activePdfId) {
+              navigatePdf({ pdfId });
+            }
+          }}
+        >
+          {pdfName}
+        </Badge>
       </>
     );
   };

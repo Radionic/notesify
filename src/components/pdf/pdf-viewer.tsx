@@ -16,16 +16,27 @@ import { useHistoryShortcuts } from "@/hooks/pdf/use-history-shortcuts";
 import { cn } from "@/lib/utils";
 import { useNavigate } from "@tanstack/react-router";
 import { activeAnnotatorAtomFamily } from "@/atoms/pdf/annotator-options";
-import { activePdfIdAtom, currentPageAtomFamily } from "@/atoms/pdf/pdf-viewer";
+import {
+  activePdfIdAtom,
+  currentPageAtomFamily,
+  viewerAtomFamily,
+} from "@/atoms/pdf/pdf-viewer";
 import { useLoadPdf } from "@/queries/pdf/use-pdf";
 
-export const PdfViewer = ({ pdfId }: { pdfId: string }) => {
+export const PdfViewer = ({
+  pdfId,
+  page,
+}: {
+  pdfId: string;
+  page?: number;
+}) => {
   const navigate = useNavigate();
   const inited = !!useAtomValue(currentPageAtomFamily(pdfId));
   const annotator = useAtomValue(activeAnnotatorAtomFamily(pdfId));
   const containerRef = useRef<HTMLDivElement>(null);
   const { loadPdf, unloadPdf } = useLoadPdf();
   const setActivePdfId = useSetAtom(activePdfIdAtom);
+  const viewer = useAtomValue(viewerAtomFamily(pdfId));
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -39,6 +50,16 @@ export const PdfViewer = ({ pdfId }: { pdfId: string }) => {
       unloadPdf({ pdfId });
     };
   }, [pdfId]);
+
+  useEffect(() => {
+    if (inited && viewer && page) {
+      viewer.getPageView(page - 1)?.div?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+        inline: "center",
+      });
+    }
+  }, [inited, viewer, page]);
 
   useHistoryShortcuts();
   useZoom(pdfId, containerRef);

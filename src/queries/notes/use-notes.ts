@@ -5,66 +5,38 @@ import {
 import { formatMessages, replaceImageReferences } from "@/lib/note/summary";
 import { useSetAtom } from "jotai";
 import { getSelectedModelAtom } from "@/actions/setting/providers";
-import { generateId, streamText } from "ai";
+import { streamText } from "ai";
 import { generatingNotesAtom } from "@/atoms/notes/notes";
-import {
-  queryOptions,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { dbService } from "@/lib/db";
 import { Notes } from "@/db/schema";
 import { parsePdf } from "@/lib/pdf/parsing";
 
-export const notesQueryOptions = ({
-  notesId,
-  enabled,
-}: {
-  notesId: string;
-  enabled?: boolean;
-}) =>
-  queryOptions({
-    queryKey: ["notes", notesId],
-    queryFn: () => dbService.notes.getNotes({ notesId }),
-    retry: 0,
-    enabled,
-    throwOnError: true,
-  });
 export const useNotes = ({
   notesId,
-  enabled,
+  pdfId,
 }: {
-  notesId: string;
-  enabled?: boolean;
-}) => useQuery(notesQueryOptions({ notesId, enabled }));
+  notesId?: string;
+  pdfId?: string;
+}) =>
+  useQuery({
+    queryKey: ["notes", notesId],
+    queryFn: async () => {
+      return notesId
+        ? dbService.notes.getNotes({ notesId })
+        : dbService.notes.getNotesForPdf({ pdfId: pdfId! });
+    },
+    retry: 0,
+    enabled: !!notesId || !!pdfId,
+    throwOnError: true,
+  });
 
 export const useCreateNotes = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async ({ pdfId }: { pdfId: string }) => {
-      const notesId = generateId();
-      const newNotes = {
-        id: notesId,
-        pdfId,
-        title: "",
-        content: JSON.stringify([
-          {
-            children: [{ text: "" }],
-            type: "h1",
-          },
-          {
-            children: [{ text: "" }],
-            type: "p",
-          },
-        ]),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      } as Notes;
-      await dbService.notes.addNotes({ notes: newNotes });
-      console.log("Created new notes", notesId);
-      return newNotes;
+      return await dbService.notes.createNotes({ pdfId });
     },
     onSuccess: (result) => {
       queryClient.setQueryData(["notes", result.id], result);

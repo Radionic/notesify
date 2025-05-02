@@ -3,7 +3,6 @@ import { Sparkles } from "lucide-react";
 import { LuHighlighter } from "react-icons/lu";
 import { MdTranslate } from "react-icons/md";
 
-import { addContextAtom } from "@/actions/chat/contexts";
 import { selectedHighlightColorAtom } from "@/atoms/pdf/highlight-options";
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
 import { Separator } from "@/components/ui/separator";
@@ -15,6 +14,7 @@ import { toast } from "sonner";
 import { generateId } from "@/lib/id";
 import { chatsOpenAtom } from "@/atoms/chat/chats";
 import { useCreateHighlight } from "@/queries/pdf/use-highlight";
+import { useChatContext } from "@/hooks/chat/use-chat-context";
 
 export const TextMenu = ({
   pdfId,
@@ -24,7 +24,7 @@ export const TextMenu = ({
   container: HTMLDivElement | null;
 }) => {
   const setChatsOpen = useSetAtom(chatsOpenAtom);
-  const addContext = useSetAtom(addContextAtom);
+  const { addContext } = useChatContext();
   const { mutateAsync: createHighlight } = useCreateHighlight();
   const selectedColor = useAtomValue(selectedHighlightColorAtom);
   const { isSelecting, activeTextSelection, clearSelection } = useTextSelection(

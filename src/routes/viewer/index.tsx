@@ -31,6 +31,7 @@ const viewerSearchSchema = z.object({
   // id: z.union([z.string().array(), z.string()]),
   sid: z.string(),
   nid: z.string().optional(),
+  page: z.number().optional(),
 });
 
 const Viewer = () => {
@@ -50,7 +51,7 @@ const Viewer = () => {
     }
   }, []);
 
-  const { sid: pdfId, nid: notesId } = Route.useSearch();
+  const { sid: pdfId, nid: notesId, page } = Route.useSearch();
 
   const fileSystemOpen = useAtomValue(fileSystemOpenAtom);
   const chatsOpen = useAtomValue(chatsOpenAtom);
@@ -100,7 +101,7 @@ const Viewer = () => {
                 <div className="flex flex-col h-full">
                   <PdfToolbar pdfId={pdfId} />
                   <div className="flex-1 relative">
-                    <PdfViewer pdfId={pdfId} />
+                    <PdfViewer pdfId={pdfId} page={page} />
                   </div>
                 </div>
               </Suspense>

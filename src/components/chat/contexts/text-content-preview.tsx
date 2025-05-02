@@ -1,9 +1,8 @@
 import { CgClose } from "react-icons/cg";
 import { VscGoToFile } from "react-icons/vsc";
 
-import { jumpToContextAtom, removeContextAtom } from "@/actions/chat/contexts";
 import { Context } from "@/atoms/chat/contexts";
-import { useAction } from "@/hooks/state/use-action";
+import { useChatContext } from "@/hooks/chat/use-chat-context";
 
 interface TextContextPreviewProps {
   context: Context;
@@ -46,8 +45,7 @@ export const TextContextsPreview = ({
   contexts?: Context[];
   removable?: boolean;
 }) => {
-  const [removeContext] = useAction(removeContextAtom);
-  const [jumpToContext] = useAction(jumpToContextAtom);
+  const { jumpToContext, removeContext } = useChatContext();
   if (!contexts || contexts.length === 0) return null;
   return (
     <div className="flex flex-col gap-2">

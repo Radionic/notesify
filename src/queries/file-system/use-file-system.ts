@@ -48,13 +48,7 @@ export const useAddPdf = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({
-      name,
-      pdfData,
-    }: {
-      name: string;
-      pdfData: Blob;
-    }) => {
+    mutationFn: async ({ name, pdfData }: { name: string; pdfData: Blob }) => {
       const { newFile, newPdf } = await dbService.pdf.addPdf({ name });
       await writeNativeFile("pdfs", `${newPdf.id}.pdf`, pdfData);
 
@@ -114,6 +108,14 @@ export const useRenamePdf = () => {
               updatedAt: new Date(),
             }
           : undefined
+      );
+      queryClient.setQueryData<FileNode[]>(["files", null], (oldData = []) =>
+        oldData.map((file) => {
+          if (file.id !== pdfId) {
+            return file;
+          }
+          return { ...file, name: newName };
+        })
       );
     },
   });

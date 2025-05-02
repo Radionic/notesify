@@ -1,6 +1,6 @@
 import { useAtomValue } from "jotai";
 
-import { AutogrowingTextarea } from "@/components/origin-ui/inputs";
+import { AutogrowingTextarea } from "../origin-ui/autogrowing-textarea";
 
 import { SelectAreaContextButton } from "./action-button/select-context-button";
 import { SendButton } from "./action-button/send-button";
@@ -18,10 +18,11 @@ export const ChatInput = () => {
   const contexts = useAtomValue(activeContextsAtom);
   const pdfId = useAtomValue(activePdfIdAtom);
   const chatId = useAtomValue(activeChatIdAtom);
-  const { input, setInput, handleInputChange, append, stop, status } = useChatAI({
-    chatId,
-    pdfId,
-  });
+  const { input, setInput, handleInputChange, append, stop, status } =
+    useChatAI({
+      chatId,
+      pdfId,
+    });
   const isLoading = status === "submitted" || status === "streaming";
   const disableSending = input.length === 0 || isLoading;
 

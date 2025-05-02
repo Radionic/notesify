@@ -1,7 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PasswordInput } from "@/components/origin-ui/inputs";
+import { PasswordInput } from "@/components/origin-ui/password-input";
 import { toast } from "sonner";
 import { useState } from "react";
 import { ProviderSettings } from "@/atoms/setting/providers";
@@ -42,15 +42,13 @@ const EditForm = ({
   return (
     <div className="mt-3 pt-3 border-t">
       <div className="flex flex-col gap-2">
-        <div className="flex flex-row gap-2 items-center">
-          <PasswordInput
-            placeholder="API Key"
-            value={tempSettings.apiKey}
-            onChange={(e) =>
-              setTempSettings({ ...tempSettings, apiKey: e.target.value })
-            }
-          />
-        </div>
+        <PasswordInput
+          placeholder="API Key"
+          value={tempSettings.apiKey}
+          onChange={(e) =>
+            setTempSettings({ ...tempSettings, apiKey: e.target.value })
+          }
+        />
         {providerConfig.showBaseUrl && (
           <Input
             placeholder="Base URL (Optional)"

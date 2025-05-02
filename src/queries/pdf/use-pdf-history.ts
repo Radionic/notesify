@@ -12,7 +12,7 @@ import {
   HistoryRecord,
 } from "@/atoms/pdf/history";
 import { Annotation } from "@/db/schema";
-import { useAtom, useAtomValue } from "jotai";
+import { getDefaultStore, useAtom, useAtomValue } from "jotai";
 
 export const useUndoRedo = ({ pdfId }: { pdfId?: string }) => {
   const canUndo = useAtomValue(canUndoAtom(pdfId));
@@ -64,6 +64,20 @@ export const useUndoRedo = ({ pdfId }: { pdfId?: string }) => {
   };
 
   return { history, canUndo, canRedo, undo, redo };
+};
+
+const MAX_HISTORY_SIZE = 50; // Maximum number of actions to keep in history
+
+export const usePushHistory = () => {
+  const pushHistory = (record: HistoryRecord) => {
+    const store = getDefaultStore();
+    const history = store.get(historyAtomFamily(record.pdfId));
+    store.set(historyAtomFamily(record.pdfId), {
+      past: [...history.past, record].slice(-MAX_HISTORY_SIZE),
+      future: [], // Clear future when new action is pushed
+    });
+  };
+  return { pushHistory };
 };
 
 export const useHandleAction = () => {

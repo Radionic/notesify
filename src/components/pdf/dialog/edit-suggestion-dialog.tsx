@@ -1,8 +1,10 @@
 import { useAtom } from "jotai";
 import { useState } from "react";
 
-import { editSuggestionDialogAtom } from "@/atoms/chat/chat-suggestions";
-import { updateChatSuggestionAtom } from "@/actions/chat/suggestions";
+import {
+  chatSuggestionsAtom,
+  editSuggestionDialogAtom,
+} from "@/atoms/chat/chat-suggestions";
 import {
   Dialog,
   DialogContent,
@@ -12,22 +14,24 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useAction } from "@/hooks/state/use-action";
+import { toast } from "sonner";
 
 export const EditSuggestionDialog = () => {
+  const [suggestions, setSuggestions] = useAtom(chatSuggestionsAtom);
   const [suggestion, setSuggestion] = useAtom(editSuggestionDialogAtom);
-  const [updateSuggestion] = useAction(updateChatSuggestionAtom);
 
   const [title, setTitle] = useState(suggestion?.title ?? "");
   const [prompt, setPrompt] = useState(suggestion?.prompt ?? "");
 
   const handleSave = () => {
     if (!suggestion) return;
-    updateSuggestion({
-      ...suggestion,
-      title,
-      prompt,
-    });
+    setSuggestions(
+      suggestions.map((s) =>
+        s.id === suggestion.id ? { ...s, title, prompt } : s
+      )
+    );
+    setSuggestion(undefined);
+    toast.success("Quick action updated");
   };
 
   return (

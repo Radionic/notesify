@@ -1,8 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { dbService } from "@/lib/db";
 import { Annotation } from "@/db/schema";
-import { useSetAtom } from "jotai";
-import { pushActionAtom } from "@/actions/pdf/history";
+import { usePushHistory } from "./use-pdf-history";
 
 // export const useAnnotation = ({ id }: { id: string }) => {
 //   return useQuery({
@@ -34,7 +33,7 @@ export const useAnnotationsByPage = ({ pdfId }: { pdfId: string }) => {
 
 export const useCreateAnnotations = () => {
   const queryClient = useQueryClient();
-  const pushHistory = useSetAtom(pushActionAtom);
+  const { pushHistory } = usePushHistory();
 
   return useMutation({
     mutationFn: async ({
@@ -68,7 +67,7 @@ export const useCreateAnnotations = () => {
 
 export const useDeleteAnnotations = () => {
   const queryClient = useQueryClient();
-  const pushHistory = useSetAtom(pushActionAtom);
+  const { pushHistory } = usePushHistory();
 
   return useMutation({
     mutationFn: async ({

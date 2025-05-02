@@ -2,8 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Highlight } from "@/db/schema/pdf/highlights";
 import { dbService } from "@/lib/db";
 import { toast } from "sonner";
-import { useSetAtom } from "jotai";
-import { pushActionAtom } from "@/actions/pdf/history";
+import { usePushHistory } from "./use-pdf-history";
 
 // export const useHighlight = ({ id }: { id: string }) => {
 //   return useQuery({
@@ -44,7 +43,7 @@ export const useHighlightsByPage = ({ pdfId }: { pdfId: string }) => {
 
 export const useCreateHighlight = () => {
   const queryClient = useQueryClient();
-  const pushHistory = useSetAtom(pushActionAtom);
+  const { pushHistory } = usePushHistory();
 
   return useMutation({
     mutationFn: async ({
@@ -82,7 +81,7 @@ export const useCreateHighlight = () => {
 
 export const useDeleteHighlight = () => {
   const queryClient = useQueryClient();
-  const pushHistory = useSetAtom(pushActionAtom);
+  const { pushHistory } = usePushHistory();
 
   return useMutation({
     mutationFn: async ({
@@ -128,7 +127,7 @@ export const useDeleteHighlight = () => {
 
 export const useChangeHighlightColor = () => {
   const queryClient = useQueryClient();
-  const pushHistory = useSetAtom(pushActionAtom);
+  const { pushHistory } = usePushHistory();
 
   return useMutation({
     mutationFn: async ({

@@ -72,7 +72,7 @@ const Viewer = () => {
       <ResizablePanelGroup
         autoSaveId="viewer"
         direction="horizontal"
-        className="flex-1 overflow-hidden"
+        className="flex-1 overflow-hidden [&>[data-resize-handle]:last-child]:hidden"
       >
         {fileSystemOpen && (
           <>

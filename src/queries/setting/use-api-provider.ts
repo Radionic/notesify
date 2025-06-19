@@ -1,10 +1,15 @@
 import {
   availableModelsAtom,
   Model,
+  openSettingsDialogAtom,
+  providerRegistryAtom,
   ProviderSettings,
+  selectedModelsAtom,
 } from "@/atoms/setting/providers";
+import { ModelType } from "@mistralai/mistralai/models/components";
 import { useMutation } from "@tanstack/react-query";
-import { useAtom } from "jotai";
+import { getDefaultStore, useAtom } from "jotai";
+import { toast } from "sonner";
 
 export const useVerifyKey = () => {
   const [availableModels, setAvailableModels] = useAtom(availableModelsAtom);
@@ -42,7 +47,7 @@ export const useVerifyKey = () => {
             name: model.id,
             provider: providerId,
             types: ["Chat"],
-          }) as Model
+          } as Model)
       );
 
       // Update available models for this provider
@@ -53,4 +58,21 @@ export const useVerifyKey = () => {
       return true;
     },
   });
+};
+
+export const useGetModel = () => {
+  const getModel = (modelType: ModelType) => {
+    const store = getDefaultStore();
+    const registry = store.get(providerRegistryAtom);
+    const selectedModel = (store.get(selectedModelsAtom) as any)[modelType];
+    if (!registry || !selectedModel) {
+      store.set(openSettingsDialogAtom, true);
+      toast.info(`Please provide API key and select a ${modelType} model`);
+      return;
+    }
+    return registry.languageModel(
+      `${selectedModel.provider}:${selectedModel.id}`
+    );
+  };
+  return getModel;
 };

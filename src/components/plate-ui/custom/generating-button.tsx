@@ -3,7 +3,7 @@ import {
   useEditorRef,
   usePlateState,
 } from "@udecode/plate/react";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { generatingNotesAtom } from "@/atoms/notes/notes";
 import { StatesPlugin } from "./states";
 import { PenOff, Sparkles } from "lucide-react";
@@ -17,7 +17,6 @@ import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
 import { toast } from "sonner";
 import { deserializeMd, MarkdownPlugin } from "@udecode/plate-markdown";
 import { SkeletonPlugin } from "./skeleton";
-import { getSelectedModelAtom } from "@/actions/setting/providers";
 import { useState } from "react";
 import { useGenerateSummary } from "@/queries/notes/use-notes";
 
@@ -31,8 +30,7 @@ export const GeneratingButton = () => {
   const [generating, setGenerating] = useState(false);
   const editor = useEditorRef();
   const pdfId = useAtomValue(activePdfIdAtom);
-  const getModel = useSetAtom(getSelectedModelAtom);
-  const { mutateAsync: generateSummary } = useGenerateSummary({ notesId });
+  const { mutateAsync: generateSummary } = useGenerateSummary();
 
   const handleGenerate = async (quality: QualityType, length: LengthType) => {
     if (generatingSignal) {
@@ -45,44 +43,49 @@ export const GeneratingButton = () => {
       return;
     }
 
-    const model = await getModel("Chat");
-    if (!model) {
-      return;
-    }
+    try {
+      const abortSignal = new AbortController();
+      setGeneratingSignal(abortSignal);
+      setGenerating(true);
+      setReadOnly(true);
 
-    setGenerating(true);
-    setReadOnly(true);
+      const block = editor.api.create.block({
+        type: SkeletonPlugin.key,
+      });
+      editor.tf.setValue([block]);
 
-    const block = editor.api.create.block({
-      type: SkeletonPlugin.key,
-    });
-    editor.tf.setValue([block]);
+      const onUpdate = async (summaryPart: string) => {
+        try {
+          const markdown = editor
+            .getApi(MarkdownPlugin)
+            .markdown.deserialize(summaryPart);
+          editor.tf.insertNodes(markdown, {
+            // Using 'at: block' doesn't work for some reasons
+            at: editor.children[editor.children.length - 2],
+          });
+        } catch (error) {
+          console.error(error);
+          toast.error("Something went wrong when generating notes");
+        }
+      };
 
-    const onUpdate = async (summaryPart: string) => {
-      try {
-        const markdown = editor
-          .getApi(MarkdownPlugin)
-          .markdown.deserialize(summaryPart);
-        editor.tf.insertNodes(markdown, {
-          // Using 'at: block' doesn't work for some reasons
-          at: editor.children[editor.children.length - 2],
-        });
-      } catch (error) {
-        console.error(error);
-        toast.error("Something went wrong when generating notes");
+      await generateSummary({ pdfId, quality, length, abortSignal, onUpdate });
+    } catch (error) {
+      console.error(error);
+      if (error instanceof Error) {
+        toast.error(`Failed to generate summary: ${error.message}`);
       }
-    };
+    } finally {
+      editor.tf.removeNodes({
+        match: (n) => n.type === SkeletonPlugin.key,
+        at: [],
+        children: true,
+      });
 
-    await generateSummary({ pdfId, quality, length, onUpdate });
-
-    editor.tf.removeNodes({
-      match: (n) => n.type === SkeletonPlugin.key,
-      at: [],
-      children: true,
-    });
-
-    setGenerating(false);
-    setReadOnly(false);
+      setGeneratingSignal(undefined);
+      setGenerating(false);
+      setReadOnly(false);
+    }
   };
 
   const stopGenerate = async () => {

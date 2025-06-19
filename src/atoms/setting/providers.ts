@@ -47,8 +47,6 @@ export const selectedModelsAtom = atomWithStorage<
 export const providerRegistryAtom = atom<ProviderRegistryProvider | undefined>(
   (get) => {
     const providers = get(configuredProvidersAtom);
-    if (providers.length === 0) return undefined;
-
     const registryConfig: Record<string, any> = {};
     for (const provider of providers) {
       if (provider.type === "openai") {

@@ -1,12 +1,10 @@
-import { tool } from "ai";
+import { LanguageModelV1, tool } from "ai";
 import { z } from "zod";
 import { evaluate } from "mathjs";
 import { getPdfTexts } from "../pdf/parsing";
 import { searchPages } from "../pdf/indexing";
-import { getDefaultStore } from "jotai";
-import { getSelectedModelAtom } from "@/actions/setting/providers";
 
-export const tools = {
+export const tools = (model: LanguageModelV1) => ({
   calculate: tool({
     description: "Calculate a Math expression, using evaluate by MathJS",
     parameters: z.object({
@@ -45,13 +43,9 @@ export const tools = {
         .describe("The query to search for, in a short sentence"),
     }),
     execute: async ({ pdfId, query }) => {
-      const model = getDefaultStore().set(getSelectedModelAtom, "Indexing");
-      if (!model) {
-        return "This tool is unavailable now";
-      }
       const result = await searchPages({ model, pdfId, query });
       console.log("searchPages result", result);
       return result;
     },
   }),
-};
+});

@@ -1,4 +1,3 @@
-import { getSelectedModelAtom } from "@/actions/setting/providers";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Message } from "ai";
 import { useSetAtom } from "jotai";
@@ -8,6 +7,7 @@ import { activeChatIdAtom } from "@/atoms/chat/chats";
 import { Chat } from "@/db/schema/chat/chats";
 import { toast } from "sonner";
 import { dbService } from "@/lib/db";
+import { useGetSelectedModel } from "@/hooks/use-model";
 
 export const useChat = ({ id }: { id: string }) => {
   return useQuery({
@@ -47,7 +47,7 @@ export const useCreateNewChat = () => {
 
 export const useUpdateChatTitle = () => {
   const queryClient = useQueryClient();
-  const getModel = useSetAtom(getSelectedModelAtom);
+  const { getSelectedModel } = useGetSelectedModel();
 
   return useMutation({
     mutationFn: async ({
@@ -57,7 +57,10 @@ export const useUpdateChatTitle = () => {
       chatId: string;
       messages: Message[];
     }) => {
-      const model = getModel("Chat");
+      const model = getSelectedModel("Chat");
+      if (!model) {
+        return "Untitled";
+      }
       const title = await generateTitle(model, messages);
       await updateChatTitle(chatId, title);
       return title;

@@ -3,14 +3,12 @@ import {
   QualityType,
 } from "@/components/plate-ui/custom/generate-notes-dialog";
 import { formatMessages, replaceImageReferences } from "@/lib/note/summary";
-import { useSetAtom } from "jotai";
-import { getSelectedModelAtom } from "@/actions/setting/providers";
 import { streamText } from "ai";
-import { generatingNotesAtom } from "@/atoms/notes/notes";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { dbService } from "@/lib/db";
 import { Notes } from "@/db/schema";
 import { parsePdf } from "@/lib/pdf/parsing";
+import { useGetSelectedModel } from "@/hooks/use-model";
 
 export const useNotes = ({
   notesId,
@@ -69,19 +67,20 @@ export const useUpdateNotes = () => {
   });
 };
 
-export const useGenerateSummary = ({ notesId }: { notesId: string }) => {
-  const getModel = useSetAtom(getSelectedModelAtom);
-  const setGeneratingSignal = useSetAtom(generatingNotesAtom(notesId));
+export const useGenerateSummary = () => {
+  const { getSelectedModel } = useGetSelectedModel();
 
   const generateSummary = async ({
     pdfId,
     length,
     quality,
+    abortSignal,
     onUpdate,
   }: {
     pdfId: string;
     length: LengthType;
     quality: QualityType;
+    abortSignal: AbortController;
     onUpdate?: (summaryPart: string) => void;
   }) => {
     const parsedPdf = await parsePdf({
@@ -96,10 +95,7 @@ export const useGenerateSummary = ({ notesId }: { notesId: string }) => {
       .filter((img) => img !== null);
     const messages = formatMessages(text, length, images);
 
-    const abortSignal = new AbortController();
-    setGeneratingSignal(abortSignal);
-
-    const model = await getModel("Chat");
+    const model = getSelectedModel("Chat");
     if (!model) {
       return;
     }
@@ -139,8 +135,6 @@ export const useGenerateSummary = ({ notesId }: { notesId: string }) => {
     }
 
     onUpdate?.(summaryPart);
-
-    setGeneratingSignal(undefined);
   };
 
   return useMutation({

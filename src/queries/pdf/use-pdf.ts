@@ -7,13 +7,25 @@ import { writeFile } from "@tauri-apps/plugin-fs";
 import { toast } from "sonner";
 import { readNativeFile } from "@/lib/tauri";
 import { queryOptions, useQuery } from "@tanstack/react-query";
-import { useAtomValue, useSetAtom } from "jotai";
-import { loadPdfDocumentAtom, unloadPdfDocumentAtom } from "@/actions/pdf/pdf";
+import { getDefaultStore, useAtomValue } from "jotai";
 import { useAtom } from "jotai";
 import { notesOpenAtom } from "@/atoms/notes/notes";
-import { openedPdfIdsAtom } from "@/atoms/pdf/pdf-viewer";
 import { fileQueryOptions } from "../file-system/use-file-system";
 import { router } from "@/main";
+import {
+  EventBus,
+  PDFLinkService,
+  PDFViewer,
+} from "pdfjs-dist/web/pdf_viewer.mjs";
+import {
+  activePdfIdAtom,
+  currentPageAtomFamily,
+  documentAtomFamily,
+  viewerAtomFamily,
+  renderedPagesAtomFamily,
+  openedPdfIdsAtom,
+} from "@/atoms/pdf/pdf-viewer";
+import { AnnotationMode, getDocument } from "pdfjs-dist";
 
 export const pdfQueryOptions = ({
   pdfId,
@@ -96,8 +108,6 @@ export const useUpdatePdf = () => {
 
 export const useLoadPdf = () => {
   const queryClient = useQueryClient();
-  const loadPdfDocument = useSetAtom(loadPdfDocumentAtom);
-  const unloadPdfDocument = useSetAtom(unloadPdfDocumentAtom);
   const { mutateAsync: updatePdf } = useUpdatePdf();
 
   const loadPdf = async ({
@@ -115,12 +125,78 @@ export const useLoadPdf = () => {
       throw new Error("Failed to load PDF");
     }
 
-    const pdfDocument = await loadPdfDocument({ pdf, pdfData, container });
+    console.log("Loading PDF", pdf.id);
+
+    // Load PDF document
+    const buffer = await pdfData.arrayBuffer();
+    const loadingTask = getDocument(buffer);
+    const pdfDocument = await loadingTask.promise;
+
+    const eventBus = new EventBus();
+    const linkService = new PDFLinkService({ eventBus });
+    const pdfViewer = new PDFViewer({
+      container,
+      eventBus,
+      linkService,
+      annotationMode: AnnotationMode.DISABLE,
+      textLayerMode: 1,
+      removePageBorders: true,
+    });
+
+    linkService.setDocument(pdfDocument);
+    linkService.setViewer(pdfViewer);
+    pdfViewer.setDocument(pdfDocument);
+
+    // Update pdf states
+    const store = getDefaultStore();
+    store.set(activePdfIdAtom, pdf.id);
+    store.set(openedPdfIdsAtom, (currentIds) => [...currentIds, pdf.id]);
+    store.set(documentAtomFamily(pdf.id), pdfDocument);
+    store.set(viewerAtomFamily(pdf.id), pdfViewer);
+
+    // Setup event listeners
+    eventBus.on("pagesloaded", () => {
+      store.set(currentPageAtomFamily(pdf.id), 1);
+
+      const zoomScale = pdf.zoom ?? 1;
+      const scrollPositions = pdf.scroll;
+      pdfViewer.currentScale = zoomScale;
+      container.scrollTo(scrollPositions?.x ?? 0, scrollPositions?.y ?? 0);
+    });
+
+    eventBus.on("pagerendered", () => {
+      // TODO: a better event for this?
+      const renderedPages = (pdfViewer._pages
+        ?.filter((p) => p.canvas)
+        .map((p) => p.id) || []) as number[];
+      store.set(renderedPagesAtomFamily(pdf.id), renderedPages);
+    });
+
+    eventBus.on("pagechanging", (evt: any) => {
+      store.set(currentPageAtomFamily(pdf.id), evt.pageNumber);
+    });
+
+    // If PDF viewer is initialized twice, it may:
+    // 1. show no pages after opening the PDF
+    // 2. show error "offsetParent is not set" when zooming
+    console.log("PDF viewer initialized");
+
     await updatePdf({ pdfId: pdf.id, pageCount: pdfDocument.numPages });
   };
 
   const unloadPdf = async ({ pdfId }: { pdfId: string }) => {
-    await unloadPdfDocument(pdfId);
+    console.log("Unloading PDF", pdfId);
+    const store = getDefaultStore();
+    store.set(activePdfIdAtom, undefined);
+    store.set(openedPdfIdsAtom, (currentIds) =>
+      currentIds.filter((id) => id !== pdfId)
+    );
+    const documentAtom = documentAtomFamily(pdfId);
+    await store.get(documentAtom)?.destroy();
+    store.set(documentAtom, undefined);
+    store.set(viewerAtomFamily(pdfId), undefined);
+    store.set(currentPageAtomFamily(pdfId), undefined);
+    store.set(renderedPagesAtomFamily(pdfId), []);
   };
 
   return { loadPdf, unloadPdf };

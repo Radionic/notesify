@@ -1,5 +1,5 @@
 import { Pencil } from "lucide-react";
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 
 import {
   chatSuggestionsAtom,
@@ -9,10 +9,8 @@ import { EditSuggestionDialog } from "../../pdf/dialog/edit-suggestion-dialog";
 import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
-import { getSelectedModelAtom } from "@/actions/setting/providers";
 
 export const QuickActions = () => {
-  const getModel = useSetAtom(getSelectedModelAtom);
   const suggestions = useAtomValue(chatSuggestionsAtom);
   const [editSuggestion, setEditSuggestion] = useAtom(editSuggestionDialogAtom);
   const pdfId = useAtomValue(activePdfIdAtom);
@@ -31,9 +29,6 @@ export const QuickActions = () => {
             <span
               onClick={async () => {
                 if (isLoading) return;
-
-                const model = await getModel("Chat");
-                if (!model) return;
 
                 append({
                   role: "user",

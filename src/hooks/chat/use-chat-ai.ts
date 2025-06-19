@@ -2,11 +2,11 @@ import { currentPageAtomFamily } from "@/atoms/pdf/pdf-viewer";
 import { buildMessages, buildSystemMessage } from "@/lib/chat/chat";
 import { createDataStreamResponse, Message, streamText } from "ai";
 import { useChat } from "@ai-sdk/react";
-import { useAtomValue, useSetAtom } from "jotai";
-import { getSelectedModelAtom } from "@/actions/setting/providers";
+import { useAtomValue } from "jotai";
 import { tools } from "@/lib/chat/tools";
 import { useMessages, useSaveMessage } from "@/queries/chat/use-messages";
 import { useOpenedPdfs } from "@/queries/pdf/use-pdf";
+import { useGetSelectedModel } from "../use-model";
 
 export const useChatAI = ({
   chatId,
@@ -15,7 +15,7 @@ export const useChatAI = ({
   chatId: string;
   pdfId?: string;
 }) => {
-  const getModel = useSetAtom(getSelectedModelAtom);
+  const { getSelectedModel } = useGetSelectedModel();
   const viewingPage = useAtomValue(currentPageAtomFamily(pdfId));
   const { data: initialMessages } = useMessages(chatId);
   const { data: openedPdfs } = useOpenedPdfs();
@@ -28,7 +28,7 @@ export const useChatAI = ({
     sendExtraMessageFields: true,
     initialMessages: initialMessages as Message[],
     fetch: async (input, init) => {
-      const model = await getModel("Chat");
+      const model = await getSelectedModel("Chat");
       if (!model) {
         throw new Error("Please provide API key and select a model");
       }
@@ -62,7 +62,7 @@ export const useChatAI = ({
             model,
             system,
             messages: messagesWithContext as any,
-            tools,
+            tools: tools(model),
             toolCallStreaming: true,
             abortSignal: init?.signal || undefined,
           });

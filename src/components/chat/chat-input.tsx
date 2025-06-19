@@ -1,4 +1,4 @@
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 
 import { AutogrowingTextarea } from "../origin-ui/autogrowing-textarea";
 
@@ -10,10 +10,8 @@ import { activeContextsAtom } from "@/atoms/chat/contexts";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
 import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
 import { generateId } from "@/lib/id";
-import { getSelectedModelAtom } from "@/actions/setting/providers";
 
 export const ChatInput = () => {
-  const getModel = useSetAtom(getSelectedModelAtom);
   const [contexts, setContexts] = useAtom(activeContextsAtom);
   const pdfId = useAtomValue(activePdfIdAtom);
   const chatId = useAtomValue(activeChatIdAtom);
@@ -35,11 +33,6 @@ export const ChatInput = () => {
       return;
     }
 
-    const customModel = await getModel("Chat");
-    if (!customModel) {
-      return;
-    }
-
     const id = generateId();
     const createdAt = new Date();
     append({
@@ -48,7 +41,6 @@ export const ChatInput = () => {
       role: "user",
       content: input,
       data: JSON.stringify({
-        modelId: customModel.modelId,
         contexts,
       }),
     });

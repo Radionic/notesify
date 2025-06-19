@@ -4,16 +4,15 @@ import { faker } from "@faker-js/faker";
 import { useChat as useBaseChat } from "@ai-sdk/react";
 
 import { streamText } from "ai";
-import { getSelectedModelAtom } from "@/actions/setting/providers";
-import { useSetAtom } from "jotai";
+import { useGetSelectedModel } from "@/hooks/use-model";
 
 export const useChat = () => {
-  const getModel = useSetAtom(getSelectedModelAtom);
+  const { getSelectedModel } = useGetSelectedModel();
 
   return useBaseChat({
     id: "editor",
     fetch: async (input, init) => {
-      const model = await getModel("Chat");
+      const model = getSelectedModel("Chat");
       if (!model) {
         return new Response("Please provide API key and select a model");
       }

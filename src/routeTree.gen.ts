@@ -8,82 +8,43 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as IndexRouteImport } from './routes/index'
+import { Route as ViewerIndexRouteImport } from './routes/viewer/index'
+import { Route as LibraryIndexRouteImport } from './routes/library/index'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as IndexImport } from './routes/index'
-import { Route as ViewerIndexImport } from './routes/viewer/index'
-import { Route as LibraryIndexImport } from './routes/library/index'
-
-// Create/Update Routes
-
-const IndexRoute = IndexImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const ViewerIndexRoute = ViewerIndexImport.update({
+const ViewerIndexRoute = ViewerIndexRouteImport.update({
   id: '/viewer/',
   path: '/viewer/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const LibraryIndexRoute = LibraryIndexImport.update({
+const LibraryIndexRoute = LibraryIndexRouteImport.update({
   id: '/library/',
   path: '/library/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-// Populate the FileRoutesByPath interface
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/library/': {
-      id: '/library/'
-      path: '/library'
-      fullPath: '/library'
-      preLoaderRoute: typeof LibraryIndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/viewer/': {
-      id: '/viewer/'
-      path: '/viewer'
-      fullPath: '/viewer'
-      preLoaderRoute: typeof ViewerIndexImport
-      parentRoute: typeof rootRoute
-    }
-  }
-}
-
-// Create and export the route tree
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/library': typeof LibraryIndexRoute
   '/viewer': typeof ViewerIndexRoute
 }
-
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/library': typeof LibraryIndexRoute
   '/viewer': typeof ViewerIndexRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/library/': typeof LibraryIndexRoute
   '/viewer/': typeof ViewerIndexRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths: '/' | '/library' | '/viewer'
@@ -92,11 +53,36 @@ export interface FileRouteTypes {
   id: '__root__' | '/' | '/library/' | '/viewer/'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
   ViewerIndexRoute: typeof ViewerIndexRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/viewer/': {
+      id: '/viewer/'
+      path: '/viewer'
+      fullPath: '/viewer'
+      preLoaderRoute: typeof ViewerIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/library/': {
+      id: '/library/'
+      path: '/library'
+      fullPath: '/library'
+      preLoaderRoute: typeof LibraryIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -104,31 +90,6 @@ const rootRouteChildren: RootRouteChildren = {
   LibraryIndexRoute: LibraryIndexRoute,
   ViewerIndexRoute: ViewerIndexRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/library/",
-        "/viewer/"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/library/": {
-      "filePath": "library/index.tsx"
-    },
-    "/viewer/": {
-      "filePath": "viewer/index.tsx"
-    }
-  }
-}
-ROUTE_MANIFEST_END */

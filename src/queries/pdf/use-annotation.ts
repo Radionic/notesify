@@ -38,25 +38,23 @@ export const useCreateAnnotations = () => {
   return useMutation({
     mutationFn: async ({
       annotations,
-      saveHistory = true,
     }: {
-      annotations: Omit<Annotation, "id">[];
+      annotations: Annotation[];
       saveHistory?: boolean;
     }) => {
-      const newAnnotations = await dbService.annotation.createAnnotations({
+      await dbService.annotation.createAnnotations({
         annotations,
       });
+    },
+    onMutate: ({ annotations, saveHistory = true }) => {
       if (saveHistory) {
         pushHistory({
           action: "create",
           type: "annotation",
           pdfId: annotations[0].pdfId,
-          data: newAnnotations,
+          data: annotations,
         });
       }
-      return newAnnotations;
-    },
-    onSuccess: (annotations) => {
       queryClient.setQueryData<Annotation[]>(
         ["annotations", "pdf", annotations[0].pdfId],
         (oldData = []) => [...oldData, ...annotations]
@@ -72,22 +70,18 @@ export const useDeleteAnnotations = () => {
   return useMutation({
     mutationFn: async ({
       ids,
-      pdfId,
-      saveHistory = true,
     }: {
       ids: string[];
       pdfId: string;
       saveHistory?: boolean;
     }) => {
-      if (ids.length === 0) return;
-
       await dbService.annotation.deleteAnnotations({ ids });
+    },
+    onMutate: ({ ids, pdfId, saveHistory = true }) => {
       if (saveHistory) {
-        const annotations = queryClient.getQueryData<Annotation[]>([
-          "annotations",
-          "pdf",
-          pdfId,
-        ]);
+        const annotations = queryClient
+          .getQueryData<Annotation[]>(["annotations", "pdf", pdfId])
+          ?.filter((a) => ids.includes(a.id));
         if (annotations) {
           pushHistory({
             action: "delete",
@@ -97,8 +91,6 @@ export const useDeleteAnnotations = () => {
           });
         }
       }
-    },
-    onSuccess: (_, { ids, pdfId }) => {
       queryClient.setQueryData<Annotation[]>(
         ["annotations", "pdf", pdfId],
         (oldData = []) => oldData.filter((a) => !ids.includes(a.id))

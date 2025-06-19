@@ -68,6 +68,7 @@ export const TextMenu = ({
           onPointerDown={() => {
             createHighlight({
               highlight: {
+                id: generateId(),
                 pdfId,
                 text,
                 rects,
@@ -83,6 +84,7 @@ export const TextMenu = ({
             onChange={(color) => {
               createHighlight({
                 highlight: {
+                  id: generateId(),
                   pdfId,
                   text,
                   rects,

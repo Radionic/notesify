@@ -13,6 +13,7 @@ import {
   useCreateAnnotations,
   useDeleteAnnotations,
 } from "@/queries/pdf/use-annotation";
+import { generateId } from "@/lib/id";
 
 export const AnnotatorLayer = ({
   pdfId,
@@ -109,6 +110,7 @@ export const AnnotatorLayer = ({
         annotations: [
           {
             pdfId,
+            id: generateId(),
             type: annotator,
             page: pageNumber,
             path: currentPath,

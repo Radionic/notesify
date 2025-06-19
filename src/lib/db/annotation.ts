@@ -1,7 +1,6 @@
 import { Annotation, annotationsTable } from "@/db/schema/pdf/annotations";
 import { getDB } from "@/db/sqlite";
 import { eq } from "drizzle-orm";
-import { generateId } from "../id";
 
 export const getAnnotation = async (id: string) => {
   const db = await getDB();
@@ -22,15 +21,10 @@ export const getAnnotations = async ({ pdfId }: { pdfId: string }) => {
 export const createAnnotations = async ({
   annotations,
 }: {
-  annotations: Omit<Annotation, "id">[];
+  annotations: Annotation[];
 }) => {
   const db = await getDB();
-  const newAnnotations = annotations.map((ann) => ({
-    id: generateId(),
-    ...ann,
-  }));
-  await db.insert(annotationsTable).values(newAnnotations);
-  return newAnnotations;
+  await db.insert(annotationsTable).values(annotations);
 };
 
 export const deleteAnnotation = async ({ id }: { id: string }) => {

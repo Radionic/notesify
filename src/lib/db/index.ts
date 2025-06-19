@@ -7,18 +7,7 @@ import * as notes from "./notes";
 import * as pdf from "./pdf";
 import * as recording from "./recording";
 
-type DBService = {
-  annotation: typeof annotation;
-  chat: typeof chat;
-  message: typeof message;
-  fileSystem: typeof fileSystem;
-  highlight: typeof highlight;
-  notes: typeof notes;
-  pdf: typeof pdf;
-  recording: typeof recording;
-};
-
-export const dbService: DBService = {
+export const dbService = {
   annotation,
   chat,
   message,

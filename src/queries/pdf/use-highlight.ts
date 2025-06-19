@@ -48,26 +48,22 @@ export const useCreateHighlight = () => {
   return useMutation({
     mutationFn: async ({
       highlight,
-      saveHistory = true,
     }: {
-      highlight: Omit<Highlight, "id">;
+      highlight: Highlight;
       saveHistory?: boolean;
     }) => {
-      const highlightId = await dbService.highlight.addHighlight({ highlight });
-      const newHighlight = { id: highlightId, ...highlight };
-
+      await dbService.highlight.addHighlight({ highlight });
+    },
+    onMutate: ({ highlight, saveHistory = true }) => {
       if (saveHistory) {
         pushHistory({
           action: "create",
           type: "highlight",
           pdfId: highlight.pdfId,
-          data: newHighlight,
+          data: highlight,
         });
       }
 
-      return newHighlight;
-    },
-    onSuccess: (highlight) => {
       queryClient.setQueryData<Highlight[]>(
         ["highlights", "pdf", highlight.pdfId],
         (oldData) => {
@@ -85,23 +81,19 @@ export const useDeleteHighlight = () => {
 
   return useMutation({
     mutationFn: async ({
-      pdfId,
       highlightId,
-      saveHistory = true,
     }: {
       pdfId: string;
       highlightId: string;
       saveHistory?: boolean;
     }) => {
       await dbService.highlight.deleteHighlight({ id: highlightId });
-
+    },
+    onMutate: ({ pdfId, highlightId, saveHistory = true }) => {
       if (saveHistory) {
-        const highlights = queryClient.getQueryData<Highlight[]>([
-          "highlights",
-          "pdf",
-          pdfId,
-        ]);
-        const highlight = highlights?.find((h) => h.id === highlightId);
+        const highlight = queryClient
+          .getQueryData<Highlight[]>(["highlights", "pdf", pdfId])
+          ?.find((h) => h.id === highlightId);
         if (highlight) {
           pushHistory({
             action: "delete",
@@ -112,9 +104,6 @@ export const useDeleteHighlight = () => {
         }
       }
 
-      return { pdfId, highlightId };
-    },
-    onSuccess: ({ pdfId, highlightId }) => {
       queryClient.setQueryData<Highlight[]>(
         ["highlights", "pdf", pdfId],
         (oldData: Highlight[] = []) => {
@@ -131,10 +120,8 @@ export const useChangeHighlightColor = () => {
 
   return useMutation({
     mutationFn: async ({
-      pdfId,
       highlightId,
       color,
-      saveHistory = true,
     }: {
       pdfId: string;
       highlightId: string;
@@ -142,14 +129,12 @@ export const useChangeHighlightColor = () => {
       saveHistory?: boolean;
     }) => {
       await dbService.highlight.updateHighlight({ id: highlightId, color });
-
+    },
+    onMutate: ({ pdfId, highlightId, color, saveHistory = true }) => {
       if (saveHistory) {
-        const highlights = queryClient.getQueryData<Highlight[]>([
-          "highlights",
-          "pdf",
-          pdfId,
-        ]);
-        const oldHighlight = highlights?.find((h) => h.id === highlightId);
+        const oldHighlight = queryClient
+          .getQueryData<Highlight[]>(["highlights", "pdf", pdfId])
+          ?.find((h) => h.id === highlightId);
         if (oldHighlight) {
           pushHistory({
             action: "update",
@@ -161,9 +146,6 @@ export const useChangeHighlightColor = () => {
         }
       }
 
-      return { pdfId, highlightId, color };
-    },
-    onSuccess: ({ pdfId, highlightId, color }) => {
       queryClient.setQueryData(
         ["highlights", "pdf", pdfId],
         (oldData: Highlight[] = []) => {

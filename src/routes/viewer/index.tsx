@@ -1,8 +1,6 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
-
 import { pdfViewerOpenAtom } from "@/atoms/pdf/pdf-viewer";
-import { PlateEditor } from "@/components/editor/plate-editor";
 import { Chat } from "@/components/chat/chat";
 import { PdfCommandDialog } from "@/components/pdf/dialog/command-dialog";
 import { ProviderSettingsDialog } from "@/components/pdf/dialog/provider-settings-dialog";
@@ -56,7 +54,6 @@ const Viewer = () => {
   const fileSystemOpen = useAtomValue(fileSystemOpenAtom);
   const chatsOpen = useAtomValue(chatsOpenAtom);
   const pdfViewerOpen = useAtomValue(pdfViewerOpenAtom);
-  const notesOpen = useAtomValue(notesOpenAtom);
   const audioRecorderOpen = useAtomValue(audioRecorderOpenAtom);
 
   // const draggingItemId = useAtomValue(draggingItemIdAtom);
@@ -80,15 +77,6 @@ const Viewer = () => {
             <ResizablePanel minSize={15} order={1}>
               <FileSystemSidebar withUpload />
               {/* <FileSystemSidebar withUpload draggingItemId={draggingItemId} /> */}
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-          </>
-        )}
-
-        {notesOpen && notesId && (
-          <>
-            <ResizablePanel minSize={25} order={2}>
-              <PlateEditor notesId={notesId} />
             </ResizablePanel>
             <ResizableHandle withHandle />
           </>

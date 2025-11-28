@@ -1,10 +1,4 @@
-import {
-  AudioLines,
-  FileText,
-  PanelLeft,
-  Sparkles,
-  SquarePen,
-} from "lucide-react";
+import { AudioLines, FileText, PanelLeft, Sparkles } from "lucide-react";
 
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
 import { Card } from "@/components/ui/card";
@@ -70,20 +64,6 @@ export const Header = ({ pdfId }: { pdfId: string }) => {
         </TooltipButton>
 
         <Separator orientation="vertical" className="mx-0.5 h-6" />
-
-        <TooltipButton
-          tooltip="Toggle Notes"
-          active={notesOpen}
-          onClick={async () => {
-            const shouldOpen = togglePanel("notes", notesOpen);
-            setNotesOpen(shouldOpen);
-            if (shouldOpen) {
-              navigatePdf({ pdfId, openNotes: true });
-            }
-          }}
-        >
-          <SquarePen />
-        </TooltipButton>
 
         <TooltipButton
           tooltip="Toggle Sources"

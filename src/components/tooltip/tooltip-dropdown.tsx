@@ -8,7 +8,7 @@ import {
 
 import { TooltipButton } from "./tooltip-button";
 import { cn } from "@/lib/utils";
-import { ButtonProps } from "@ariakit/react";
+import { ButtonProps } from "../ui/button";
 
 export type TooltipSelectItem = {
   value: string;

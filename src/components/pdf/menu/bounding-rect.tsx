@@ -3,7 +3,7 @@ import { useRef } from "react";
 import { useOnClickOutside } from "@/hooks/pdf/use-on-click-outside";
 import { toPercentageStyle } from "@/lib/pdf/position";
 import { calcBoundingRect } from "@/lib/pdf/rects";
-import { Rect } from "@/lib/types";
+import type { Rect } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 import { Layer } from "../layer/layer";
@@ -33,7 +33,7 @@ export const BoundingRect = ({
         ref={ref}
         className={cn(
           "absolute border border-neutral-200/50 rounded-md pointer-events-none",
-          className
+          className,
         )}
         style={{
           ...toPercentageStyle(boudingRect, 10),

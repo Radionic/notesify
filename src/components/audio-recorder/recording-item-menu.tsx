@@ -1,23 +1,23 @@
+import { useAtom } from "jotai";
+import { Edit2, MoreVertical, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { selectedRecordingIdAtom } from "@/atoms/recording/audio-recorder";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { MoreVertical, Trash2, Edit2 } from "lucide-react";
-import { useState } from "react";
-import { RenameDialog } from "./dialogs/rename-dialog";
+import type { Recording } from "@/db/schema";
 import { DeleteDialog } from "./dialogs/delete-dialog";
-import { Recording } from "@/db/schema";
-import { useAtom } from "jotai";
-import { selectedRecordingIdAtom } from "@/atoms/recording/audio-recorder";
+import { RenameDialog } from "./dialogs/rename-dialog";
 
 export const RecordingItemMenu = ({ recording }: { recording: Recording }) => {
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedRecordingId, setSelectedRecordingId] = useAtom(
-    selectedRecordingIdAtom
+    selectedRecordingIdAtom,
   );
   const isSelected = selectedRecordingId === recording.id;
 

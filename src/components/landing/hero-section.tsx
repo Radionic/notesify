@@ -1,8 +1,8 @@
+import { Link } from "@tanstack/react-router";
+import { AiOutlineLinux } from "react-icons/ai";
+import { IoLogoApple, IoLogoWindows } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
 import { isTauri } from "@/lib/tauri";
-import { Link } from "@tanstack/react-router";
-import { IoLogoApple, IoLogoWindows } from "react-icons/io5";
-import { AiOutlineLinux } from "react-icons/ai";
 
 export function HeroSection() {
   return (

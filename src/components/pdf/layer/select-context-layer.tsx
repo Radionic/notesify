@@ -1,14 +1,14 @@
 import { useAtom, useAtomValue } from "jotai";
-import React, { useCallback, useRef, useState } from "react";
-
+import type React from "react";
+import { useCallback, useRef, useState } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
 import {
   selectContextModeAtom,
   viewerAtomFamily,
 } from "@/atoms/pdf/pdf-viewer";
-import { captureScreenshot } from "@/lib/pdf/canvas";
-import { useHotkeys } from "react-hotkeys-hook";
-import { generateId } from "@/lib/id";
 import { useChatContext } from "@/hooks/chat/use-chat-context";
+import { generateId } from "@/lib/id";
+import { captureScreenshot } from "@/lib/pdf/canvas";
 
 interface SelectionArea {
   startX: number;
@@ -70,7 +70,7 @@ export const SelectContextArea = ({
         });
       }
     },
-    [pageNumber]
+    [pageNumber],
   );
 
   const handleMouseDown = useCallback(
@@ -92,7 +92,7 @@ export const SelectContextArea = ({
         setMode(undefined);
       }
     },
-    [mode, handleScreenshot, setMode]
+    [mode, handleScreenshot, setMode],
   );
 
   const handleMouseMove = useCallback(
@@ -106,7 +106,7 @@ export const SelectContextArea = ({
         endY: e.clientY - rect.top,
       });
     },
-    [isSelecting, selection, mode]
+    [isSelecting, selection, mode],
   );
 
   const handleMouseUp = useCallback(async () => {

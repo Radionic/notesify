@@ -1,19 +1,17 @@
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { LuSettings } from "react-icons/lu";
-import { RiRobot2Line } from "react-icons/ri";
 import { Check, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { LuSettings } from "react-icons/lu";
+import { RiRobot2Line } from "react-icons/ri";
 
 import {
-  Model,
-  ModelType,
   availableModelsAtom,
+  type Model,
+  type ModelType,
   openSettingsDialogAtom,
   selectedModelsAtom,
 } from "@/atoms/setting/providers";
 import { Button } from "@/components/ui/button";
-import { TooltipButton } from "../tooltip/tooltip-button";
-import { cn } from "@/lib/utils";
 import {
   Command,
   CommandEmpty,
@@ -27,6 +25,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { TooltipButton } from "../tooltip/tooltip-button";
 
 export type SelectItem = {
   label: string;
@@ -54,22 +54,21 @@ export const ModelSelector = ({
   const setOpenSettings = useSetAtom(openSettingsDialogAtom);
 
   const modelItems = Object.entries(models)
-    .map(([provider, models]) =>
+    .flatMap(([provider, models]) =>
       models.map((model) => ({
         label: model.name,
         value: model,
-      }))
+      })),
     )
-    .flat()
     .filter(
       (model) =>
-        modelType !== "Document Parser" || OCR_MODELS.includes(model.value.id)
+        modelType !== "Document Parser" || OCR_MODELS.includes(model.value.id),
     );
 
   const selectedItem = model
     ? { label: model.name, value: model }
     : modelItems?.find(
-        (model) => model.label === selectedModels[modelType]?.name
+        (model) => model.label === selectedModels[modelType]?.name,
       );
 
   // Pin selected model to the top
@@ -175,7 +174,7 @@ export const ModelSelector = ({
                   <Check
                     className={cn(
                       "ml-auto",
-                      selectedItem?.label !== item.label && "opacity-0"
+                      selectedItem?.label !== item.label && "opacity-0",
                     )}
                   />
                 </CommandItem>

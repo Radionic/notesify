@@ -5,7 +5,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 export const PreviewImageDialog = () => {
   const [activePreviewContext, setActivePreviewContext] = useAtom(
-    activePreviewContextAtom
+    activePreviewContextAtom,
   );
   if (!activePreviewContext) return null;
 

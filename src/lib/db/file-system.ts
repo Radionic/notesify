@@ -1,7 +1,7 @@
-import { FileNode, filesTable } from "@/db/schema";
+import { asc, desc, eq, isNull } from "drizzle-orm";
+import { type FileNode, filesTable } from "@/db/schema";
 import { getDB } from "@/db/sqlite";
 import { generateId } from "@/lib/id";
-import { asc, desc, eq, isNull } from "drizzle-orm";
 
 export const getFile = async ({ id }: { id: string }) => {
   const db = await getDB();

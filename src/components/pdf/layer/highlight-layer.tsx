@@ -1,5 +1,5 @@
-import { Highlight } from "./components/highlight";
 import { useHighlightsByPage } from "@/queries/pdf/use-highlight";
+import { Highlight } from "./components/highlight";
 
 export const HighlightLayer = ({
   pdfId,

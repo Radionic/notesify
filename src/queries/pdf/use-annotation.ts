@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { Annotation } from "@/db/schema";
 import { dbService } from "@/lib/db";
-import { Annotation } from "@/db/schema";
 import { usePushHistory } from "./use-pdf-history";
 
 // export const useAnnotation = ({ id }: { id: string }) => {
@@ -57,7 +57,7 @@ export const useCreateAnnotations = () => {
       }
       queryClient.setQueryData<Annotation[]>(
         ["annotations", "pdf", annotations[0].pdfId],
-        (oldData = []) => [...oldData, ...annotations]
+        (oldData = []) => [...oldData, ...annotations],
       );
     },
   });
@@ -93,7 +93,7 @@ export const useDeleteAnnotations = () => {
       }
       queryClient.setQueryData<Annotation[]>(
         ["annotations", "pdf", pdfId],
-        (oldData = []) => oldData.filter((a) => !ids.includes(a.id))
+        (oldData = []) => oldData.filter((a) => !ids.includes(a.id)),
       );
     },
   });

@@ -1,15 +1,15 @@
-import { Button } from "@/components/ui/button";
+import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { Link } from "@tanstack/react-router";
 import { Menu, Moon, Sun } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Logo } from "../logo";
-import { GitHubLogoIcon } from "@radix-ui/react-icons";
 import { cn } from "@/lib/utils";
+import { Logo } from "../logo";
 import { ThemeSwitch } from "../theme-switch";
 
 const NavItem = ({
@@ -26,7 +26,7 @@ const NavItem = ({
       to={href}
       className={cn(
         `flex items-center text-sm font-medium text-muted-foreground transition-colors hover:text-primary`,
-        className
+        className,
       )}
     >
       {children}

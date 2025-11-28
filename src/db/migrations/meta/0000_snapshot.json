@@ -60,9 +60,7 @@
       "indexes": {
         "annotations_pdf_id_idx": {
           "name": "annotations_pdf_id_idx",
-          "columns": [
-            "pdf_id"
-          ],
+          "columns": ["pdf_id"],
           "isUnique": false
         }
       },
@@ -71,12 +69,8 @@
           "name": "annotations_pdf_id_pdfs_id_fk",
           "tableFrom": "annotations",
           "tableTo": "pdfs",
-          "columnsFrom": [
-            "pdf_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pdf_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -120,16 +114,12 @@
       "indexes": {
         "chats_updated_at_idx": {
           "name": "chats_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         },
         "chats_created_at_idx": {
           "name": "chats_created_at_idx",
-          "columns": [
-            "created_at"
-          ],
+          "columns": ["created_at"],
           "isUnique": false
         }
       },
@@ -187,30 +177,22 @@
       "indexes": {
         "files_parent_id_idx": {
           "name": "files_parent_id_idx",
-          "columns": [
-            "parent_id"
-          ],
+          "columns": ["parent_id"],
           "isUnique": false
         },
         "files_type_idx": {
           "name": "files_type_idx",
-          "columns": [
-            "type"
-          ],
+          "columns": ["type"],
           "isUnique": false
         },
         "files_created_at_idx": {
           "name": "files_created_at_idx",
-          "columns": [
-            "created_at"
-          ],
+          "columns": ["created_at"],
           "isUnique": false
         },
         "files_updated_at_idx": {
           "name": "files_updated_at_idx",
-          "columns": [
-            "updated_at"
-          ],
+          "columns": ["updated_at"],
           "isUnique": false
         }
       },
@@ -219,12 +201,8 @@
           "name": "files_parent_id_files_id_fk",
           "tableFrom": "files",
           "tableTo": "files",
-          "columnsFrom": [
-            "parent_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["parent_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -282,9 +260,7 @@
       "indexes": {
         "highlights_pdf_id_idx": {
           "name": "highlights_pdf_id_idx",
-          "columns": [
-            "pdf_id"
-          ],
+          "columns": ["pdf_id"],
           "isUnique": false
         }
       },
@@ -293,12 +269,8 @@
           "name": "highlights_pdf_id_pdfs_id_fk",
           "tableFrom": "highlights",
           "tableTo": "pdfs",
-          "columnsFrom": [
-            "pdf_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pdf_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -370,9 +342,7 @@
       "indexes": {
         "messages_created_at_idx": {
           "name": "messages_created_at_idx",
-          "columns": [
-            "created_at"
-          ],
+          "columns": ["created_at"],
           "isUnique": false
         }
       },
@@ -381,12 +351,8 @@
           "name": "messages_chat_id_chats_id_fk",
           "tableFrom": "messages",
           "tableTo": "chats",
-          "columnsFrom": [
-            "chat_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["chat_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -430,9 +396,7 @@
       "indexes": {
         "notes_pdf_id_idx": {
           "name": "notes_pdf_id_idx",
-          "columns": [
-            "pdf_id"
-          ],
+          "columns": ["pdf_id"],
           "isUnique": false
         }
       },
@@ -441,12 +405,8 @@
           "name": "notes_id_files_id_fk",
           "tableFrom": "notes",
           "tableTo": "files",
-          "columnsFrom": [
-            "id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -454,12 +414,8 @@
           "name": "notes_pdf_id_pdfs_id_fk",
           "tableFrom": "notes",
           "tableTo": "pdfs",
-          "columnsFrom": [
-            "pdf_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pdf_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -527,12 +483,8 @@
           "name": "pdf_indexing_pdf_id_pdfs_id_fk",
           "tableFrom": "pdf_indexing",
           "tableTo": "pdfs",
-          "columnsFrom": [
-            "pdf_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pdf_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -593,12 +545,8 @@
           "name": "pdf_parsing_pdf_id_pdfs_id_fk",
           "tableFrom": "pdf_parsing",
           "tableTo": "pdfs",
-          "columnsFrom": [
-            "pdf_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["pdf_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -647,12 +595,8 @@
           "name": "pdfs_id_files_id_fk",
           "tableFrom": "pdfs",
           "tableTo": "files",
-          "columnsFrom": [
-            "id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -696,16 +640,12 @@
       "indexes": {
         "recordings_duration_idx": {
           "name": "recordings_duration_idx",
-          "columns": [
-            "duration"
-          ],
+          "columns": ["duration"],
           "isUnique": false
         },
         "recordings_created_at_idx": {
           "name": "recordings_created_at_idx",
-          "columns": [
-            "created_at"
-          ],
+          "columns": ["created_at"],
           "isUnique": false
         }
       },

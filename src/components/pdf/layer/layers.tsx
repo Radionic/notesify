@@ -1,5 +1,5 @@
 import { useAtomValue } from "jotai";
-import React from "react";
+import type React from "react";
 
 import { renderedPagesAtomFamily } from "@/atoms/pdf/pdf-viewer";
 

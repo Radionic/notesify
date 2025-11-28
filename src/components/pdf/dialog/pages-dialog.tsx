@@ -1,5 +1,5 @@
 import { useAtomValue } from "jotai";
-import { type PDFDocumentProxy } from "pdfjs-dist";
+import type { PDFDocumentProxy } from "pdfjs-dist";
 import { useEffect, useRef, useState } from "react";
 
 import { documentAtomFamily } from "@/atoms/pdf/pdf-viewer";
@@ -45,7 +45,7 @@ const PageThumbnail = ({
           page,
           canvas,
           scale,
-          pixelRatio
+          pixelRatio,
         );
         setDimensions(pageDimensions);
       } catch (error) {
@@ -119,7 +119,7 @@ export const PagesDialog = ({
                 pixelRatio={2}
                 onClick={() => handlePageClick(pageNumber)}
               />
-            )
+            ),
           )}
         </div>
       </DialogContent>

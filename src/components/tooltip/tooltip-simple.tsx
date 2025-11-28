@@ -1,12 +1,11 @@
-import { ReactNode } from "@tanstack/react-router";
-
-import { ButtonProps } from "@/components/ui/button";
+import type { ReactNode } from "@tanstack/react-router";
+import { useState } from "react";
+import type { ButtonProps } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 
 export const TooltipSimple = ({

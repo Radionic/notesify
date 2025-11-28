@@ -1,7 +1,7 @@
+import { desc, eq, like } from "drizzle-orm";
 import { chatsTable } from "@/db/schema";
 import { getDB } from "@/db/sqlite";
 import { generateId } from "@/lib/id";
-import { eq, desc, like } from "drizzle-orm";
 
 export const getChats = async ({ searchTerm }: { searchTerm?: string }) => {
   const db = await getDB();

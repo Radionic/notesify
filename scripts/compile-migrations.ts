@@ -8,7 +8,7 @@ const migrations = readMigrationFiles({
 
 await fs.writeFileSync(
   path.join(process.cwd(), "./src/db/migrations.json"),
-  JSON.stringify(migrations)
+  JSON.stringify(migrations),
 );
 
 console.log("Migrations compiled!");

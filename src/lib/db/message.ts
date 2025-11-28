@@ -1,6 +1,6 @@
-import { MessageDB, messagesTable } from "@/db/schema";
-import { getDB } from "@/db/sqlite";
 import { asc, eq } from "drizzle-orm";
+import { type MessageDB, messagesTable } from "@/db/schema";
+import { getDB } from "@/db/sqlite";
 
 export const getMessage = async (id: string) => {
   const db = await getDB();

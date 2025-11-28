@@ -2,7 +2,7 @@ import { useSetAtom } from "jotai";
 import { CgClose } from "react-icons/cg";
 import { VscGoToFile } from "react-icons/vsc";
 
-import { activePreviewContextAtom, Context } from "@/atoms/chat/contexts";
+import { activePreviewContextAtom, type Context } from "@/atoms/chat/contexts";
 import { useChatContext } from "@/hooks/chat/use-chat-context";
 
 interface ImageContextPreviewProps {

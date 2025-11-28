@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import type { Notes } from "@/db/schema";
 import { dbService } from "@/lib/db";
-import { Notes } from "@/db/schema";
 
 export const useNotes = ({
   notesId,

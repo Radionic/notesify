@@ -1,6 +1,6 @@
-import { Highlight, highlightsTable } from "@/db/schema/pdf/highlights";
-import { getDB } from "@/db/sqlite";
 import { eq } from "drizzle-orm";
+import { type Highlight, highlightsTable } from "@/db/schema/pdf/highlights";
+import { getDB } from "@/db/sqlite";
 import { generateId } from "../id";
 
 export const getHighlight = async ({ id }: { id: string }) => {

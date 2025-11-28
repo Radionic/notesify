@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Highlight } from "@/db/schema/pdf/highlights";
-import { dbService } from "@/lib/db";
 import { toast } from "sonner";
+import type { Highlight } from "@/db/schema/pdf/highlights";
+import { dbService } from "@/lib/db";
 import { usePushHistory } from "./use-pdf-history";
 
 // export const useHighlight = ({ id }: { id: string }) => {
@@ -69,7 +69,7 @@ export const useCreateHighlight = () => {
         (oldData) => {
           if (!oldData) return [highlight];
           return [...oldData, highlight];
-        }
+        },
       );
     },
   });
@@ -108,7 +108,7 @@ export const useDeleteHighlight = () => {
         ["highlights", "pdf", pdfId],
         (oldData: Highlight[] = []) => {
           return oldData.filter((h) => h.id !== highlightId);
-        }
+        },
       );
     },
   });
@@ -150,9 +150,9 @@ export const useChangeHighlightColor = () => {
         ["highlights", "pdf", pdfId],
         (oldData: Highlight[] = []) => {
           return oldData.map((h) =>
-            h.id === highlightId ? { ...h, color } : h
+            h.id === highlightId ? { ...h, color } : h,
           );
-        }
+        },
       );
     },
   });

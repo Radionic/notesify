@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface RecorderOptions {
   type?: string; // Media type for the recording, e.g. "audio/webm"

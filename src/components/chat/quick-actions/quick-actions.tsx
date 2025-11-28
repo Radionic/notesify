@@ -1,14 +1,14 @@
-import { Pencil } from "lucide-react";
 import { useAtom, useAtomValue } from "jotai";
+import { Pencil } from "lucide-react";
 
 import {
   chatSuggestionsAtom,
   editSuggestionDialogAtom,
 } from "@/atoms/chat/chat-suggestions";
-import { EditSuggestionDialog } from "../../pdf/dialog/edit-suggestion-dialog";
-import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
+import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
+import { EditSuggestionDialog } from "../../pdf/dialog/edit-suggestion-dialog";
 
 export const QuickActions = () => {
   const suggestions = useAtomValue(chatSuggestionsAtom);

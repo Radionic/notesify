@@ -1,13 +1,12 @@
-import { ReactNode } from "@tanstack/react-router";
-
-import { Button, ButtonProps } from "@/components/ui/button";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
+import type { ReactNode } from "@tanstack/react-router";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
-import { TooltipProvider } from "@radix-ui/react-tooltip";
 
 export const TooltipButton = ({
   tooltip,
@@ -34,7 +33,7 @@ export const TooltipButton = ({
               "p-2 w-fit h-fit",
               active &&
                 "bg-buttonblue/80 text-blue-500 hover:text-blue-600 hover:bg-buttonblue",
-              className
+              className,
             )}
             {...rest}
           >

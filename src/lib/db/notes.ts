@@ -1,7 +1,7 @@
-import { getDB } from "@/db/sqlite";
-import { eq } from "drizzle-orm";
-import { notesTable, Notes } from "@/db/schema";
 import { generateId } from "ai";
+import { eq } from "drizzle-orm";
+import { type Notes, notesTable } from "@/db/schema";
+import { getDB } from "@/db/sqlite";
 
 export const getNotesForPdf = async ({ pdfId }: { pdfId: string }) => {
   const db = await getDB();

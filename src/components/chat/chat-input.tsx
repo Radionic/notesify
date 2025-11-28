@@ -1,15 +1,13 @@
 import { useAtom, useAtomValue } from "jotai";
-
+import { activeChatIdAtom } from "@/atoms/chat/chats";
+import { activeContextsAtom } from "@/atoms/chat/contexts";
+import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
+import { useChatAI } from "@/hooks/chat/use-chat-ai";
+import { generateId } from "@/lib/id";
 import { AutogrowingTextarea } from "../origin-ui/autogrowing-textarea";
-
+import { ModelSelector } from "../pdf/model-selector";
 import { SelectAreaContextButton } from "./action-button/select-context-button";
 import { SendButton } from "./action-button/send-button";
-import { ModelSelector } from "../pdf/model-selector";
-import { useChatAI } from "@/hooks/chat/use-chat-ai";
-import { activeContextsAtom } from "@/atoms/chat/contexts";
-import { activeChatIdAtom } from "@/atoms/chat/chats";
-import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
-import { generateId } from "@/lib/id";
 
 export const ChatInput = () => {
   const [contexts, setContexts] = useAtom(activeContextsAtom);

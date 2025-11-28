@@ -1,18 +1,18 @@
 import { useMutation } from "@tanstack/react-query";
-import { useCreateAnnotations, useDeleteAnnotations } from "./use-annotation";
-import {
-  useCreateHighlight,
-  useChangeHighlightColor,
-  useDeleteHighlight,
-} from "./use-highlight";
+import { getDefaultStore, useAtom, useAtomValue } from "jotai";
 import {
   canRedoAtom,
   canUndoAtom,
+  type HistoryRecord,
   historyAtomFamily,
-  HistoryRecord,
 } from "@/atoms/pdf/history";
-import { Annotation } from "@/db/schema";
-import { getDefaultStore, useAtom, useAtomValue } from "jotai";
+import type { Annotation } from "@/db/schema";
+import { useCreateAnnotations, useDeleteAnnotations } from "./use-annotation";
+import {
+  useChangeHighlightColor,
+  useCreateHighlight,
+  useDeleteHighlight,
+} from "./use-highlight";
 
 export const useUndoRedo = ({ pdfId }: { pdfId?: string }) => {
   const canUndo = useAtomValue(canUndoAtom(pdfId));
@@ -27,15 +27,15 @@ export const useUndoRedo = ({ pdfId }: { pdfId?: string }) => {
     const newPast = history.past.slice(0, -1);
 
     // Create reverse record
-    // @ts-ignore
+    // @ts-expect-error
     const record: HistoryRecord = {
       ...lastAction,
       action:
         lastAction.action === "create"
           ? "delete"
           : lastAction.action === "delete"
-          ? "create"
-          : "update",
+            ? "create"
+            : "update",
       data:
         lastAction.action === "update" && lastAction.oldData
           ? lastAction.oldData

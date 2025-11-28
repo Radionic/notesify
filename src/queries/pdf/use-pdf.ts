@@ -1,31 +1,33 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Pdf, ScrollPosition } from "@/db/schema";
-import { dbService } from "@/lib/db";
-import { isTauri } from "@/lib/tauri";
+import {
+  queryOptions,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
-import { toast } from "sonner";
-import { readNativeFile } from "@/lib/tauri";
-import { queryOptions, useQuery } from "@tanstack/react-query";
-import { getDefaultStore, useAtomValue } from "jotai";
-import { useAtom } from "jotai";
-import { notesOpenAtom } from "@/atoms/notes/notes";
-import { fileQueryOptions } from "../file-system/use-file-system";
-import { router } from "@/main";
+import { getDefaultStore, useAtom, useAtomValue } from "jotai";
+import { AnnotationMode, getDocument } from "pdfjs-dist";
 import {
   EventBus,
   PDFLinkService,
   PDFViewer,
 } from "pdfjs-dist/web/pdf_viewer.mjs";
+import { toast } from "sonner";
+import { notesOpenAtom } from "@/atoms/notes/notes";
 import {
   activePdfIdAtom,
   currentPageAtomFamily,
   documentAtomFamily,
-  viewerAtomFamily,
-  renderedPagesAtomFamily,
   openedPdfIdsAtom,
+  renderedPagesAtomFamily,
+  viewerAtomFamily,
 } from "@/atoms/pdf/pdf-viewer";
-import { AnnotationMode, getDocument } from "pdfjs-dist";
+import type { Pdf, ScrollPosition } from "@/db/schema";
+import { dbService } from "@/lib/db";
+import { isTauri, readNativeFile } from "@/lib/tauri";
+import { router } from "@/main";
+import { fileQueryOptions } from "../file-system/use-file-system";
 
 export const pdfQueryOptions = ({
   pdfId,
@@ -119,7 +121,7 @@ export const useLoadPdf = () => {
   }) => {
     const pdf = await queryClient.fetchQuery(pdfQueryOptions({ pdfId }));
     const pdfData = await queryClient.fetchQuery(
-      pdfDataQueryOptions({ pdfId })
+      pdfDataQueryOptions({ pdfId }),
     );
     if (!pdf || !pdfData || !container) {
       throw new Error("Failed to load PDF");
@@ -189,7 +191,7 @@ export const useLoadPdf = () => {
     const store = getDefaultStore();
     store.set(activePdfIdAtom, undefined);
     store.set(openedPdfIdsAtom, (currentIds) =>
-      currentIds.filter((id) => id !== pdfId)
+      currentIds.filter((id) => id !== pdfId),
     );
     const documentAtom = documentAtomFamily(pdfId);
     await store.get(documentAtom)?.destroy();
@@ -221,7 +223,7 @@ export const useConvertPdf = () => {
         {
           method: "POST",
           body: formData,
-        }
+        },
       );
 
       if (!response.ok) {
@@ -246,7 +248,7 @@ export const useDownloadPdf = () => {
       filename: string;
     }) => {
       const pdfData = await queryClient.fetchQuery(
-        pdfDataQueryOptions({ pdfId })
+        pdfDataQueryOptions({ pdfId }),
       );
       if (!pdfData) {
         toast.error("Failed to download PDF");
@@ -321,7 +323,7 @@ export const useOpenedPdfs = () => {
         pdfIds.map(async (pdfId) => {
           const pdf = await queryClient.fetchQuery(pdfQueryOptions({ pdfId }));
           const pdfFile = await queryClient.fetchQuery(
-            fileQueryOptions({ id: pdfId })
+            fileQueryOptions({ id: pdfId }),
           );
           if (!pdf || !pdfFile) {
             return null;
@@ -331,7 +333,7 @@ export const useOpenedPdfs = () => {
             name: pdfFile.name,
             pageCount: pdf.pageCount,
           };
-        })
+        }),
       );
       return openedPdfs.filter((pdf) => pdf !== null);
     },

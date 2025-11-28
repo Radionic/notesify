@@ -1,7 +1,6 @@
-import { OpenAIProviderSettings } from "@ai-sdk/openai";
-import { createOpenAI } from "@ai-sdk/openai";
-import { createMistral, MistralProviderSettings } from "@ai-sdk/mistral";
-import { createProviderRegistry, ProviderRegistryProvider } from "ai";
+import { createMistral, type MistralProviderSettings } from "@ai-sdk/mistral";
+import { createOpenAI, type OpenAIProviderSettings } from "@ai-sdk/openai";
+import { createProviderRegistry, type ProviderRegistryProvider } from "ai";
 import { atom } from "jotai";
 import { atomWithStorage } from "jotai/utils";
 
@@ -25,13 +24,13 @@ export const openSettingsDialogAtom = atom<boolean>(false);
 // All configured providers
 export const configuredProvidersAtom = atomWithStorage<Provider[]>(
   "configured-providers",
-  []
+  [],
 );
 
 // Available models from all providers
 export const availableModelsAtom = atomWithStorage<Record<string, Model[]>>(
   "available-models",
-  {}
+  {},
 );
 
 // Selected models for each type
@@ -62,5 +61,5 @@ export const providerRegistryAtom = atom<ProviderRegistryProvider | undefined>(
     }
 
     return createProviderRegistry(registryConfig);
-  }
+  },
 );

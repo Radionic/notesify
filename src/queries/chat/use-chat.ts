@@ -1,13 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Message } from "ai";
+import type { Message } from "ai";
 import { useSetAtom } from "jotai";
-import { createChat, updateChatTitle } from "@/lib/db/chat";
-import { generateTitle } from "@/lib/chat/chat";
-import { activeChatIdAtom } from "@/atoms/chat/chats";
-import { Chat } from "@/db/schema/chat/chats";
 import { toast } from "sonner";
-import { dbService } from "@/lib/db";
+import { activeChatIdAtom } from "@/atoms/chat/chats";
+import type { Chat } from "@/db/schema/chat/chats";
 import { useGetSelectedModel } from "@/hooks/use-model";
+import { generateTitle } from "@/lib/chat/chat";
+import { dbService } from "@/lib/db";
+import { createChat, updateChatTitle } from "@/lib/db/chat";
 
 export const useChat = ({ id }: { id: string }) => {
   return useQuery({
@@ -79,7 +79,7 @@ export const useUpdateChatTitle = () => {
           return;
         }
         return oldData.map((chat) =>
-          chat.id === chatId ? { ...chat, title } : chat
+          chat.id === chatId ? { ...chat, title } : chat,
         );
       });
     },

@@ -1,5 +1,5 @@
-import React from "react";
 import { useDraggable } from "@dnd-kit/core";
+import type React from "react";
 
 export const Draggable = ({
   id,

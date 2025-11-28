@@ -1,10 +1,10 @@
 import * as path from "@tauri-apps/api/path";
 import {
-  readFile,
-  writeFile,
-  remove,
   exists,
   mkdir,
+  readFile,
+  remove,
+  writeFile,
 } from "@tauri-apps/plugin-fs";
 
 export const isTauri = "isTauri" in window;
@@ -39,7 +39,7 @@ export const readNativeFile = async (dirName: string, filename: string) => {
 export const writeNativeFile = async (
   dirName: string,
   filename: string,
-  data: Blob
+  data: Blob,
 ) => {
   if (!isTauri) {
     console.log("[mem] write file", dirName, filename, data);

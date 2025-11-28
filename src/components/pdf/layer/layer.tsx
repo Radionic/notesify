@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from "react";
-import { createRoot, Root } from "react-dom/client";
-import { useAtomValue } from "jotai";
-import { viewerAtomFamily } from "@/atoms/pdf/pdf-viewer";
 import { QueryClientProvider, useQueryClient } from "@tanstack/react-query";
+import { useAtomValue } from "jotai";
+import type React from "react";
+import { useEffect, useRef } from "react";
+import { createRoot, type Root } from "react-dom/client";
+import { viewerAtomFamily } from "@/atoms/pdf/pdf-viewer";
 
 export const Layer = ({
   pdfId,
@@ -44,7 +45,7 @@ export const Layer = ({
       root.render(
         <QueryClientProvider client={queryClient}>
           {children}
-        </QueryClientProvider>
+        </QueryClientProvider>,
       );
     }
   }, [children, viewer]);

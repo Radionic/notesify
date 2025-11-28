@@ -1,6 +1,6 @@
-import { AudioRecorderToolbar } from "./toolbar";
 import { RecordingControls } from "./recording-controls";
 import { RecordingsList } from "./recordings-list";
+import { AudioRecorderToolbar } from "./toolbar";
 
 export const AudioRecorder = () => {
   return (

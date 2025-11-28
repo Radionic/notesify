@@ -1,10 +1,10 @@
+import { useAtom, useSetAtom } from "jotai";
 import {
   activeBoundingContextAtom,
   activeContextsAtom,
-  Context,
+  type Context,
 } from "@/atoms/chat/contexts";
 import { useNavigatePdf } from "@/queries/pdf/use-pdf";
-import { useAtom, useSetAtom } from "jotai";
 
 export const useChatContext = () => {
   const [activeContexts, setActiveContexts] = useAtom(activeContextsAtom);

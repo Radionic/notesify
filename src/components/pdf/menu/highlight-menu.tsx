@@ -1,23 +1,21 @@
 import { useAtom, useSetAtom } from "jotai";
 import { Copy, Sparkles, Trash } from "lucide-react";
 import { toast } from "sonner";
-
-import { TooltipButton } from "@/components/tooltip/tooltip-button";
-import { Separator } from "@/components/ui/separator";
-import { calcBoundingRect } from "@/lib/pdf/rects";
-
-import { BoundingRect } from "./bounding-rect";
-import { HighlightOptions } from "./highlight-options";
-import { Menu } from "./menu";
-import { generateId } from "@/lib/id";
 import { chatsOpenAtom } from "@/atoms/chat/chats";
 import { activeHighlightAtom } from "@/atoms/pdf/pdf-viewer";
+import { TooltipButton } from "@/components/tooltip/tooltip-button";
+import { Separator } from "@/components/ui/separator";
+import { useChatContext } from "@/hooks/chat/use-chat-context";
+import { generateId } from "@/lib/id";
+import { calcBoundingRect } from "@/lib/pdf/rects";
 import {
   useChangeHighlightColor,
   useCopyHighlight,
   useDeleteHighlight,
 } from "@/queries/pdf/use-highlight";
-import { useChatContext } from "@/hooks/chat/use-chat-context";
+import { BoundingRect } from "./bounding-rect";
+import { HighlightOptions } from "./highlight-options";
+import { Menu } from "./menu";
 
 export const HighlightMenu = ({ pdfId }: { pdfId: string }) => {
   const [activeHighlight, setActiveHighlight] = useAtom(activeHighlightAtom);

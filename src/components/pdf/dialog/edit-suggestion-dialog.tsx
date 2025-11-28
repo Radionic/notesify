@@ -1,10 +1,11 @@
 import { useAtom } from "jotai";
 import { useState } from "react";
-
+import { toast } from "sonner";
 import {
   chatSuggestionsAtom,
   editSuggestionDialogAtom,
 } from "@/atoms/chat/chat-suggestions";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -13,8 +14,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
 
 export const EditSuggestionDialog = () => {
   const [suggestions, setSuggestions] = useAtom(chatSuggestionsAtom);
@@ -27,8 +26,8 @@ export const EditSuggestionDialog = () => {
     if (!suggestion) return;
     setSuggestions(
       suggestions.map((s) =>
-        s.id === suggestion.id ? { ...s, title, prompt } : s
-      )
+        s.id === suggestion.id ? { ...s, title, prompt } : s,
+      ),
     );
     setSuggestion(undefined);
     toast.success("Quick action updated");

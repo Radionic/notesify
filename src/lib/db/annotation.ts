@@ -1,6 +1,6 @@
-import { Annotation, annotationsTable } from "@/db/schema/pdf/annotations";
-import { getDB } from "@/db/sqlite";
 import { eq } from "drizzle-orm";
+import { type Annotation, annotationsTable } from "@/db/schema/pdf/annotations";
+import { getDB } from "@/db/sqlite";
 
 export const getAnnotation = async (id: string) => {
   const db = await getDB();

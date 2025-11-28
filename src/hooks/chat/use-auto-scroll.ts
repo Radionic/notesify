@@ -4,7 +4,7 @@ type Options = { threshold?: number };
 
 export const useAutoScroll = (
   messages: unknown,
-  { threshold = 10 }: Options = {}
+  { threshold = 10 }: Options = {},
 ) => {
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);

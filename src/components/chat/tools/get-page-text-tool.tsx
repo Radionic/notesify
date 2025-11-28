@@ -1,4 +1,4 @@
-import { ToolInvocation } from "ai";
+import type { ToolInvocation } from "ai";
 import { PageTool } from "./page-tool";
 
 export const GetPageTextTool = ({
@@ -11,7 +11,7 @@ export const GetPageTextTool = ({
   const { startPage, endPage } = tool.args || {};
   const pages = Array.from(
     { length: endPage - startPage + 1 },
-    (_, i) => startPage + i
+    (_, i) => startPage + i,
   );
 
   return (

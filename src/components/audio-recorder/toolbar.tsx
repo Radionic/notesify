@@ -1,13 +1,12 @@
+import { useSetAtom } from "jotai";
+import { Search, XIcon } from "lucide-react";
 import { useState } from "react";
-import { XIcon, Search } from "lucide-react";
-
+import { toast } from "sonner";
+import { audioRecorderOpenAtom } from "@/atoms/recording/audio-recorder";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card } from "../ui/card";
 import { TooltipButton } from "../tooltip/tooltip-button";
-import { toast } from "sonner";
-import { useSetAtom } from "jotai";
-import { audioRecorderOpenAtom } from "@/atoms/recording/audio-recorder";
+import { Card } from "../ui/card";
 
 export const AudioRecorderToolbar = () => {
   const setIsOpen = useSetAtom(audioRecorderOpenAtom);

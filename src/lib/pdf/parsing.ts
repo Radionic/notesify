@@ -1,10 +1,10 @@
-import { ParsedPDFPage } from "@/db/schema";
 import { Mistral } from "@mistralai/mistralai";
-import { getDocument } from "pdfjs-dist";
-import { readNativeFile } from "../tauri";
-import { dbService } from "../db";
 import { getDefaultStore } from "jotai";
+import { getDocument } from "pdfjs-dist";
 import { configuredProvidersAtom } from "@/atoms/setting/providers";
+import type { ParsedPDFPage } from "@/db/schema";
+import { dbService } from "../db";
+import { readNativeFile } from "../tauri";
 
 export const parsePdf = async ({
   pdfId,

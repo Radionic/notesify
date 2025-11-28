@@ -1,16 +1,16 @@
 import { format } from "date-fns";
-import { RecordingItemMenu } from "./recording-item-menu";
-import { cn } from "@/lib/utils";
-import { formatDuration } from "../../lib/audio/utils";
-import { AudioPlayer } from "./audio-player";
 import { useAtom } from "jotai";
 import { selectedRecordingIdAtom } from "@/atoms/recording/audio-recorder";
-import { Recording } from "@/db/schema";
+import type { Recording } from "@/db/schema";
+import { cn } from "@/lib/utils";
 import { useRecordingData } from "@/queries/recording/use-recording";
+import { formatDuration } from "../../lib/audio/utils";
+import { AudioPlayer } from "./audio-player";
+import { RecordingItemMenu } from "./recording-item-menu";
 
 export const RecordingItem = ({ recording }: { recording: Recording }) => {
   const [selectedRecordingId, setSelectedRecordingId] = useAtom(
-    selectedRecordingIdAtom
+    selectedRecordingIdAtom,
   );
   const isSelected = selectedRecordingId === recording.id;
   const { data: recordingData } = useRecordingData({

@@ -1,23 +1,23 @@
-import { useState } from "react";
 import { useAtomValue } from "jotai";
 import {
-  FolderIcon,
-  FileIcon,
   ChevronDownIcon,
   ChevronRightIcon,
+  FileIcon,
+  FolderIcon,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { ItemMenu } from "./item-menu";
-import { Input } from "@/components/ui/input";
+import { useState } from "react";
 import { toast } from "sonner";
 import { openedPdfIdsAtom } from "@/atoms/pdf/pdf-viewer";
 import { Badge } from "@/components/badge";
-import { FileNode } from "@/db/schema";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import type { FileNode } from "@/db/schema";
 import {
   useRemovePdf,
   useRenamePdf,
 } from "@/queries/file-system/use-file-system";
 import { useDownloadPdf, useNavigatePdf } from "@/queries/pdf/use-pdf";
+import { ItemMenu } from "./item-menu";
 
 export interface FileSystemItemProps {
   node: FileNode;

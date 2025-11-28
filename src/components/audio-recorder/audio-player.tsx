@@ -1,17 +1,17 @@
-import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
 import { Pause, Play } from "lucide-react";
+import { useEffect, useState } from "react";
+import { GrBackTen, GrForwardTen } from "react-icons/gr";
+import { useAudio } from "react-use";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { formatDuration } from "../../lib/audio/utils";
-import { GrBackTen, GrForwardTen } from "react-icons/gr";
-import { useAudio } from "react-use";
-import { useEffect, useState } from "react";
 
 export const AudioPlayer = ({
   duration,
@@ -107,7 +107,7 @@ export const AudioPlayer = ({
                 onClick={() => setPlaybackSpeed(speed)}
                 className={cn(
                   "text-xs",
-                  playbackSpeed === speed && "bg-neutral-100 font-medium"
+                  playbackSpeed === speed && "bg-neutral-100 font-medium",
                 )}
               >
                 {speed}x

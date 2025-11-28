@@ -1,4 +1,4 @@
-import { Rect } from "@/lib/types";
+import type { Rect } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 import {
@@ -31,7 +31,7 @@ export const Menu = ({
       <Card
         className={cn(
           "absolute -translate-x-1/2 translate-y-1 pointer-events-auto z-30",
-          className
+          className,
         )}
         style={toPercentageStyle(menuPosition)}
       >

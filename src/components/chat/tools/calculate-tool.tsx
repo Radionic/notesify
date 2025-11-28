@@ -1,9 +1,9 @@
-import { ToolInvocation } from "ai";
-import { Badge } from "@/components/badge";
-import { cn } from "@/lib/utils";
-import { InlineMath } from "react-katex";
+import type { ToolInvocation } from "ai";
 import { parse } from "mathjs";
 import { useEffect, useState } from "react";
+import { InlineMath } from "react-katex";
+import { Badge } from "@/components/badge";
+import { cn } from "@/lib/utils";
 import "@/styles/katex.css";
 
 export const CalculateTool = ({

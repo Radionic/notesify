@@ -1,14 +1,14 @@
+import { eq } from "drizzle-orm";
 import {
-  Pdf,
+  type IndexedPDFPage,
+  type ParsedPDFPage,
+  type Pdf,
   pdfIndexingTable,
-  IndexedPDFPage,
-  ParsedPDFPage,
   pdfParsingTable,
   pdfsTable,
-  ScrollPosition,
+  type ScrollPosition,
 } from "@/db/schema";
 import { getDB } from "@/db/sqlite";
-import { eq } from "drizzle-orm";
 import { generateId } from "@/lib/id";
 import { addFile } from "./file-system";
 

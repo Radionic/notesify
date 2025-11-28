@@ -1,7 +1,8 @@
 // https://github.com/drizzle-team/drizzle-orm/discussions/2532
+
+import type { SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
 import migrations from "./migrations.json";
-import { SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
-import * as schema from "./schema";
+import type * as schema from "./schema";
 
 async function ensureMigrationsTable(db: SqliteRemoteDatabase<typeof schema>) {
   console.log("📦 Ensuring migrations table exists...");
@@ -14,7 +15,7 @@ async function ensureMigrationsTable(db: SqliteRemoteDatabase<typeof schema>) {
 }
 
 async function getMigratedHashes(
-  db: SqliteRemoteDatabase<typeof schema>
+  db: SqliteRemoteDatabase<typeof schema>,
 ): Promise<string[]> {
   const result = await db.all(`
     SELECT hash FROM drizzle_migrations ORDER BY created_at ASC
@@ -26,7 +27,7 @@ async function getMigratedHashes(
 
 async function recordMigration(
   db: SqliteRemoteDatabase<typeof schema>,
-  hash: string
+  hash: string,
 ) {
   await db.run(`
     INSERT OR IGNORE INTO drizzle_migrations (hash, created_at)
@@ -45,7 +46,7 @@ export async function migrate(db: SqliteRemoteDatabase<typeof schema>) {
 
   // Filter and execute pending migrations
   const pendingMigrations = migrations.filter(
-    (migration) => !executedHashes.includes(migration.hash)
+    (migration) => !executedHashes.includes(migration.hash),
   );
 
   if (pendingMigrations.length === 0) {

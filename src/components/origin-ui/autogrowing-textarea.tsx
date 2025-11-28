@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
@@ -36,7 +35,7 @@ export const AutogrowingTextarea = ({
 
       const newHeight = Math.min(
         textarea.scrollHeight + borderHeight,
-        maxHeight
+        maxHeight,
       );
 
       textarea.style.height = `${newHeight}px`;

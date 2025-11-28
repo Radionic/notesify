@@ -1,5 +1,5 @@
-import { type PDFDocumentProxy } from "pdfjs-dist";
-import { type PDFViewer } from "pdfjs-dist/types/web/pdf_rendering_queue";
+import type { PDFDocumentProxy } from "pdfjs-dist";
+import type { PDFViewer } from "pdfjs-dist/types/web/pdf_rendering_queue";
 
 // export type BBox = {
 //   x: number;
@@ -7,7 +7,6 @@ import { type PDFViewer } from "pdfjs-dist/types/web/pdf_rendering_queue";
 //   width: number;
 //   height: number;
 // };
-
 
 // export type BBox = {
 //   top: number;

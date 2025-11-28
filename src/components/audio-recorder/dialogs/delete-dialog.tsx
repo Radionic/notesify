@@ -8,7 +8,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Recording } from "@/db/schema";
+import type { Recording } from "@/db/schema";
 import { useRemoveRecording } from "@/queries/recording/use-recording";
 
 export const DeleteDialog = ({

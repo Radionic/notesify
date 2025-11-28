@@ -23,19 +23,19 @@ export const highlighterColors = [
 ];
 
 export const activeAnnotatorAtomFamily = atomFamily((pdfId: string) =>
-  atom<"pen" | "highlighter" | "eraser">()
+  atom<"pen" | "highlighter" | "eraser">(),
 );
 
 export const selectedPenSizeAtomFamily = atomFamily((pdfId: string) =>
-  atom<number>(penSizes[1])
+  atom<number>(penSizes[1]),
 );
 export const selectedPenColorAtomFamily = atomFamily((pdfId: string) =>
-  atom<string>(penColors[0])
+  atom<string>(penColors[0]),
 );
 
 export const selectedHighlighterSizeAtomFamily = atomFamily((pdfId: string) =>
-  atom<number>(highlighterSizes[1])
+  atom<number>(highlighterSizes[1]),
 );
 export const selectedHighlighterColorAtomFamily = atomFamily((pdfId: string) =>
-  atom<string>(highlighterColors[0])
+  atom<string>(highlighterColors[0]),
 );

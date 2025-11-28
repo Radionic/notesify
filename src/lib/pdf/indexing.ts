@@ -1,8 +1,12 @@
-import { generateObject, LanguageModelV1 } from "ai";
-import { getPdfTexts, parsePdf } from "./parsing";
+import { generateObject, type LanguageModelV1 } from "ai";
 import { z } from "zod";
-import { IndexedPDFPage, ParsedPDFPage, PDFIndexingLevel } from "@/db/schema";
+import type {
+  IndexedPDFPage,
+  ParsedPDFPage,
+  PDFIndexingLevel,
+} from "@/db/schema";
 import { dbService } from "../db";
+import { getPdfTexts, parsePdf } from "./parsing";
 
 export const indexPages = async ({
   model,
@@ -39,7 +43,7 @@ export const indexPages = async ({
       const startPage = batchIndex * pagesPerBatch;
       const endPage = Math.min(startPage + pagesPerBatch, pageCount);
       const pages = parsedPdf.filter(
-        (p) => p.page >= startPage && p.page < endPage
+        (p) => p.page >= startPage && p.page < endPage,
       );
 
       batchPromises.push(_indexPages(model, pages));
@@ -56,7 +60,7 @@ export const indexPages = async ({
         level: "page" as PDFIndexingLevel,
         startPage: r.page,
         endPage: null,
-      }))
+      })),
     );
   }
   console.log("All indexed pages", results);

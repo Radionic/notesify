@@ -1,4 +1,4 @@
-import { Badge, BadgeProps } from "@/components/badge";
+import { Badge, type BadgeProps } from "@/components/badge";
 import { cn } from "@/lib/utils";
 
 /**

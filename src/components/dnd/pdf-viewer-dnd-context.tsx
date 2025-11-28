@@ -1,4 +1,3 @@
-import { ReactNode } from "react";
 import {
   DndContext,
   MouseSensor,
@@ -6,11 +5,12 @@ import {
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
-import { useAtomValue, useSetAtom } from "jotai";
-import { openedPdfIdsAtom } from "@/atoms/pdf/pdf-viewer";
-import { toast } from "sonner";
 import { useNavigate } from "@tanstack/react-router";
+import { useAtomValue, useSetAtom } from "jotai";
+import type { ReactNode } from "react";
+import { toast } from "sonner";
 import { draggingItemIdAtom } from "@/atoms/file-system/file-system";
+import { openedPdfIdsAtom } from "@/atoms/pdf/pdf-viewer";
 
 export function PdfViewerDndProvider({ children }: { children: ReactNode }) {
   const sensors = useSensors(
@@ -23,7 +23,7 @@ export function PdfViewerDndProvider({ children }: { children: ReactNode }) {
       activationConstraint: {
         distance: 10,
       },
-    })
+    }),
   );
   const openedPdfIds = useAtomValue(openedPdfIdsAtom);
   const setDraggingItemId = useSetAtom(draggingItemIdAtom);

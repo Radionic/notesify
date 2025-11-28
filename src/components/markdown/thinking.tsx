@@ -1,15 +1,15 @@
+import Markdown from "react-markdown";
+import rehypeKatex from "rehype-katex";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import AnimatedShinyText from "@/components/magic-ui/animated-shiny-text";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import Markdown from "react-markdown";
-import AnimatedShinyText from "@/components/magic-ui/animated-shiny-text";
 import { markdownClassname } from "./markdown-renderer";
-import rehypeKatex from "rehype-katex";
-import remarkGfm from "remark-gfm";
-import remarkMath from "remark-math";
 import "katex/dist/katex.min.css";
 
 export const Thinking = ({

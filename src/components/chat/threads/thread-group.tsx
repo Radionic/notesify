@@ -1,8 +1,8 @@
-import { activeChatIdAtom, threadFinderOpenAtom } from "@/atoms/chat/chats";
-import { Button } from "@/components/ui/button";
-import { Chat } from "@/db/schema";
 import { formatDistanceToNowStrict } from "date-fns";
 import { useAtom, useSetAtom } from "jotai";
+import { activeChatIdAtom, threadFinderOpenAtom } from "@/atoms/chat/chats";
+import { Button } from "@/components/ui/button";
+import type { Chat } from "@/db/schema";
 
 export const ThreadGroup = ({ chats }: { chats: Chat[] }) => {
   const [activeChatId, setActiveChatId] = useAtom(activeChatIdAtom);

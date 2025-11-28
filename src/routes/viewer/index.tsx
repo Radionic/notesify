@@ -1,29 +1,29 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
+import { Suspense, useEffect } from "react";
+import { toast } from "sonner";
+import { z } from "zod";
+import { chatsOpenAtom } from "@/atoms/chat/chats";
+import { fileSystemOpenAtom } from "@/atoms/file-system/file-system";
+import { notesOpenAtom } from "@/atoms/notes/notes";
 import { pdfViewerOpenAtom } from "@/atoms/pdf/pdf-viewer";
+import { audioRecorderOpenAtom } from "@/atoms/recording/audio-recorder";
+import { AudioRecorder } from "@/components/audio-recorder/audio-recorder";
 import { Chat } from "@/components/chat/chat";
+import { PdfViewerDndProvider } from "@/components/dnd/pdf-viewer-dnd-context";
+import { PDFViewerDroppable } from "@/components/dnd/pdf-viewer-droppable";
+import { FileSystemSidebar } from "@/components/file-system/sidebar";
 import { PdfCommandDialog } from "@/components/pdf/dialog/command-dialog";
 import { ProviderSettingsDialog } from "@/components/pdf/dialog/provider-settings-dialog";
+import { PdfViewer } from "@/components/pdf/pdf-viewer";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { PdfViewer } from "@/components/pdf/pdf-viewer";
-import { FileSystemSidebar } from "@/components/file-system/sidebar";
-import { z } from "zod";
-import { toast } from "sonner";
-import { Suspense, useEffect } from "react";
-import { PDFViewerDroppable } from "@/components/dnd/pdf-viewer-droppable";
-import { PdfViewerDndProvider } from "@/components/dnd/pdf-viewer-dnd-context";
-import { isTauri } from "@/lib/tauri";
-import { PdfToolbar } from "@/components/viewer/toolbars/pdf-toolbar";
 import { Header } from "@/components/viewer/header";
-import { notesOpenAtom } from "@/atoms/notes/notes";
-import { chatsOpenAtom } from "@/atoms/chat/chats";
-import { fileSystemOpenAtom } from "@/atoms/file-system/file-system";
-import { audioRecorderOpenAtom } from "@/atoms/recording/audio-recorder";
-import { AudioRecorder } from "@/components/audio-recorder/audio-recorder";
+import { PdfToolbar } from "@/components/viewer/toolbars/pdf-toolbar";
+import { isTauri } from "@/lib/tauri";
 
 const viewerSearchSchema = z.object({
   // id: z.union([z.string().array(), z.string()]),
@@ -44,7 +44,7 @@ const Viewer = () => {
             onClick: () => {},
           },
           duration: 5000,
-        }
+        },
       );
     }
   }, []);

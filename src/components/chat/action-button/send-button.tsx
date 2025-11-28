@@ -1,8 +1,7 @@
+import { Square } from "lucide-react";
 import { LuArrowUp } from "react-icons/lu";
-
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Square } from "lucide-react";
 
 export const SendButton = ({
   disabled,
@@ -22,7 +21,7 @@ export const SendButton = ({
           ? "text-neutral-500 bg-white cursor-not-allowed"
           : "text-neutral-50 bg-blue-500 hover:bg-blue-500 hover:text-neutral-50",
         isLoading &&
-          "text-neutral-50 bg-red-500 hover:bg-red-500 hover:text-neutral-50 cursor-pointer"
+          "text-neutral-50 bg-red-500 hover:bg-red-500 hover:text-neutral-50 cursor-pointer",
       )}
       variant="outline"
       size="icon"

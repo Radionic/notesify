@@ -1,12 +1,12 @@
-import { Recording } from "@/db/schema";
-import { dbService } from "@/lib/db";
-import { readNativeFile, removeNativeFile, writeNativeFile } from "@/lib/tauri";
 import {
   queryOptions,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
+import type { Recording } from "@/db/schema";
+import { dbService } from "@/lib/db";
+import { readNativeFile, removeNativeFile, writeNativeFile } from "@/lib/tauri";
 
 export const recordingQueryOptions = ({
   id,
@@ -69,14 +69,14 @@ export const useAddRecording = () => {
       await writeNativeFile(
         "recordings",
         `${recording.id}.webm`,
-        recordingData
+        recordingData,
       );
       await dbService.recording.addRecording({ recording });
     },
     onSuccess: (_, { recording, recordingData }) => {
       queryClient.setQueryData<Recording>(
         ["recording", recording.id],
-        recording
+        recording,
       );
       queryClient.setQueryData<Recording[]>(["recordings"], (oldRecordings) => {
         if (!oldRecordings) return [recording];
@@ -84,7 +84,7 @@ export const useAddRecording = () => {
       });
       queryClient.setQueryData<Blob>(
         ["recording-data", recording.id],
-        recordingData
+        recordingData,
       );
     },
   });
@@ -124,7 +124,7 @@ export const useRenameRecording = () => {
       queryClient.setQueryData<Recording[]>(["recordings"], (oldRecordings) => {
         if (!oldRecordings) return [];
         return oldRecordings.map((recording) =>
-          recording.id === id ? { ...recording, name } : recording
+          recording.id === id ? { ...recording, name } : recording,
         );
       });
     },

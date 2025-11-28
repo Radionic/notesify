@@ -1,8 +1,8 @@
-import { LanguageModelV1, tool } from "ai";
-import { z } from "zod";
+import { type LanguageModelV1, tool } from "ai";
 import { evaluate } from "mathjs";
-import { getPdfTexts } from "../pdf/parsing";
+import { z } from "zod";
 import { searchPages } from "../pdf/indexing";
+import { getPdfTexts } from "../pdf/parsing";
 
 export const tools = (model: LanguageModelV1) => ({
   calculate: tool({

@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useMediaQuery } from "react-responsive";
 import { PdfFileUploader } from "@/components/file-system/file-uploader";
 import { FileSystemSidebar } from "@/components/file-system/sidebar";
 import {
@@ -6,7 +7,6 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { useMediaQuery } from "react-responsive";
 
 const RouteComponent = () => {
   const isMobile = useMediaQuery({ query: "(max-width: 767px)" });

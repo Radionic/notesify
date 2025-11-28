@@ -8,5 +8,5 @@ export const highlightColorsAtom = atom<string[]>(DEFAULT_COLORS);
 
 export const selectedHighlightColorAtom = atomWithStorage<string>(
   "selected-highlight-color",
-  DEFAULT_COLOR
+  DEFAULT_COLOR,
 );

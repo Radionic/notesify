@@ -1,13 +1,13 @@
-import { PdfFileUploader } from "@/components/file-system/file-uploader";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
-import { Draggable } from "@/components/dnd/draggable";
-import { FileSystemItem } from "./file-system-item";
 import { DragOverlay } from "@dnd-kit/core";
-import { Logo } from "@/components/logo";
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
+import { Draggable } from "@/components/dnd/draggable";
+import { PdfFileUploader } from "@/components/file-system/file-uploader";
+import { Logo } from "@/components/logo";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { useFiles } from "@/queries/file-system/use-file-system";
 import { ThemeSwitch } from "../theme-switch";
 import { TooltipButton } from "../tooltip/tooltip-button";
-import { useFiles } from "@/queries/file-system/use-file-system";
+import { FileSystemItem } from "./file-system-item";
 
 export const FileSystemSidebar = ({
   withUpload,

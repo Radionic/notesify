@@ -1,7 +1,7 @@
 import { CgClose } from "react-icons/cg";
 import { VscGoToFile } from "react-icons/vsc";
 
-import { Context } from "@/atoms/chat/contexts";
+import type { Context } from "@/atoms/chat/contexts";
 import { useChatContext } from "@/hooks/chat/use-chat-context";
 
 interface TextContextPreviewProps {

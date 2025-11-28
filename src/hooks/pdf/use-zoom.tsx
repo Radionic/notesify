@@ -1,14 +1,13 @@
-import { useAtomValue } from "jotai";
-import { useHotkeys } from "react-hotkeys-hook";
-
-import { activePdfIdAtom, viewerAtomFamily } from "@/atoms/pdf/pdf-viewer";
-import { useEffect, useRef } from "react";
 import { useGesture } from "@use-gesture/react";
+import { useAtomValue } from "jotai";
+import { useEffect, useRef } from "react";
+import { useHotkeys } from "react-hotkeys-hook";
+import { activePdfIdAtom, viewerAtomFamily } from "@/atoms/pdf/pdf-viewer";
 import { useUpdatePdf } from "@/queries/pdf/use-pdf";
 
 export const useZoom = (
   pdfId: string,
-  containerRef: React.RefObject<HTMLDivElement | null>
+  containerRef: React.RefObject<HTMLDivElement | null>,
 ) => {
   const activePdfId = useAtomValue(activePdfIdAtom);
   const activeViewer = useAtomValue(viewerAtomFamily(activePdfId));
@@ -55,13 +54,13 @@ export const useZoom = (
     "mod+equal",
     () => zoom({ scaleFactor: 1.25, activeTarget: true }),
     { preventDefault: true },
-    [activeViewer]
+    [activeViewer],
   );
   useHotkeys(
     "mod+minus",
     () => zoom({ scaleFactor: 1 / 1.25, activeTarget: true }),
     { preventDefault: true },
-    [activeViewer]
+    [activeViewer],
   );
 
   useEffect(() => {
@@ -91,7 +90,7 @@ export const useZoom = (
           e.preventDefault();
         }
       },
-      { passive: false }
+      { passive: false },
     );
   }, [containerRef]);
 
@@ -111,6 +110,6 @@ export const useZoom = (
     },
     {
       target: containerRef,
-    }
+    },
   );
 };

@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
 import { useDroppable } from "@dnd-kit/core";
+import { cn } from "@/lib/utils";
 
 export const PDFViewerDroppable = ({ pdfId }: { pdfId: string }) => {
   const { isOver: isOverLeft, setNodeRef: setLeftRef } = useDroppable({
@@ -16,14 +16,14 @@ export const PDFViewerDroppable = ({ pdfId }: { pdfId: string }) => {
         ref={setLeftRef}
         className={cn(
           `w-1/2 h-full transition-all duration-200`,
-          isOverLeft && "bg-blue-500/20"
+          isOverLeft && "bg-blue-500/20",
         )}
       />
       <div
         ref={setRightRef}
         className={cn(
           `w-1/2 h-full transition-all duration-200`,
-          isOverRight && "bg-blue-500/20"
+          isOverRight && "bg-blue-500/20",
         )}
       />
     </div>

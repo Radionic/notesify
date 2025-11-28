@@ -1,6 +1,6 @@
-import { Recording, recordingsTable } from "@/db/schema";
-import { getDB } from "@/db/sqlite";
 import { eq } from "drizzle-orm";
+import { type Recording, recordingsTable } from "@/db/schema";
+import { getDB } from "@/db/sqlite";
 
 export const getRecordings = async () => {
   const db = await getDB();

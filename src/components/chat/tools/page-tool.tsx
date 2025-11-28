@@ -1,11 +1,11 @@
+import type { ToolInvocation } from "ai";
+import { useAtomValue } from "jotai";
+import { Check, CircleAlert } from "lucide-react";
+import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
 import { Badge } from "@/components/badge";
 import { PageBadges } from "@/components/chat/tools/page-badges";
-import { Check, CircleAlert } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ToolInvocation } from "ai";
 import { useFile } from "@/queries/file-system/use-file-system";
-import { useAtomValue } from "jotai";
-import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
 import { useNavigatePdf } from "@/queries/pdf/use-pdf";
 
 export const PageTool = ({
@@ -105,7 +105,7 @@ export const PageTool = ({
     <div
       className={cn(
         "flex items-center gap-2 border border-neutral-300 rounded-md px-2 py-1 mt-1",
-        className
+        className,
       )}
     >
       {renderContent()}

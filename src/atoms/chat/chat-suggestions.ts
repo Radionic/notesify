@@ -25,7 +25,7 @@ export const chatSuggestionsAtom = atomWithStorage<ChatSuggestion[]>(
       title: "Give examples",
       prompt: "Please give examples of topics covered in the pages.",
     },
-  ]
+  ],
 );
 
 export const editSuggestionDialogAtom = atom<ChatSuggestion>();

@@ -1,10 +1,10 @@
+import { useAtomValue } from "jotai";
+import { toast } from "sonner";
 import {
-  ModelType,
+  type ModelType,
   providerRegistryAtom,
   selectedModelsAtom,
 } from "@/atoms/setting/providers";
-import { useAtomValue } from "jotai";
-import { toast } from "sonner";
 
 export const useGetSelectedModel = () => {
   const registry = useAtomValue(providerRegistryAtom);
@@ -17,7 +17,7 @@ export const useGetSelectedModel = () => {
       return null;
     }
     return registry.languageModel(
-      `${selectedModel.provider}:${selectedModel.id}`
+      `${selectedModel.provider}:${selectedModel.id}`,
     );
   };
 

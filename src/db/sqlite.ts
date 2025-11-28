@@ -1,9 +1,9 @@
 import Database from "@tauri-apps/plugin-sql";
-import * as schema from "./schema";
-import { drizzle, SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
-import { migrate } from "./migrate";
+import { drizzle, type SqliteRemoteDatabase } from "drizzle-orm/sqlite-proxy";
 import initSqlJs from "sql.js";
 import { isTauri } from "@/lib/tauri";
+import { migrate } from "./migrate";
+import * as schema from "./schema";
 
 let db: SqliteRemoteDatabase<typeof schema> | undefined;
 let dbPromise: Promise<SqliteRemoteDatabase<typeof schema>> | undefined;
@@ -43,7 +43,7 @@ const initLocalDB = async () => {
       rows = method === "all" ? rows : rows?.[0];
       return { rows };
     },
-    { logger: true, schema }
+    { logger: true, schema },
   );
 
   await migrate(db);
@@ -84,7 +84,7 @@ const initWebDB = async () => {
         return { rows: result };
       }
     },
-    { logger: false, schema }
+    { logger: false, schema },
   );
 
   await migrate(db);

@@ -1,6 +1,6 @@
+import { Redo2, Undo2 } from "lucide-react";
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
 import { useUndoRedo } from "@/queries/pdf/use-pdf-history";
-import { Redo2, Undo2 } from "lucide-react";
 
 export const UndoRedoButton = ({ pdfId }: { pdfId: string }) => {
   const { canUndo, canRedo, undo, redo } = useUndoRedo({ pdfId });

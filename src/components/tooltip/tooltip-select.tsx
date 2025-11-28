@@ -1,5 +1,5 @@
 import { Check } from "lucide-react";
-import { ReactNode, useState } from "react";
+import { type ReactNode, useState } from "react";
 
 import {
   Command,
@@ -72,7 +72,7 @@ export const TooltipSelect = ({
                   value={item.label}
                   onSelect={() => {
                     onSelect?.(
-                      item.label === selectedItem?.label ? undefined : item
+                      item.label === selectedItem?.label ? undefined : item,
                     );
                     setOpen(false);
                   }}
@@ -83,7 +83,7 @@ export const TooltipSelect = ({
                       "ml-auto",
                       selectedItem?.label === item.label
                         ? "opacity-100"
-                        : "opacity-0"
+                        : "opacity-0",
                     )}
                   />
                 </CommandItem>

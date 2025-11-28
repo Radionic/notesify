@@ -1,8 +1,8 @@
-import { atomFamily } from "jotai/utils";
 import { atom } from "jotai";
+import { atomFamily } from "jotai/utils";
 
-import { Annotation } from "../../db/schema/pdf/annotations";
-import { Highlight } from "../../db/schema/pdf/highlights";
+import type { Annotation } from "../../db/schema/pdf/annotations";
+import type { Highlight } from "../../db/schema/pdf/highlights";
 
 interface BaseHistoryRecord {
   action: "create" | "update" | "delete";
@@ -29,7 +29,7 @@ export const historyAtomFamily = atomFamily((pdfId?: string) =>
   atom<HistoryState>({
     past: [],
     future: [],
-  })
+  }),
 );
 
 export const canUndoAtom = atomFamily((pdfId?: string) =>
@@ -37,7 +37,7 @@ export const canUndoAtom = atomFamily((pdfId?: string) =>
     if (!pdfId) return false;
     const history = get(historyAtomFamily(pdfId));
     return history.past.length > 0;
-  })
+  }),
 );
 
 export const canRedoAtom = atomFamily((pdfId?: string) =>
@@ -45,5 +45,5 @@ export const canRedoAtom = atomFamily((pdfId?: string) =>
     if (!pdfId) return false;
     const history = get(historyAtomFamily(pdfId));
     return history.future.length > 0;
-  })
+  }),
 );

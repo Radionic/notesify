@@ -1,4 +1,4 @@
-import { CSSProperties, FC, ReactNode } from "react";
+import type { CSSProperties, FC, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -29,7 +29,7 @@ const AnimatedShinyText: FC<AnimatedShinyTextProps> = ({
         // Shine gradient
         "bg-gradient-to-r from-transparent via-black via-50% to-transparent  dark:via-white/80",
 
-        className
+        className,
       )}
     >
       {children}

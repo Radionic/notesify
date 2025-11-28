@@ -1,14 +1,13 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-import { TooltipButton } from "./tooltip-button";
 import { cn } from "@/lib/utils";
-import { ButtonProps } from "../ui/button";
+import type { ButtonProps } from "../ui/button";
+import { TooltipButton } from "./tooltip-button";
 
 export type TooltipSelectItem = {
   value: string;

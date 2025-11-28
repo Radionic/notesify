@@ -1,11 +1,11 @@
-import { RefObject,useEffect } from "react";
+import { type RefObject, useEffect } from "react";
 
 type UseClickOutsideMethod = "contains" | "coordinates";
 
 export function useOnClickOutside<T extends HTMLElement>(
   refs: RefObject<T>[] | RefObject<T>,
   handler?: (event: PointerEvent) => void,
-  method: UseClickOutsideMethod = "contains"
+  method: UseClickOutsideMethod = "contains",
 ) {
   useEffect(() => {
     function isPointInRect(x: number, y: number, element: HTMLElement) {
@@ -24,11 +24,11 @@ export function useOnClickOutside<T extends HTMLElement>(
         const x = event.clientX;
         const y = event.clientY;
         isOutside = refsArray.every(
-          (ref) => !ref.current || !isPointInRect(x, y, ref.current)
+          (ref) => !ref.current || !isPointInRect(x, y, ref.current),
         );
       } else {
         isOutside = refsArray.every(
-          (ref) => ref.current && !ref.current.contains(event.target as Node)
+          (ref) => ref.current && !ref.current.contains(event.target as Node),
         );
       }
 

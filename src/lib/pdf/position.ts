@@ -1,8 +1,8 @@
-import { PagedPosition, Position, Rect } from "../types";
+import type { PagedPosition, Position, Rect } from "../types";
 
 export const calculatePosition = (
   anchor?: Rect,
-  placement?: "top-center" | "bottom-end"
+  placement?: "top-center" | "bottom-end",
 ): PagedPosition | undefined => {
   if (!anchor) return;
 
@@ -21,10 +21,10 @@ export const calculatePosition = (
 
 export const toPercentage = (
   container: HTMLDivElement,
-  rect: Rect | PagedPosition
+  rect: Rect | PagedPosition,
 ): Rect | Position => {
   const pageEl = container.querySelector(
-    `.page[data-page-number="${rect.page}"]`
+    `.page[data-page-number="${rect.page}"]`,
   );
   if (!pageEl) return rect;
 
@@ -44,7 +44,7 @@ export const toPercentageString = (value?: number, padding: number = 0) => {
 
 export const toPercentageStyle = (
   rect: Rect | PagedPosition,
-  padding: number = 0
+  padding: number = 0,
 ) => {
   const width = rect.right && rect.left ? rect.right - rect.left : undefined;
   const height = rect.bottom && rect.top ? rect.bottom - rect.top : undefined;

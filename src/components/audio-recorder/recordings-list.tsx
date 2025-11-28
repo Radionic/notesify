@@ -1,7 +1,7 @@
 import { Mic } from "lucide-react";
-import { RecordingItem } from "./recording-item";
 import { cn } from "@/lib/utils";
 import { useRecordings } from "@/queries/recording/use-recording";
+import { RecordingItem } from "./recording-item";
 
 export const RecordingsList = ({ className }: { className?: string }) => {
   const { data: recordings } = useRecordings();
@@ -11,7 +11,7 @@ export const RecordingsList = ({ className }: { className?: string }) => {
       <div
         className={cn(
           "flex flex-col items-center justify-center h-full",
-          className
+          className,
         )}
       >
         <div className="h-10 w-10 mb-2 flex items-center justify-center">

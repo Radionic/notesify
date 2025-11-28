@@ -1,7 +1,12 @@
-import { CoreUserMessage, generateText, LanguageModelV1, Message } from "ai";
+import {
+  type CoreUserMessage,
+  generateText,
+  type LanguageModelV1,
+  type Message,
+} from "ai";
 
-import { Context } from "@/atoms/chat/contexts";
-import { OpenedPDF } from "@/queries/pdf/use-pdf";
+import type { Context } from "@/atoms/chat/contexts";
+import type { OpenedPDF } from "@/queries/pdf/use-pdf";
 
 const buildTextContent = (content: string, contexts?: Context[]) => {
   const textContext = contexts
@@ -30,7 +35,7 @@ const buildImageContent = (contexts?: Context[]) => {
 export const buildSystemMessage = (
   openedPdfs?: OpenedPDF[],
   viewingPdfId?: string,
-  viewingPage?: number
+  viewingPage?: number,
 ) => {
   if (!openedPdfs || !viewingPdfId || !viewingPage) {
     return "You are a helpful assistant. Reply in Markdown format.";
@@ -39,11 +44,11 @@ export const buildSystemMessage = (
   const openedPdfsContext = openedPdfs
     .map(
       (pdf) =>
-        `{ name: "${pdf.name}", id: "${pdf.id}", totalPages: ${pdf.pageCount} }`
+        `{ name: "${pdf.name}", id: "${pdf.id}", totalPages: ${pdf.pageCount} }`,
     )
     .join(", ");
   const viewingPdfName = openedPdfs.find(
-    (pdf) => pdf.id === viewingPdfId
+    (pdf) => pdf.id === viewingPdfId,
   )?.name;
 
   const systemMessage = `You are a helpful PDF assistant. The user has opened ${openedPdfs.length} PDFs: ${openedPdfsContext}, and is currently viewing page ${viewingPage} of "${viewingPdfName}". Reply in Markdown format.`;
@@ -71,7 +76,7 @@ export const buildMessages = (messages: Message[], contexts?: Context[]) => {
 
 export const generateTitle = async (
   model: LanguageModelV1,
-  messages: Message[]
+  messages: Message[],
 ) => {
   let text = "";
   for (const message of messages) {

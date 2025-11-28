@@ -1,13 +1,12 @@
-import { dbService } from "@/lib/db";
 import {
   queryOptions,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import { writeNativeFile } from "@/lib/tauri";
-import { removeNativeFile } from "@/lib/tauri";
-import { FileNode, Pdf } from "@/db/schema";
+import type { FileNode, Pdf } from "@/db/schema";
+import { dbService } from "@/lib/db";
+import { removeNativeFile, writeNativeFile } from "@/lib/tauri";
 
 export const fileQueryOptions = ({
   id,
@@ -107,7 +106,7 @@ export const useRenamePdf = () => {
               name: newName,
               updatedAt: new Date(),
             }
-          : undefined
+          : undefined,
       );
       queryClient.setQueryData<FileNode[]>(["files", null], (oldData = []) =>
         oldData.map((file) => {
@@ -115,7 +114,7 @@ export const useRenamePdf = () => {
             return file;
           }
           return { ...file, name: newName };
-        })
+        }),
       );
     },
   });

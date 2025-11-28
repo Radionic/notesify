@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { pdfsTable } from "@/db/schema/pdf/pdfs";
 
 export const pdfParsingTable = sqliteTable("pdf_parsing", {

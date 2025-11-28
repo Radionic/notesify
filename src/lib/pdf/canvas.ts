@@ -1,4 +1,4 @@
-import { type PDFPageProxy } from "pdfjs-dist";
+import type { PDFPageProxy } from "pdfjs-dist";
 
 export interface PageDimensions {
   width: number;
@@ -20,7 +20,7 @@ export const renderPageToCanvas = async (
   page: PDFPageProxy,
   canvas: HTMLCanvasElement,
   scale: number,
-  pixelRatio: number = 1
+  pixelRatio: number = 1,
 ): Promise<PageDimensions> => {
   const viewport = page.getViewport({ scale });
 
@@ -58,7 +58,7 @@ export const renderPageToCanvas = async (
  */
 export const captureScreenshot = async (
   canvas: HTMLCanvasElement,
-  area: ScreenshotArea
+  area: ScreenshotArea,
 ): Promise<string | null> => {
   // Calculate scale factor between displayed size and actual canvas size
   const scaleFactor = canvas.width / canvas.getBoundingClientRect().width;

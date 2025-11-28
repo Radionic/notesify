@@ -1,13 +1,13 @@
 import { useAtom } from "jotai";
+import { withThinkingAtom } from "@/atoms/chat/chats";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Checkbox } from "@/components/ui/checkbox";
-import { withThinkingAtom } from "@/atoms/chat/chats";
 
 export const ResponseQualityButton = () => {
   const [withThinking, setWithThinking] = useAtom(withThinkingAtom);

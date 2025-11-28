@@ -1,8 +1,11 @@
-import { ProviderCardBase } from "./provider-card-base";
-import { ProviderConfig } from "../provider-settings-dialog";
-import { configuredProvidersAtom, Provider } from "@/atoms/setting/providers";
 import { useAtom } from "jotai";
 import { toast } from "sonner";
+import {
+  configuredProvidersAtom,
+  type Provider,
+} from "@/atoms/setting/providers";
+import type { ProviderConfig } from "../provider-settings-dialog";
+import { ProviderCardBase } from "./provider-card-base";
 
 type AddModelProviderCardProps = {
   providerConfig: ProviderConfig;
@@ -12,7 +15,7 @@ export const AddModelProviderCard = ({
   providerConfig,
 }: AddModelProviderCardProps) => {
   const [configuredProviders, setConfiguredProviders] = useAtom(
-    configuredProvidersAtom
+    configuredProvidersAtom,
   );
   return (
     <ProviderCardBase

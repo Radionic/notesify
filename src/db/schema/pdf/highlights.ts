@@ -1,6 +1,6 @@
-import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { pdfsTable } from "@/db/schema/pdf/pdfs";
-import { Rect } from "@/lib/types";
+import type { Rect } from "@/lib/types";
 
 export const highlightsTable = sqliteTable(
   "highlights",
@@ -14,7 +14,7 @@ export const highlightsTable = sqliteTable(
       .references(() => pdfsTable.id, { onDelete: "cascade" })
       .notNull(),
   },
-  (table) => [index("highlights_pdf_id_idx").on(table.pdfId)]
+  (table) => [index("highlights_pdf_id_idx").on(table.pdfId)],
 );
 
 export type Highlight = typeof highlightsTable.$inferInsert;

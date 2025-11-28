@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
-
-import { getRectsFromRange } from "../../lib/pdf/rects";
-import { activeTextSelectionAtomFamily } from "@/atoms/pdf/pdf-viewer";
 import { useAtom } from "jotai";
+import { useEffect, useState } from "react";
+import { activeTextSelectionAtomFamily } from "@/atoms/pdf/pdf-viewer";
+import { getRectsFromRange } from "../../lib/pdf/rects";
 
 export function useTextSelection({
   pdfId,
@@ -13,7 +12,7 @@ export function useTextSelection({
 }) {
   const [isSelecting, setIsSelecting] = useState(false);
   const [activeTextSelection, setActiveTextSelection] = useAtom(
-    activeTextSelectionAtomFamily(pdfId)
+    activeTextSelectionAtomFamily(pdfId),
   );
 
   useEffect(() => {

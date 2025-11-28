@@ -47,7 +47,7 @@ export const HighlightOptions = ({ onChange }: Props) => {
                 className={cn(
                   "h-4 w-4 rounded cursor-pointer shadow",
                   selectedColor === color &&
-                    "ring-1 ring-neutral-300 ring-offset-2"
+                    "ring-1 ring-neutral-300 ring-offset-2",
                 )}
                 style={{ backgroundColor: color }}
                 onClick={() => {

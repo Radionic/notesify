@@ -1,5 +1,5 @@
-import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
-import { Message } from "ai";
+import type { Message } from "ai";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { chatsTable } from "@/db/schema/chat/chats";
 
 export const messagesTable = sqliteTable(
@@ -20,7 +20,7 @@ export const messagesTable = sqliteTable(
     parts: text("parts", { mode: "json" }).$type<Message["parts"]>(),
     createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   },
-  (table) => [index("messages_created_at_idx").on(table.createdAt)]
+  (table) => [index("messages_created_at_idx").on(table.createdAt)],
 );
 
 export type MessageDB = typeof messagesTable.$inferSelect;

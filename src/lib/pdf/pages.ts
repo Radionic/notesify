@@ -32,7 +32,7 @@ export const getPagesFromRange = (container: HTMLDivElement, range: Range) => {
 export const getPage = (pageNumber?: number) => {
   if (!pageNumber) return null;
   const pageEl = document.querySelector(
-    `.page[data-page-number="${pageNumber}"]`
+    `.page[data-page-number="${pageNumber}"]`,
   );
   if (!(pageEl instanceof HTMLElement)) return null;
   return pageEl;

@@ -1,21 +1,19 @@
+import { useAtom } from "jotai";
 import { Eraser, Highlighter, Pen } from "lucide-react";
-
+import { activeAnnotatorAtomFamily } from "@/atoms/pdf/annotator-options";
+import { AnnotatorOptions } from "@/components/pdf/menu/annotator-options";
+import { PageButton } from "@/components/pdf/menu/buttons/page-button";
+import { UndoRedoButton } from "@/components/pdf/menu/buttons/undo-redo-button";
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-
 import { cn } from "@/lib/utils";
-import { useAtom } from "jotai";
-import { activeAnnotatorAtomFamily } from "@/atoms/pdf/annotator-options";
-import { AnnotatorOptions } from "@/components/pdf/menu/annotator-options";
-import { UndoRedoButton } from "@/components/pdf/menu/buttons/undo-redo-button";
-import { PageButton } from "@/components/pdf/menu/buttons/page-button";
 import { useFile } from "@/queries/file-system/use-file-system";
 
 export const PdfToolbar = ({ pdfId }: { pdfId: string }) => {
   const { data: pdfFile } = useFile({ id: pdfId });
   const [activeAnnotator, setActiveAnnotator] = useAtom(
-    activeAnnotatorAtomFamily(pdfId)
+    activeAnnotatorAtomFamily(pdfId),
   );
 
   return (
@@ -39,7 +37,7 @@ export const PdfToolbar = ({ pdfId }: { pdfId: string }) => {
         tooltip="Highlighter"
         onClick={() =>
           setActiveAnnotator(
-            activeAnnotator === "highlighter" ? undefined : "highlighter"
+            activeAnnotator === "highlighter" ? undefined : "highlighter",
           )
         }
         className={cn(activeAnnotator === "highlighter" && "bg-secondary")}
@@ -50,7 +48,7 @@ export const PdfToolbar = ({ pdfId }: { pdfId: string }) => {
         tooltip="Eraser"
         onClick={() =>
           setActiveAnnotator(
-            activeAnnotator === "eraser" ? undefined : "eraser"
+            activeAnnotator === "eraser" ? undefined : "eraser",
           )
         }
         className={cn(activeAnnotator === "eraser" && "bg-secondary")}

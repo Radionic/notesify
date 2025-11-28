@@ -1,6 +1,6 @@
 import { atom } from "jotai";
 
-import { Rect } from "@/lib/types";
+import type { Rect } from "@/lib/types";
 
 export type Context = {
   id: string;

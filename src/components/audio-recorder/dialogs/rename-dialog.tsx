@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -8,8 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Recording } from "@/db/schema";
+import type { Recording } from "@/db/schema";
 import { useRenameRecording } from "@/queries/recording/use-recording";
 
 export const RenameDialog = ({

@@ -1,5 +1,6 @@
 import { useAtomValue } from "jotai";
-import React, { useEffect, useRef, useState } from "react";
+import type React from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   activeAnnotatorAtomFamily,
   selectedHighlighterColorAtomFamily,
@@ -7,13 +8,13 @@ import {
   selectedPenColorAtomFamily,
   selectedPenSizeAtomFamily,
 } from "@/atoms/pdf/annotator-options";
+import { generateId } from "@/lib/id";
 import { cn } from "@/lib/utils";
 import {
   useAnnotationsByPage,
   useCreateAnnotations,
   useDeleteAnnotations,
 } from "@/queries/pdf/use-annotation";
-import { generateId } from "@/lib/id";
 
 export const AnnotatorLayer = ({
   pdfId,
@@ -33,10 +34,10 @@ export const AnnotatorLayer = ({
   const penSize = useAtomValue(selectedPenSizeAtomFamily(pdfId));
   const penColor = useAtomValue(selectedPenColorAtomFamily(pdfId));
   const highlighterSize = useAtomValue(
-    selectedHighlighterSizeAtomFamily(pdfId)
+    selectedHighlighterSizeAtomFamily(pdfId),
   );
   const highlighterColor = useAtomValue(
-    selectedHighlighterColorAtomFamily(pdfId)
+    selectedHighlighterColorAtomFamily(pdfId),
   );
 
   const [currentPath, setCurrentPath] = useState<string>("");
@@ -53,7 +54,7 @@ export const AnnotatorLayer = ({
           e.preventDefault();
         }
       },
-      { passive: false }
+      { passive: false },
     );
   }, []);
 
@@ -154,7 +155,7 @@ export const AnnotatorLayer = ({
     pathRef: SVGPathElement,
     eraserX: number,
     eraserY: number,
-    scaledEraserSize: number
+    scaledEraserSize: number,
   ): boolean => {
     const pathLength = pathRef.getTotalLength();
     const numSamples = Math.max(Math.ceil(pathLength / 0.01), 1);
@@ -178,7 +179,7 @@ export const AnnotatorLayer = ({
       ref={svgRef}
       className={cn(
         "w-full h-full absolute inset-0 z-[50]",
-        annotator ? "pointer-events-auto" : "pointer-events-none"
+        annotator ? "pointer-events-auto" : "pointer-events-none",
       )}
       viewBox="0 0 1 1"
       preserveAspectRatio="none"

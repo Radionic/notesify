@@ -1,4 +1,4 @@
-import { ToolInvocation } from "ai";
+import type { ToolInvocation } from "ai";
 import { PageTool } from "./page-tool";
 
 export const SearchPagesTool = ({

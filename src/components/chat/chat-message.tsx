@@ -1,9 +1,9 @@
+import type { Message, ToolInvocation } from "ai";
 import { dotPulse, ring2 } from "ldrs";
-import { cn } from "@/lib/utils";
-import { Message, ToolInvocation } from "ai";
-import { GetPageTextTool } from "./tools/get-page-text-tool";
-import { CalculateTool } from "./tools/calculate-tool";
 import MarkdownRenderer from "@/components/markdown/markdown-renderer";
+import { cn } from "@/lib/utils";
+import { CalculateTool } from "./tools/calculate-tool";
+import { GetPageTextTool } from "./tools/get-page-text-tool";
 import { SearchPagesTool } from "./tools/search-pages-tool";
 
 dotPulse.register();
@@ -35,7 +35,7 @@ export const ChatMessage = ({
       className={cn(
         "w-fit px-2 py-1",
         message.role === "user" &&
-          "bg-secondary border border-secondary/50 self-end rounded-md max-w-[90%]"
+          "bg-secondary border border-secondary/50 self-end rounded-md max-w-[90%]",
       )}
     >
       {message.role === "user" ? (

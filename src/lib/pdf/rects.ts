@@ -1,4 +1,4 @@
-import { Rect } from "../types";
+import type { Rect } from "../types";
 import { getPagesFromRange } from "./pages";
 import { toPercentage } from "./position";
 
@@ -49,7 +49,7 @@ function mergeRects(rect1: Rect, rect2: Rect): Rect {
 
 export function getRectsFromRange(
   container: HTMLDivElement,
-  range: Range
+  range: Range,
 ): Rect[] {
   const clientRects = Array.from(range.getClientRects());
   const pages = getPagesFromRange(container, range);

@@ -1,8 +1,11 @@
-import { ReactNode, useState } from "react";
-import Draggable, { DraggableData, DraggableEvent } from "react-draggable";
+import { type ReactNode, useState } from "react";
+import Draggable, {
+  type DraggableData,
+  type DraggableEvent,
+} from "react-draggable";
 
 import { Card } from "@/components/ui/card";
-import { Position } from "@/lib/types";
+import type { Position } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 const Handle = ({ isDragging }: { isDragging: boolean }) => {
@@ -10,7 +13,7 @@ const Handle = ({ isDragging }: { isDragging: boolean }) => {
     <div
       className={cn(
         "handle w-16 h-2 mx-auto cursor-grab rounded-md hover:bg-neutral-300 transition-colors duration-200",
-        isDragging ? "bg-neutral-300 cursor-grabbing" : "bg-neutral-200"
+        isDragging ? "bg-neutral-300 cursor-grabbing" : "bg-neutral-200",
       )}
     />
   );

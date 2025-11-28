@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import type { ReactNode } from "react";
 
 export const FixedContainer = ({ children }: { children: ReactNode }) => {
   return (

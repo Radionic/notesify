@@ -1,9 +1,9 @@
+import { useAtomValue } from "jotai";
+import { useState } from "react";
 import { currentPageAtomFamily } from "@/atoms/pdf/pdf-viewer";
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
-import { useAtomValue } from "jotai";
-import { PagesDialog } from "../../dialog/pages-dialog";
-import { useState } from "react";
 import { usePdf } from "@/queries/pdf/use-pdf";
+import { PagesDialog } from "../../dialog/pages-dialog";
 
 export const PageButton = ({ pdfId }: { pdfId: string }) => {
   const [open, setOpen] = useState(false);

@@ -1,10 +1,8 @@
 import { useAtom } from "jotai";
-
-import { Highlight as HighlightType } from "@/db/schema";
-import { cn } from "@/lib/utils";
-
-import { toPercentageStyle } from "../../../../lib/pdf/position";
 import { activeHighlightAtom } from "@/atoms/pdf/pdf-viewer";
+import type { Highlight as HighlightType } from "@/db/schema";
+import { cn } from "@/lib/utils";
+import { toPercentageStyle } from "../../../../lib/pdf/position";
 
 type Props = {
   highlight: HighlightType;
@@ -25,7 +23,7 @@ export const Highlight = ({ highlight, disabled }: Props) => {
             className={cn(
               "absolute z-1 mix-blend-multiply cursor-pointer",
               isSelected ? "pointer-events-none" : "pointer-events-auto",
-              disabled && "pointer-events-none"
+              disabled && "pointer-events-none",
             )}
             style={{
               left: style.left,

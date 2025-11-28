@@ -1,16 +1,16 @@
 import { useAtom } from "jotai";
-import { cn } from "@/lib/utils";
 import {
-  penSizes,
-  penColors,
-  highlighterSizes,
   highlighterColors,
-  selectedPenSizeAtomFamily,
+  highlighterSizes,
+  penColors,
+  penSizes,
+  selectedHighlighterColorAtomFamily,
   selectedHighlighterSizeAtomFamily,
   selectedPenColorAtomFamily,
-  selectedHighlighterColorAtomFamily,
+  selectedPenSizeAtomFamily,
 } from "@/atoms/pdf/annotator-options";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 export const AnnotatorOptions = ({
   pdfId,
@@ -23,12 +23,12 @@ export const AnnotatorOptions = ({
   const [selectedSize, setSize] = useAtom(
     isPen
       ? selectedPenSizeAtomFamily(pdfId)
-      : selectedHighlighterSizeAtomFamily(pdfId)
+      : selectedHighlighterSizeAtomFamily(pdfId),
   );
   const [selectedColor, setColor] = useAtom(
     isPen
       ? selectedPenColorAtomFamily(pdfId)
-      : selectedHighlighterColorAtomFamily(pdfId)
+      : selectedHighlighterColorAtomFamily(pdfId),
   );
 
   const sizes = isPen ? penSizes : highlighterSizes;
@@ -43,7 +43,7 @@ export const AnnotatorOptions = ({
             key={size}
             className={cn(
               "size-8 cursor-pointer rounded-md flex items-center justify-center",
-              selectedSize === size && "bg-secondary"
+              selectedSize === size && "bg-secondary",
             )}
             onClick={() => setSize(size)}
           >
@@ -68,7 +68,7 @@ export const AnnotatorOptions = ({
             onClick={() => setColor(color)}
             className={cn(
               "size-8 cursor-pointer p-2 rounded-md",
-              selectedColor === color && "bg-secondary"
+              selectedColor === color && "bg-secondary",
             )}
           >
             <div

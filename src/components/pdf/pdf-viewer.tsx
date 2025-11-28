@@ -1,27 +1,27 @@
 import "pdfjs-dist/web/pdf_viewer.css";
-import { ContextBoundingBox } from "../chat/contexts/context-bounding-box";
-import { PreviewImageDialog } from "./dialog/preview-image-dialog";
-import { HighlightLayer } from "./layer/highlight-layer";
-import { Layer } from "./layer/layer";
-import { Layers } from "./layer/layers";
-import { SelectContextArea } from "./layer/select-context-layer";
-import { HighlightMenu } from "./menu/highlight-menu";
-import { TextMenu } from "./menu/text-menu";
-import { useZoom } from "../../hooks/pdf/use-zoom";
-import { useEffect, useRef } from "react";
-import { useAtomValue, useSetAtom } from "jotai";
-import { useScrollPosition } from "@/hooks/pdf/use-scroll-position";
-import { AnnotatorLayer } from "./layer/annotator-layer";
-import { useHistoryShortcuts } from "@/hooks/pdf/use-history-shortcuts";
-import { cn } from "@/lib/utils";
 import { useNavigate } from "@tanstack/react-router";
+import { useAtomValue, useSetAtom } from "jotai";
+import { useEffect, useRef } from "react";
 import { activeAnnotatorAtomFamily } from "@/atoms/pdf/annotator-options";
 import {
   activePdfIdAtom,
   currentPageAtomFamily,
   viewerAtomFamily,
 } from "@/atoms/pdf/pdf-viewer";
+import { useHistoryShortcuts } from "@/hooks/pdf/use-history-shortcuts";
+import { useScrollPosition } from "@/hooks/pdf/use-scroll-position";
+import { cn } from "@/lib/utils";
 import { useLoadPdf } from "@/queries/pdf/use-pdf";
+import { useZoom } from "../../hooks/pdf/use-zoom";
+import { ContextBoundingBox } from "../chat/contexts/context-bounding-box";
+import { PreviewImageDialog } from "./dialog/preview-image-dialog";
+import { AnnotatorLayer } from "./layer/annotator-layer";
+import { HighlightLayer } from "./layer/highlight-layer";
+import { Layer } from "./layer/layer";
+import { Layers } from "./layer/layers";
+import { SelectContextArea } from "./layer/select-context-layer";
+import { HighlightMenu } from "./menu/highlight-menu";
+import { TextMenu } from "./menu/text-menu";
 
 export const PdfViewer = ({
   pdfId,
@@ -69,7 +69,7 @@ export const PdfViewer = ({
     <div
       className={cn(
         "absolute top-0 left-0 mx-auto w-full bg-neutral-100 dark:bg-panel overflow-y-auto h-full touch-pan-x touch-pan-y",
-        annotator && "select-none"
+        annotator && "select-none",
       )}
       ref={containerRef}
       key={pdfId}

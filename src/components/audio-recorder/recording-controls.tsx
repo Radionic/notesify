@@ -1,12 +1,12 @@
-import { Mic, Pause, Play, Square } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useRecorder } from "@/hooks/recording/use-recorder";
-import { generateId } from "@/lib/id";
-import { Recording } from "@/db/schema";
-import { useAddRecording } from "@/queries/recording/use-recording";
-import { formatDuration } from "@/lib/audio/utils";
 import { useSetAtom } from "jotai";
+import { Mic, Pause, Play, Square } from "lucide-react";
 import { isRecordingAtom } from "@/atoms/recording/audio-recorder";
+import { Button } from "@/components/ui/button";
+import type { Recording } from "@/db/schema";
+import { useRecorder } from "@/hooks/recording/use-recorder";
+import { formatDuration } from "@/lib/audio/utils";
+import { generateId } from "@/lib/id";
+import { useAddRecording } from "@/queries/recording/use-recording";
 
 export const RecordingControls = () => {
   const { mutateAsync: addRecording } = useAddRecording();

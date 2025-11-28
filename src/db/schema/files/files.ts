@@ -1,9 +1,9 @@
 import {
+  type AnySQLiteColumn,
+  index,
+  integer,
   sqliteTable,
   text,
-  integer,
-  index,
-  AnySQLiteColumn,
 } from "drizzle-orm/sqlite-core";
 
 export const filesTable = sqliteTable(
@@ -13,7 +13,7 @@ export const filesTable = sqliteTable(
     name: text("name").notNull(),
     type: text("type", { enum: ["folder", "pdf", "notes"] }).notNull(),
     parentId: text("parent_id").references(
-      (): AnySQLiteColumn => filesTable.id
+      (): AnySQLiteColumn => filesTable.id,
     ),
     createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
     updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
@@ -23,7 +23,7 @@ export const filesTable = sqliteTable(
     index("files_type_idx").on(table.type),
     index("files_created_at_idx").on(table.createdAt),
     index("files_updated_at_idx").on(table.updatedAt),
-  ]
+  ],
 );
 
 export type FileNode = typeof filesTable.$inferSelect;

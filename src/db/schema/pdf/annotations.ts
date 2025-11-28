@@ -1,4 +1,4 @@
-import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { pdfsTable } from "@/db/schema/pdf/pdfs";
 
 export const annotationsTable = sqliteTable(
@@ -14,7 +14,7 @@ export const annotationsTable = sqliteTable(
       .references(() => pdfsTable.id, { onDelete: "cascade" })
       .notNull(),
   },
-  (table) => [index("annotations_pdf_id_idx").on(table.pdfId)]
+  (table) => [index("annotations_pdf_id_idx").on(table.pdfId)],
 );
 
 export type Annotation = typeof annotationsTable.$inferSelect;

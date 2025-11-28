@@ -1,13 +1,13 @@
+import { Pencil, Plus, Trash } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import type { ProviderSettings } from "@/atoms/setting/providers";
+import { PasswordInput } from "@/components/origin-ui/password-input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { PasswordInput } from "@/components/origin-ui/password-input";
-import { toast } from "sonner";
-import { useState } from "react";
-import { ProviderSettings } from "@/atoms/setting/providers";
-import { ProviderConfig } from "../provider-settings-dialog";
-import { Pencil, Plus, Trash } from "lucide-react";
 import { useVerifyKey } from "@/queries/setting/use-api-provider";
+import type { ProviderConfig } from "../provider-settings-dialog";
 
 const EditForm = ({
   providerConfig,

@@ -1,6 +1,6 @@
-import { sqliteTable, text, index } from "drizzle-orm/sqlite-core";
-import { pdfsTable } from "@/db/schema/pdf/pdfs";
+import { index, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { filesTable } from "@/db/schema/files/files";
+import { pdfsTable } from "@/db/schema/pdf/pdfs";
 
 export const notesTable = sqliteTable(
   "notes",
@@ -14,7 +14,7 @@ export const notesTable = sqliteTable(
     title: text("title").notNull(),
     content: text("content").notNull(),
   },
-  (table) => [index("notes_pdf_id_idx").on(table.pdfId)]
+  (table) => [index("notes_pdf_id_idx").on(table.pdfId)],
 );
 
 export type Notes = typeof notesTable.$inferSelect;

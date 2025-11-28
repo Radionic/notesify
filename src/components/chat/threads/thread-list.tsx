@@ -1,6 +1,6 @@
 import { format, isToday, isYesterday, startOfDay } from "date-fns";
 import { useMemo } from "react";
-import { type Chat } from "@/db/schema/chat/chats";
+import type { Chat } from "@/db/schema/chat/chats";
 import { ThreadGroup } from "./thread-group";
 
 type GroupedChats = Record<string, Chat[]>;
@@ -37,7 +37,7 @@ export const ThreadList = ({ chatrooms }: { chatrooms?: Chat[] }) => {
     });
 
     const sortedDates = Object.keys(grouped).sort(
-      (a, b) => new Date(b).getTime() - new Date(a).getTime()
+      (a, b) => new Date(b).getTime() - new Date(a).getTime(),
     );
 
     return { groupedChats: grouped, sortedDates };

@@ -1,9 +1,9 @@
+import { Mistral, OpenAI } from "@lobehub/icons";
 import { useAtom, useAtomValue } from "jotai";
-import { OpenAI, Mistral } from "@lobehub/icons";
 
 import {
-  ModelType,
   configuredProvidersAtom,
+  type ModelType,
   openSettingsDialogAtom,
 } from "@/atoms/setting/providers";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -41,7 +41,7 @@ export const ProviderSettingsDialog = () => {
   const [open, setOpen] = useAtom(openSettingsDialogAtom);
   const configuredProviders = useAtomValue(configuredProvidersAtom);
   const unconfiguredProviders = PROVIDER_CONFIGS.filter(
-    (provider) => !configuredProviders.some((cp) => cp.id === provider.id)
+    (provider) => !configuredProviders.some((cp) => cp.id === provider.id),
   );
 
   return (
@@ -60,7 +60,7 @@ export const ProviderSettingsDialog = () => {
               <div className="space-y-3">
                 {configuredProviders.map((provider) => {
                   const providerConfig = PROVIDER_CONFIGS.find(
-                    (p) => p.id === provider.id
+                    (p) => p.id === provider.id,
                   );
                   if (!providerConfig) return null;
                   return (

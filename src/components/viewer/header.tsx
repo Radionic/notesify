@@ -1,22 +1,20 @@
-import { AudioLines, FileText, PanelLeft, Sparkles } from "lucide-react";
-
-import { TooltipButton } from "@/components/tooltip/tooltip-button";
-import { Card } from "@/components/ui/card";
-
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { pdfViewerOpenAtom } from "@/atoms/pdf/pdf-viewer";
-import { Separator } from "../ui/separator";
-import { notesOpenAtom } from "@/atoms/notes/notes";
+import { AudioLines, FileText, PanelLeft, Sparkles } from "lucide-react";
 import { chatsOpenAtom } from "@/atoms/chat/chats";
-import { openSettingsDialogAtom } from "@/atoms/setting/providers";
 import { fileSystemOpenAtom } from "@/atoms/file-system/file-system";
+import { notesOpenAtom } from "@/atoms/notes/notes";
+import { pdfViewerOpenAtom } from "@/atoms/pdf/pdf-viewer";
 import {
   audioRecorderOpenAtom,
   isRecordingAtom,
 } from "@/atoms/recording/audio-recorder";
+import { openSettingsDialogAtom } from "@/atoms/setting/providers";
+import { TooltipButton } from "@/components/tooltip/tooltip-button";
+import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ThemeSwitch } from "../theme-switch";
 import { useNavigatePdf } from "@/queries/pdf/use-pdf";
+import { ThemeSwitch } from "../theme-switch";
+import { Separator } from "../ui/separator";
 
 export const Header = ({ pdfId }: { pdfId: string }) => {
   const [fileSystemOpen, setFileSystemOpen] = useAtom(fileSystemOpenAtom);
@@ -24,7 +22,7 @@ export const Header = ({ pdfId }: { pdfId: string }) => {
   const [pdfOpen, setPdfOpen] = useAtom(pdfViewerOpenAtom);
   const [notesOpen, setNotesOpen] = useAtom(notesOpenAtom);
   const [audioRecorderOpen, setAudioRecorderOpen] = useAtom(
-    audioRecorderOpenAtom
+    audioRecorderOpenAtom,
   );
   const isRecording = useAtomValue(isRecordingAtom);
 
@@ -34,7 +32,7 @@ export const Header = ({ pdfId }: { pdfId: string }) => {
   // Toggle a panel while ensuring at least one remains open
   const togglePanel = (
     panel: "notes" | "pdf" | "chats" | "audio-recorder",
-    currentlyOpen: boolean
+    currentlyOpen: boolean,
   ) => {
     if (currentlyOpen) {
       const atLeastOneOtherOpen =
@@ -91,7 +89,7 @@ export const Header = ({ pdfId }: { pdfId: string }) => {
           active={audioRecorderOpen}
           className={cn(
             isRecording &&
-              "bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-100"
+              "bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-100",
           )}
           onClick={() =>
             setAudioRecorderOpen((open) => togglePanel("audio-recorder", open))

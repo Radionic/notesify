@@ -1,7 +1,7 @@
-import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
-import { useUndoRedo } from "@/queries/pdf/use-pdf-history";
 import { useAtomValue } from "jotai";
 import { useHotkeys } from "react-hotkeys-hook";
+import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
+import { useUndoRedo } from "@/queries/pdf/use-pdf-history";
 
 export const useHistoryShortcuts = () => {
   const activePdfId = useAtomValue(activePdfIdAtom);
@@ -14,7 +14,7 @@ export const useHistoryShortcuts = () => {
       undo();
     },
     { preventDefault: true },
-    [history, activePdfId]
+    [history, activePdfId],
   );
 
   // Redo
@@ -24,6 +24,6 @@ export const useHistoryShortcuts = () => {
       redo();
     },
     { preventDefault: true },
-    [history, activePdfId]
+    [history, activePdfId],
   );
 };

@@ -1,6 +1,6 @@
-import { Label } from "@/components/ui/label";
-import { ModelType, selectedModelsAtom } from "@/atoms/setting/providers";
 import { useAtom } from "jotai";
+import { type ModelType, selectedModelsAtom } from "@/atoms/setting/providers";
+import { Label } from "@/components/ui/label";
 import { ModelSelector } from "../../model-selector";
 
 export const DefaultModelSelector = ({

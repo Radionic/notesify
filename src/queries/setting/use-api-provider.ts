@@ -1,15 +1,15 @@
-import {
-  availableModelsAtom,
-  Model,
-  openSettingsDialogAtom,
-  providerRegistryAtom,
-  ProviderSettings,
-  selectedModelsAtom,
-} from "@/atoms/setting/providers";
-import { ModelType } from "@mistralai/mistralai/models/components";
+import type { ModelType } from "@mistralai/mistralai/models/components";
 import { useMutation } from "@tanstack/react-query";
 import { getDefaultStore, useAtom } from "jotai";
 import { toast } from "sonner";
+import {
+  availableModelsAtom,
+  type Model,
+  openSettingsDialogAtom,
+  type ProviderSettings,
+  providerRegistryAtom,
+  selectedModelsAtom,
+} from "@/atoms/setting/providers";
 
 export const useVerifyKey = () => {
   const [availableModels, setAvailableModels] = useAtom(availableModelsAtom);
@@ -47,7 +47,7 @@ export const useVerifyKey = () => {
             name: model.id,
             provider: providerId,
             types: ["Chat"],
-          } as Model)
+          }) as Model,
       );
 
       // Update available models for this provider
@@ -71,7 +71,7 @@ export const useGetModel = () => {
       return;
     }
     return registry.languageModel(
-      `${selectedModel.provider}:${selectedModel.id}`
+      `${selectedModel.provider}:${selectedModel.id}`,
     );
   };
   return getModel;

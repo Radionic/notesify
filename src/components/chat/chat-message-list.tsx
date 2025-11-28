@@ -1,17 +1,16 @@
-import { cn } from "@/lib/utils";
-
-import { ChatMessage } from "./chat-message";
-import { ImageContextsPreview } from "./contexts/image-context-preview";
-import { TextContextsPreview } from "./contexts/text-content-preview";
-import { useChatAI } from "@/hooks/chat/use-chat-ai";
-import { ChatGuide } from "./chat-guide";
 import { useAtomValue } from "jotai";
+import { useEffect } from "react";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
 import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
 import { useAutoScroll } from "@/hooks/chat/use-auto-scroll";
-import { useEffect } from "react";
+import { useChatAI } from "@/hooks/chat/use-chat-ai";
+import { cn } from "@/lib/utils";
 import { useCreateNewChat } from "@/queries/chat/use-chat";
 import { Badge } from "../badge";
+import { ChatGuide } from "./chat-guide";
+import { ChatMessage } from "./chat-message";
+import { ImageContextsPreview } from "./contexts/image-context-preview";
+import { TextContextsPreview } from "./contexts/text-content-preview";
 
 export const ChatMessageList = ({ className }: { className?: string }) => {
   const pdfId = useAtomValue(activePdfIdAtom);

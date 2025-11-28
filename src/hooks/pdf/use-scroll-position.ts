@@ -1,9 +1,9 @@
-import { useUpdatePdf } from "@/queries/pdf/use-pdf";
 import { useEffect } from "react";
+import { useUpdatePdf } from "@/queries/pdf/use-pdf";
 
 export const useScrollPosition = (
   pdfId: string,
-  containerRef: React.RefObject<HTMLDivElement | null>
+  containerRef: React.RefObject<HTMLDivElement | null>,
 ) => {
   const { mutate: setScrollPositions } = useUpdatePdf();
 

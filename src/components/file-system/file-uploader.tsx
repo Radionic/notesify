@@ -1,9 +1,9 @@
-import { BsFiletypePdf, BsFiletypeDoc, BsFiletypePpt } from "react-icons/bs";
-import { FileInput, FileUploader } from "@/components/ui/file-uploader";
-import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
+import { BsFiletypeDoc, BsFiletypePdf, BsFiletypePpt } from "react-icons/bs";
 import { useMediaQuery } from "react-responsive";
 import { toast } from "sonner";
+import { FileInput, FileUploader } from "@/components/ui/file-uploader";
+import { cn } from "@/lib/utils";
 import { useAddPdf } from "@/queries/file-system/use-file-system";
 import { useConvertPdf, useNavigatePdf } from "@/queries/pdf/use-pdf";
 
@@ -12,7 +12,7 @@ const FileSvgDraw = ({ thin }: { thin?: boolean }) => {
     <div
       className={cn(
         "flex items-center justify-center flex-col border border-dashed border-gray-400 rounded-md",
-        thin ? "h-fit w-full py-2 mt-2" : "h-48 w-80"
+        thin ? "h-fit w-full py-2 mt-2" : "h-48 w-80",
       )}
     >
       {thin ? (
@@ -50,11 +50,11 @@ export const PdfFileUploader = ({
   const loadPdfFromBlob = async (
     data: Blob,
     fileName: string,
-    originalType?: string
+    originalType?: string,
   ) => {
     if (isMobile) {
       toast.info(
-        "Mobile version is not supported yet. Please view on a desktop or laptop."
+        "Mobile version is not supported yet. Please view on a desktop or laptop.",
       );
       return;
     }

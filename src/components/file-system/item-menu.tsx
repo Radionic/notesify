@@ -1,4 +1,5 @@
 import { Download, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,8 +7,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { FileNode } from "@/db/schema";
+import type { FileNode } from "@/db/schema";
 
 interface ItemMenuProps {
   node: FileNode;

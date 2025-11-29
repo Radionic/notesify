@@ -1,7 +1,6 @@
-import "pdfjs-dist/web/pdf_viewer.css";
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai";
-import { useEffect, useRef } from "react";
+import { GlobalWorkerOptions } from "pdfjs-dist";
 import { activeAnnotatorAtomFamily } from "@/atoms/pdf/annotator-options";
 import {
   activePdfIdAtom,
@@ -12,6 +11,8 @@ import { useHistoryShortcuts } from "@/hooks/pdf/use-history-shortcuts";
 import { useScrollPosition } from "@/hooks/pdf/use-scroll-position";
 import { cn } from "@/lib/utils";
 import { useLoadPdf } from "@/queries/pdf/use-pdf";
+import "pdfjs-dist/web/pdf_viewer.css";
+import { useEffect, useRef } from "react";
 import { useZoom } from "../../hooks/pdf/use-zoom";
 import { ContextBoundingBox } from "../chat/contexts/context-bounding-box";
 import { PreviewImageDialog } from "./dialog/preview-image-dialog";
@@ -22,6 +23,11 @@ import { Layers } from "./layer/layers";
 import { SelectContextArea } from "./layer/select-context-layer";
 import { HighlightMenu } from "./menu/highlight-menu";
 import { TextMenu } from "./menu/text-menu";
+
+GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url,
+).toString();
 
 export const PdfViewer = ({
   pdfId,

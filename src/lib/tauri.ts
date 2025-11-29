@@ -7,7 +7,7 @@ import {
   writeFile,
 } from "@tauri-apps/plugin-fs";
 
-export const isTauri = "isTauri" in window;
+export const isTauri = false; // "isTauri" in window;
 
 const memStorage: Record<string, any> = {};
 

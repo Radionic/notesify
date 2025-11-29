@@ -26,7 +26,7 @@ import {
 import type { Pdf, ScrollPosition } from "@/db/schema";
 import { dbService } from "@/lib/db";
 import { isTauri, readNativeFile } from "@/lib/tauri";
-import { router } from "@/main";
+import { getRouter, queryClient } from "@/router";
 import { fileQueryOptions } from "../file-system/use-file-system";
 
 export const pdfQueryOptions = ({
@@ -109,7 +109,6 @@ export const useUpdatePdf = () => {
 };
 
 export const useLoadPdf = () => {
-  const queryClient = useQueryClient();
   const { mutateAsync: updatePdf } = useUpdatePdf();
 
   const loadPdf = async ({
@@ -293,7 +292,7 @@ export const useNavigatePdf = () => {
       : undefined;
     setNotesOpen(open);
 
-    router.navigate({
+    getRouter().navigate({
       to: "/viewer",
       search: (prev) => ({
         ...prev,

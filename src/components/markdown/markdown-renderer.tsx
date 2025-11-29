@@ -1,5 +1,4 @@
-import type { ReactNode } from "@tanstack/react-router";
-import React from "react";
+import React, { type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import rehypeKatex from "rehype-katex";
 import remarkGfm from "remark-gfm";

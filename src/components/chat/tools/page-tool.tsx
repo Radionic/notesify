@@ -1,4 +1,3 @@
-import type { ToolInvocation } from "ai";
 import { useAtomValue } from "jotai";
 import { Check, CircleAlert } from "lucide-react";
 import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
@@ -14,7 +13,7 @@ export const PageTool = ({
   pages,
   actionText,
 }: {
-  tool: ToolInvocation;
+  tool: any;
   className?: string;
   pages: number[];
   actionText: {

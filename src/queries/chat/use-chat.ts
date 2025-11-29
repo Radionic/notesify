@@ -1,13 +1,15 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Message } from "ai";
+import { useServerFn } from "@tanstack/react-start";
+import type { UIMessage } from "ai";
 import { useSetAtom } from "jotai";
 import { toast } from "sonner";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
 import type { Chat } from "@/db/schema/chat/chats";
 import { useGetSelectedModel } from "@/hooks/use-model";
-import { generateTitle } from "@/lib/chat/chat";
+import { getTextFromMessage } from "@/lib/ai/get-text-from-message";
 import { dbService } from "@/lib/db";
-import { createChat, updateChatTitle } from "@/lib/db/chat";
+import { createChat } from "@/lib/db/chat";
+import { generateTitleFn } from "@/server/ai/generate-title";
 
 export const useChat = ({ id }: { id: string }) => {
   return useQuery({
@@ -48,6 +50,7 @@ export const useCreateNewChat = () => {
 export const useUpdateChatTitle = () => {
   const queryClient = useQueryClient();
   const { getSelectedModel } = useGetSelectedModel();
+  const generateTitle = useServerFn(generateTitleFn);
 
   return useMutation({
     mutationFn: async ({
@@ -55,14 +58,28 @@ export const useUpdateChatTitle = () => {
       messages,
     }: {
       chatId: string;
-      messages: Message[];
+      messages: UIMessage[];
     }) => {
       const model = getSelectedModel("Chat");
       if (!model) {
         return "Untitled";
       }
-      const title = await generateTitle(model, messages);
-      await updateChatTitle(chatId, title);
+
+      let text = "";
+      for (const message of messages) {
+        const content = getTextFromMessage(message);
+        if (message.role === "user") {
+          text += `User: ${content}\n`;
+        } else if (message.role === "assistant" && content) {
+          text += `AI: ${content}\n`;
+        }
+        if (text.length > 512) {
+          text = text.slice(0, 512);
+          break;
+        }
+      }
+
+      const title = await generateTitle({ data: { chatId, text } });
       return title;
     },
     onSuccess: (title, { chatId }) => {

@@ -1,8 +1,8 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
 @plugin "@tailwindcss/typography";
-@plugin "tailwindcss-scrollbar";
-@plugin "tailwindcss-scrollbar-hide";
+@plugin "tailwind-scrollbar";
+@plugin "tailwind-scrollbar-hide";
 
 @custom-variant dark (&:is(.dark *));
 

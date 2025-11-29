@@ -1,9 +1,10 @@
 import { useAtom, useAtomValue } from "jotai";
+import { useState } from "react";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
 import { activeContextsAtom } from "@/atoms/chat/contexts";
-import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
+import { activePdfIdAtom, currentPageAtomFamily } from "@/atoms/pdf/pdf-viewer";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
-import { generateId } from "@/lib/id";
+import { useOpenedPdfs } from "@/queries/pdf/use-pdf";
 import { AutogrowingTextarea } from "../origin-ui/autogrowing-textarea";
 import { ModelSelector } from "../pdf/model-selector";
 import { SelectAreaContextButton } from "./action-button/select-context-button";
@@ -13,11 +14,12 @@ export const ChatInput = () => {
   const [contexts, setContexts] = useAtom(activeContextsAtom);
   const pdfId = useAtomValue(activePdfIdAtom);
   const chatId = useAtomValue(activeChatIdAtom);
-  const { input, setInput, handleInputChange, append, stop, status, error } =
-    useChatAI({
-      chatId,
-      pdfId,
-    });
+
+  const { data: openedPdfs } = useOpenedPdfs();
+  const viewingPage = useAtomValue(currentPageAtomFamily(pdfId));
+  const { sendMessage, stop, status, error } = useChatAI({ chatId });
+
+  const [input, setInput] = useState<string>("");
   const isLoading = status === "submitted" || status === "streaming";
   const disableSending = input.length === 0 || isLoading || !!error;
 
@@ -31,16 +33,14 @@ export const ChatInput = () => {
       return;
     }
 
-    const id = generateId();
-    const createdAt = new Date();
-    append({
-      id,
-      createdAt,
-      role: "user",
-      content: input,
-      data: JSON.stringify({
+    sendMessage({
+      text: input,
+      metadata: {
+        openedPdfs,
+        viewingPage,
         contexts,
-      }),
+        modelId: "openai/gpt-5-nano", // TODO: use selected model instead
+      },
     });
     setInput("");
     setContexts([]);
@@ -57,7 +57,7 @@ export const ChatInput = () => {
         maxRows={20}
         className="border-none shadow-none focus-visible:ring-0 p-2"
         value={input}
-        onChange={handleInputChange}
+        onChange={(e) => setInput(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             _handleSubmit(e);

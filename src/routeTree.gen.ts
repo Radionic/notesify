@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ViewerIndexRouteImport } from './routes/viewer/index'
 import { Route as LibraryIndexRouteImport } from './routes/library/index'
+import { Route as ApiAiIndexRouteImport } from './routes/api/ai/index'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -28,35 +29,44 @@ const LibraryIndexRoute = LibraryIndexRouteImport.update({
   path: '/library/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiIndexRoute = ApiAiIndexRouteImport.update({
+  id: '/api/ai/',
+  path: '/api/ai/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/library': typeof LibraryIndexRoute
   '/viewer': typeof ViewerIndexRoute
+  '/api/ai': typeof ApiAiIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/library': typeof LibraryIndexRoute
   '/viewer': typeof ViewerIndexRoute
+  '/api/ai': typeof ApiAiIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/library/': typeof LibraryIndexRoute
   '/viewer/': typeof ViewerIndexRoute
+  '/api/ai/': typeof ApiAiIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/library' | '/viewer'
+  fullPaths: '/' | '/library' | '/viewer' | '/api/ai'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/library' | '/viewer'
-  id: '__root__' | '/' | '/library/' | '/viewer/'
+  to: '/' | '/library' | '/viewer' | '/api/ai'
+  id: '__root__' | '/' | '/library/' | '/viewer/' | '/api/ai/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
   ViewerIndexRoute: typeof ViewerIndexRoute
+  ApiAiIndexRoute: typeof ApiAiIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -82,6 +92,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LibraryIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/ai/': {
+      id: '/api/ai/'
+      path: '/api/ai'
+      fullPath: '/api/ai'
+      preLoaderRoute: typeof ApiAiIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   LibraryIndexRoute: LibraryIndexRoute,
   ViewerIndexRoute: ViewerIndexRoute,
+  ApiAiIndexRoute: ApiAiIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

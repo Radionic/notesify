@@ -1,12 +1,7 @@
-import {
-  type CoreUserMessage,
-  generateText,
-  type LanguageModelV1,
-  type Message,
-} from "ai";
-
+import { convertToModelMessages, type ModelMessage, type UIMessage } from "ai";
 import type { Context } from "@/atoms/chat/contexts";
 import type { OpenedPDF } from "@/queries/pdf/use-pdf";
+import { getTextFromMessage } from "./get-text-from-message";
 
 const buildTextContent = (content: string, contexts?: Context[]) => {
   const textContext = contexts
@@ -14,7 +9,7 @@ const buildTextContent = (content: string, contexts?: Context[]) => {
     .map((c) => c.content)
     .join("\n\n");
   return {
-    type: "text",
+    type: "text" as const,
     text: textContext
       ? `${content}\n<user_selected_text>:\n${textContext}\n</user_selected_text>`
       : content,
@@ -26,8 +21,8 @@ const buildImageContent = (contexts?: Context[]) => {
     contexts
       ?.filter((c) => c.type === "page" || c.type === "area")
       .map((c) => ({
-        type: "image",
-        image: c.content,
+        type: "image" as const,
+        image: c.content || "",
       })) || []
   );
 };
@@ -56,43 +51,26 @@ export const buildSystemMessage = (
   return systemMessage;
 };
 
-export const buildMessages = (messages: Message[], contexts?: Context[]) => {
+export const buildMessages = (
+  messages: UIMessage[],
+  contexts?: Context[],
+): ModelMessage[] => {
   const currentMessage = messages[messages.length - 1];
   if (currentMessage.role !== "user") {
-    return messages;
+    return convertToModelMessages(messages);
   }
   const initialMessages = messages.slice(0, -1);
 
-  const textContent = buildTextContent(currentMessage.content, contexts);
+  const textContent = buildTextContent(
+    getTextFromMessage(currentMessage),
+    contexts,
+  );
   const imageContent = buildImageContent(contexts);
   return [
-    ...initialMessages,
+    ...convertToModelMessages(initialMessages),
     {
       role: "user",
       content: [textContent, ...imageContent].filter(Boolean),
-    } as CoreUserMessage,
+    } as ModelMessage,
   ];
-};
-
-export const generateTitle = async (
-  model: LanguageModelV1,
-  messages: Message[],
-) => {
-  let text = "";
-  for (const message of messages) {
-    if (message.role === "user") {
-      text += `User: ${message.content}\n`;
-    } else if (message.role === "assistant" && message.content) {
-      text += `AI: ${message.content}\n`;
-    }
-  }
-  text = text.slice(0, 1000);
-
-  const prompt = `Create a short title, starting with a meaningful emoji, for the following text. Do not use Markdown.\n${text}`;
-  const res = await generateText({
-    model,
-    prompt,
-  });
-  const title = res.text;
-  return title;
 };

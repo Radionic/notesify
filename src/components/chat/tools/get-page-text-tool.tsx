@@ -1,14 +1,24 @@
-import type { ToolInvocation } from "ai";
+import type { DynamicToolUIPart } from "ai";
 import { PageTool } from "./page-tool";
+
+type GetPageTextInput = {
+  startPage: number;
+  endPage: number;
+};
 
 export const GetPageTextTool = ({
   tool,
   className,
 }: {
-  tool: ToolInvocation;
+  tool: DynamicToolUIPart;
   className?: string;
 }) => {
-  const { startPage, endPage } = tool.args || {};
+  const input = tool.input as GetPageTextInput | undefined;
+  if (!input) return null;
+
+  const { startPage, endPage } = input;
+  if (startPage == null || endPage == null) return null;
+
   const pages = Array.from(
     { length: endPage - startPage + 1 },
     (_, i) => startPage + i,

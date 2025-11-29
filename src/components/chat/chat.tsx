@@ -6,7 +6,6 @@ import { ChatInput } from "./chat-input";
 import { ChatMessageList } from "./chat-message-list";
 import { ImageContextsPreview } from "./contexts/image-context-preview";
 import { TextContextsPreview } from "./contexts/text-content-preview";
-import { QuickActions } from "./quick-actions/quick-actions";
 import { ThreadFinder } from "./threads/thread-finder";
 
 // import { Message } from "ai";
@@ -32,7 +31,6 @@ export const Chat = () => {
       <div className="space-y-2 flex-none p-2">
         <TextContextsPreview contexts={contexts} removable />
         <ImageContextsPreview contexts={contexts} removable />
-        <QuickActions />
         <ChatInput />
       </div>
     </div>

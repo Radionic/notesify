@@ -133,7 +133,7 @@ export const FileSystemItem = ({ node, level = 0 }: FileSystemItemProps) => {
                   setIsRenaming(false);
                   setNewName(node.name);
                 }}
-                className="h-6 flex-grow"
+                className="h-6 grow"
                 autoFocus
                 onClick={(e) => e.stopPropagation()}
               />

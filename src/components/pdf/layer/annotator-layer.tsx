@@ -178,7 +178,7 @@ export const AnnotatorLayer = ({
     <svg
       ref={svgRef}
       className={cn(
-        "w-full h-full absolute inset-0 z-[50]",
+        "w-full h-full absolute inset-0 z-50",
         annotator ? "pointer-events-auto" : "pointer-events-none",
       )}
       viewBox="0 0 1 1"

@@ -22,7 +22,7 @@ export const ThreadGroup = ({ chats }: { chats: Chat[] }) => {
       >
         <div className="flex flex-row justify-between items-center w-full">
           <span className="truncate text-sm">{chat.title || "New Chat"}</span>
-          <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
+          <span className="text-xs text-muted-foreground shrink-0 ml-2">
             {formatDistanceToNowStrict(chat.updatedAt, {
               addSuffix: true,
             })}

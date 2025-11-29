@@ -34,7 +34,7 @@ export function HeroSection() {
       <img
         src="/demo.jpg"
         alt="Notesify Demo"
-        className="rounded-xl shadow-2xl w-full max-w-[80rem]"
+        className="rounded-xl shadow-2xl w-full max-w-7xl"
       />
     </section>
   );

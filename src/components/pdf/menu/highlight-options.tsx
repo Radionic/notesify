@@ -34,7 +34,7 @@ export const HighlightOptions = ({ onChange }: Props) => {
         />
       </PopoverTrigger>
       <PopoverContent
-        className="min-w-0 w-fit z-[200] px-3 py-2"
+        className="min-w-0 w-fit z-200 px-3 py-2"
         onPointerDown={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col gap-2">

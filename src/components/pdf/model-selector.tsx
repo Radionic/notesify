@@ -113,7 +113,7 @@ export const ModelSelector = ({
   const triggerButton =
     variant === "button" ? (
       <TooltipButton tooltip="AI Model">
-        <RiRobot2Line className="opacity-50 !size-5" />
+        <RiRobot2Line className="opacity-50 size-5!" />
         {showModelName && selectedItem && (
           <span className="text-muted-foreground">
             {selectedItem.value.name}

@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, jsonb, pgTable, text } from "drizzle-orm/pg-core";
 import { filesTable } from "@/db/schema/files/files";
 
 export type ScrollPosition = {
@@ -6,12 +6,12 @@ export type ScrollPosition = {
   y: number;
 };
 
-export const pdfsTable = sqliteTable("pdfs", {
+export const pdfsTable = pgTable("pdfs", {
   id: text("id")
     .primaryKey()
     .references(() => filesTable.id, { onDelete: "cascade" }),
   pageCount: integer("page_count").notNull().default(0),
-  scroll: text("scroll", { mode: "json" })
+  scroll: jsonb("scroll")
     .$type<ScrollPosition>()
     .notNull()
     .default({

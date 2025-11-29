@@ -1,20 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import type { Annotation } from "@/db/schema";
-import { dbService } from "@/lib/db";
+import {
+  createAnnotationsFn,
+  deleteAnnotationsFn,
+  getAnnotationsFn,
+} from "@/server/annotation";
 import { usePushHistory } from "./use-pdf-history";
 
-// export const useAnnotation = ({ id }: { id: string }) => {
-//   return useQuery({
-//     queryKey: ["annotations", id],
-//     queryFn: () => dbService.annotation.getAnnotation(id),
-//   });
-// };
-
-export const useAnnotations = ({ pdfId }: { pdfId: string }) =>
-  useQuery({
+export const useAnnotations = ({ pdfId }: { pdfId: string }) => {
+  const getAnnotations = useServerFn(getAnnotationsFn);
+  return useQuery({
     queryKey: ["annotations", "pdf", pdfId],
-    queryFn: () => dbService.annotation.getAnnotations({ pdfId }),
+    queryFn: () => getAnnotations({ data: { pdfId } }),
   });
+};
 
 export const useAnnotationsByPage = ({ pdfId }: { pdfId: string }) => {
   const { data: annotations } = useAnnotations({ pdfId });
@@ -34,6 +34,7 @@ export const useAnnotationsByPage = ({ pdfId }: { pdfId: string }) => {
 export const useCreateAnnotations = () => {
   const queryClient = useQueryClient();
   const { pushHistory } = usePushHistory();
+  const createAnnotations = useServerFn(createAnnotationsFn);
 
   return useMutation({
     mutationFn: async ({
@@ -42,8 +43,10 @@ export const useCreateAnnotations = () => {
       annotations: Annotation[];
       saveHistory?: boolean;
     }) => {
-      await dbService.annotation.createAnnotations({
-        annotations,
+      await createAnnotations({
+        data: {
+          annotations,
+        },
       });
     },
     onMutate: ({ annotations, saveHistory = true }) => {
@@ -66,6 +69,7 @@ export const useCreateAnnotations = () => {
 export const useDeleteAnnotations = () => {
   const queryClient = useQueryClient();
   const { pushHistory } = usePushHistory();
+  const deleteAnnotations = useServerFn(deleteAnnotationsFn);
 
   return useMutation({
     mutationFn: async ({
@@ -75,7 +79,11 @@ export const useDeleteAnnotations = () => {
       pdfId: string;
       saveHistory?: boolean;
     }) => {
-      await dbService.annotation.deleteAnnotations({ ids });
+      await deleteAnnotations({
+        data: {
+          ids,
+        },
+      });
     },
     onMutate: ({ ids, pdfId, saveHistory = true }) => {
       if (saveHistory) {

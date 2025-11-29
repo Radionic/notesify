@@ -1,7 +1,7 @@
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, pgTable, text } from "drizzle-orm/pg-core";
 import { pdfsTable } from "@/db/schema/pdf/pdfs";
 
-export const annotationsTable = sqliteTable(
+export const annotationsTable = pgTable(
   "annotations",
   {
     id: text("id").primaryKey(),

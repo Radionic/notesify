@@ -1,12 +1,12 @@
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
-export const recordingsTable = sqliteTable(
+export const recordingsTable = pgTable(
   "recordings",
   {
     id: text("id").primaryKey(),
     name: text("name").notNull(),
     duration: integer("duration").notNull(),
-    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull(),
   },
   (table) => [
     index("recordings_duration_idx").on(table.duration),

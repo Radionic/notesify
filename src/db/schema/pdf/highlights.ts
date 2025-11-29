@@ -1,12 +1,12 @@
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, jsonb, pgTable, text } from "drizzle-orm/pg-core";
 import { pdfsTable } from "@/db/schema/pdf/pdfs";
 import type { Rect } from "@/lib/types";
 
-export const highlightsTable = sqliteTable(
+export const highlightsTable = pgTable(
   "highlights",
   {
     id: text("id").primaryKey(),
-    rects: text("rects", { mode: "json" }).$type<Rect[]>().notNull(),
+    rects: jsonb("rects").$type<Rect[]>().notNull(),
     color: text("color").notNull(),
     text: text("text").notNull(),
     pageNumber: integer("page_number").notNull(),

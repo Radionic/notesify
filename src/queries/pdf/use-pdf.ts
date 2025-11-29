@@ -1,9 +1,5 @@
-import {
-  queryOptions,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { save } from "@tauri-apps/plugin-dialog";
 import { writeFile } from "@tauri-apps/plugin-fs";
 import { getDefaultStore, useAtom, useAtomValue } from "jotai";
@@ -24,25 +20,11 @@ import {
   viewerAtomFamily,
 } from "@/atoms/pdf/pdf-viewer";
 import type { Pdf, ScrollPosition } from "@/db/schema";
-import { dbService } from "@/lib/db";
 import { isTauri, readNativeFile } from "@/lib/tauri";
-import { getRouter, queryClient } from "@/router";
-import { fileQueryOptions } from "../file-system/use-file-system";
+import { getRouter } from "@/router";
+import { getFileFn } from "@/server/file-system";
+import { getPdfFn, updatePdfFn } from "@/server/pdf";
 
-export const pdfQueryOptions = ({
-  pdfId,
-  enabled,
-}: {
-  pdfId: string;
-  enabled?: boolean;
-}) =>
-  queryOptions({
-    queryKey: ["pdf", pdfId],
-    queryFn: () => dbService.pdf.getPdf(pdfId),
-    retry: 0,
-    enabled,
-    throwOnError: true,
-  });
 export const usePdf = ({
   pdfId,
   enabled,
@@ -50,17 +32,25 @@ export const usePdf = ({
   pdfId: string;
   enabled?: boolean;
 }) => {
-  return useQuery(pdfQueryOptions({ pdfId, enabled }));
+  const getPdf = useServerFn(getPdfFn);
+
+  return useQuery({
+    queryKey: ["pdf", pdfId],
+    queryFn: () => getPdf({ data: { id: pdfId } }),
+    retry: 0,
+    enabled,
+    throwOnError: true,
+  });
 };
 
-export const pdfDataQueryOptions = ({
+export const usePdfData = ({
   pdfId,
   enabled,
 }: {
   pdfId: string;
   enabled?: boolean;
-}) =>
-  queryOptions({
+}) => {
+  return useQuery({
     queryKey: ["pdf-data", pdfId],
     queryFn: async () => {
       const data: Blob = await readNativeFile("pdfs", `${pdfId}.pdf`);
@@ -70,12 +60,12 @@ export const pdfDataQueryOptions = ({
     enabled,
     throwOnError: true,
   });
-export const usePdfData = ({ pdfId }: { pdfId: string }) => {
-  return useQuery(pdfDataQueryOptions({ pdfId }));
 };
 
 export const useUpdatePdf = () => {
   const queryClient = useQueryClient();
+  const updatePdf = useServerFn(updatePdfFn);
+
   return useMutation({
     mutationFn: async ({
       pdfId,
@@ -94,7 +84,7 @@ export const useUpdatePdf = () => {
         scroll,
         zoom,
       } as Pdf;
-      return await dbService.pdf.updatePdf(updatedPdf);
+      return await updatePdf({ data: updatedPdf });
     },
     onSuccess: (updatedFields, { pdfId }) => {
       queryClient.setQueryData<Pdf | null>(["pdf", pdfId], (oldData) => {
@@ -109,7 +99,8 @@ export const useUpdatePdf = () => {
 };
 
 export const useLoadPdf = () => {
-  const { mutateAsync: updatePdf } = useUpdatePdf();
+  const updatePdf = useServerFn(updatePdfFn);
+  const getPdf = useServerFn(getPdfFn);
 
   const loadPdf = async ({
     pdfId,
@@ -118,10 +109,8 @@ export const useLoadPdf = () => {
     pdfId: string;
     container: HTMLDivElement | null;
   }) => {
-    const pdf = await queryClient.fetchQuery(pdfQueryOptions({ pdfId }));
-    const pdfData = await queryClient.fetchQuery(
-      pdfDataQueryOptions({ pdfId }),
-    );
+    const pdf = await getPdf({ data: { id: pdfId } });
+    const pdfData = await readNativeFile("pdfs", `${pdfId}.pdf`);
     if (!pdf || !pdfData || !container) {
       throw new Error("Failed to load PDF");
     }
@@ -182,7 +171,9 @@ export const useLoadPdf = () => {
     // 2. show error "offsetParent is not set" when zooming
     console.log("PDF viewer initialized");
 
-    await updatePdf({ pdfId: pdf.id, pageCount: pdfDocument.numPages });
+    await updatePdf({
+      data: { id: pdf.id, pageCount: pdfDocument.numPages },
+    });
   };
 
   const unloadPdf = async ({ pdfId }: { pdfId: string }) => {
@@ -236,8 +227,6 @@ export const useConvertPdf = () => {
 };
 
 export const useDownloadPdf = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: async ({
       pdfId,
@@ -246,9 +235,7 @@ export const useDownloadPdf = () => {
       pdfId: string;
       filename: string;
     }) => {
-      const pdfData = await queryClient.fetchQuery(
-        pdfDataQueryOptions({ pdfId }),
-      );
+      const pdfData = await readNativeFile("pdfs", `${pdfId}.pdf`);
       if (!pdfData) {
         toast.error("Failed to download PDF");
         return;
@@ -287,16 +274,14 @@ export const useNavigatePdf = () => {
     page?: number;
   }) => {
     const open = notesOpen || !!openNotes;
-    const notesId = open
-      ? (await dbService.notes.getNotesForPdf({ pdfId })).id
-      : undefined;
+    // const notesId = open ? (await getNotesForPdf({ pdfId })).id : undefined;
     setNotesOpen(open);
 
     getRouter().navigate({
       to: "/viewer",
       search: (prev) => ({
         ...prev,
-        nid: notesId,
+        // nid: notesId,
         sid: pdfId,
         page,
       }),
@@ -313,17 +298,17 @@ export type OpenedPDF = {
 };
 
 export const useOpenedPdfs = () => {
-  const queryClient = useQueryClient();
   const pdfIds = useAtomValue(openedPdfIdsAtom);
+  const getPdf = useServerFn(getPdfFn);
+  const getFile = useServerFn(getFileFn);
+
   return useQuery({
     queryKey: ["opened-pdfs"],
     queryFn: async () => {
       const openedPdfs = await Promise.all(
         pdfIds.map(async (pdfId) => {
-          const pdf = await queryClient.fetchQuery(pdfQueryOptions({ pdfId }));
-          const pdfFile = await queryClient.fetchQuery(
-            fileQueryOptions({ id: pdfId }),
-          );
+          const pdf = await getPdf({ data: { id: pdfId } });
+          const pdfFile = await getFile({ data: { id: pdfId } });
           if (!pdf || !pdfFile) {
             return null;
           }

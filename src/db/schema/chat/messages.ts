@@ -1,8 +1,8 @@
 import type { Message } from "ai";
-import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { chatsTable } from "@/db/schema/chat/chats";
 
-export const messagesTable = sqliteTable(
+export const messagesTable = pgTable(
   "messages",
   {
     id: text("id").primaryKey(),
@@ -13,12 +13,10 @@ export const messagesTable = sqliteTable(
       enum: ["system", "user", "assistant", "tool", "data"],
     }).notNull(),
     content: text("content").notNull(),
-    data: text("data", { mode: "json" }).$type<Message["data"]>(),
-    annotations: text("annotations", { mode: "json" }).$type<
-      Message["annotations"]
-    >(),
-    parts: text("parts", { mode: "json" }).$type<Message["parts"]>(),
-    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
+    data: jsonb("data").$type<Message["data"]>(),
+    annotations: jsonb("annotations").$type<Message["annotations"]>(),
+    parts: jsonb("parts").$type<Message["parts"]>(),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull(),
   },
   (table) => [index("messages_created_at_idx").on(table.createdAt)],
 );

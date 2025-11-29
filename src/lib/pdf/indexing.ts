@@ -5,7 +5,7 @@ import type {
   ParsedPDFPage,
   PDFIndexingLevel,
 } from "@/db/schema";
-import { dbService } from "../db";
+import { getIndexedPdfFn } from "@/server/pdf";
 import { getPdfTexts, parsePdf } from "./parsing";
 
 export const indexPages = async ({
@@ -19,7 +19,7 @@ export const indexPages = async ({
   pagesPerBatch?: number;
   maxConcurrentBatches?: number;
 }): Promise<IndexedPDFPage[]> => {
-  const indexedPdf = await dbService.pdf.getIndexedPdf({ pdfId });
+  const indexedPdf = await getIndexedPdfFn({ data: { pdfId } });
   if (indexedPdf.length > 0) {
     return indexedPdf;
   }

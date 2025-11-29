@@ -1,14 +1,14 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, jsonb, pgTable, text } from "drizzle-orm/pg-core";
 import { pdfsTable } from "@/db/schema/pdf/pdfs";
 
-export const pdfParsingTable = sqliteTable("pdf_parsing", {
+export const pdfParsingTable = pgTable("pdf_parsing", {
   id: text("id").primaryKey(),
   pdfId: text("pdf_id")
     .notNull()
     .references(() => pdfsTable.id, { onDelete: "cascade" }),
   model: text("model").notNull(),
   text: text("text").notNull(),
-  images: text("images", { mode: "json" }).$type<string[]>(),
+  images: jsonb("images").$type<string[]>(),
   page: integer("page").notNull(),
 });
 

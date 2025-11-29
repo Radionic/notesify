@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { generateText } from "ai";
 import z from "zod";
 import { aiProvider } from "@/lib/ai/provider";
-import { updateChatTitle } from "@/lib/db/chat";
+import { updateChatTitleFn } from "@/server/chat";
 
 const GenerateTitleSchema = z.object({
   chatId: z.string(),
@@ -17,6 +17,6 @@ export const generateTitleFn = createServerFn({ method: "POST" })
       model: aiProvider.chatModel("openai/gpt-5-nano"),
       prompt,
     });
-    await updateChatTitle(data.chatId, title);
+    await updateChatTitleFn({ data: { chatId: data.chatId, title } });
     return title;
   });

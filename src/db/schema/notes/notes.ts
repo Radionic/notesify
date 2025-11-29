@@ -1,8 +1,8 @@
-import { index, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, pgTable, text } from "drizzle-orm/pg-core";
 import { filesTable } from "@/db/schema/files/files";
 import { pdfsTable } from "@/db/schema/pdf/pdfs";
 
-export const notesTable = sqliteTable(
+export const notesTable = pgTable(
   "notes",
   {
     id: text("id")

@@ -1,9 +1,9 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, pgTable, text } from "drizzle-orm/pg-core";
 import { pdfsTable } from "@/db/schema/pdf/pdfs";
 
 export type PDFIndexingLevel = "document" | "page" | "section";
 
-export const pdfIndexingTable = sqliteTable("pdf_indexing", {
+export const pdfIndexingTable = pgTable("pdf_indexing", {
   id: text("id").primaryKey(),
   pdfId: text("pdf_id")
     .notNull()

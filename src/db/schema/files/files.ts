@@ -1,22 +1,20 @@
 import {
-  type AnySQLiteColumn,
+  type AnyPgColumn,
   index,
-  integer,
-  sqliteTable,
+  pgTable,
   text,
-} from "drizzle-orm/sqlite-core";
+  timestamp,
+} from "drizzle-orm/pg-core";
 
-export const filesTable = sqliteTable(
+export const filesTable = pgTable(
   "files",
   {
     id: text("id").primaryKey(),
     name: text("name").notNull(),
     type: text("type", { enum: ["folder", "pdf", "notes"] }).notNull(),
-    parentId: text("parent_id").references(
-      (): AnySQLiteColumn => filesTable.id,
-    ),
-    createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
-    updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+    parentId: text("parent_id").references((): AnyPgColumn => filesTable.id),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
   },
   (table) => [
     index("files_parent_id_idx").on(table.parentId),

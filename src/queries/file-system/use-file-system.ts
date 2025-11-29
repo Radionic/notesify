@@ -1,54 +1,46 @@
-import {
-  queryOptions,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import type { FileNode, Pdf } from "@/db/schema";
-import { dbService } from "@/lib/db";
 import { removeNativeFile, writeNativeFile } from "@/lib/tauri";
+import {
+  getFileFn,
+  getFilesFn,
+  removeFileFn,
+  renameFileFn,
+} from "@/server/file-system";
+import { addPdfFn } from "@/server/pdf";
 
-export const fileQueryOptions = ({
-  id,
-  enabled,
-}: {
-  id: string;
-  enabled?: boolean;
-}) =>
-  queryOptions({
+export const useFile = ({ id, enabled }: { id: string; enabled?: boolean }) => {
+  const getFile = useServerFn(getFileFn);
+  return useQuery({
     queryKey: ["file", id],
-    queryFn: () => dbService.fileSystem.getFile({ id }),
-    enabled,
+    queryFn: () => getFile({ data: { id } }),
+    enabled: enabled && !!id,
   });
-export const useFile = ({ id, enabled }: { id: string; enabled?: boolean }) =>
-  useQuery(fileQueryOptions({ id, enabled }));
+};
 
-export const filesQueryOptions = ({
-  parentId,
-  enabled,
-}: {
-  parentId: string | null;
-  enabled?: boolean;
-}) =>
-  queryOptions({
-    queryKey: ["files", parentId],
-    queryFn: () => dbService.fileSystem.getFiles({ parentId }),
-    enabled,
-  });
 export const useFiles = ({
   parentId,
   enabled,
 }: {
   parentId: string | null;
   enabled?: boolean;
-}) => useQuery(filesQueryOptions({ parentId, enabled }));
+}) => {
+  const getFiles = useServerFn(getFilesFn);
+  return useQuery({
+    queryKey: ["files", parentId],
+    queryFn: () => getFiles({ data: { parentId } }),
+    enabled,
+  });
+};
 
 export const useAddPdf = () => {
   const queryClient = useQueryClient();
+  const addPdf = useServerFn(addPdfFn);
 
   return useMutation({
     mutationFn: async ({ name, pdfData }: { name: string; pdfData: Blob }) => {
-      const { newFile, newPdf } = await dbService.pdf.addPdf({ name });
+      const { newFile, newPdf } = await addPdf({ data: { name } });
       await writeNativeFile("pdfs", `${newPdf.id}.pdf`, pdfData);
 
       return { newFile, newPdf };
@@ -69,10 +61,11 @@ export const useAddPdf = () => {
 
 export const useRemovePdf = () => {
   const queryClient = useQueryClient();
+  const removeFile = useServerFn(removeFileFn);
   return useMutation({
     mutationFn: async ({ fileId }: { fileId: string }) => {
       await removeNativeFile("pdfs", fileId);
-      await dbService.fileSystem.removeFile({ id: fileId });
+      await removeFile({ data: { id: fileId } });
     },
     onSuccess: (_, { fileId }) => {
       queryClient.setQueryData<FileNode[]>(["files", null], (oldData) => {
@@ -88,6 +81,7 @@ export const useRemovePdf = () => {
 
 export const useRenamePdf = () => {
   const queryClient = useQueryClient();
+  const renameFile = useServerFn(renameFileFn);
   return useMutation({
     mutationFn: async ({
       pdfId,
@@ -96,7 +90,7 @@ export const useRenamePdf = () => {
       pdfId: string;
       newName: string;
     }) => {
-      await dbService.fileSystem.renameFile({ id: pdfId, name: newName });
+      await renameFile({ data: { id: pdfId, name: newName } });
     },
     onSuccess: (_, { pdfId, newName }) => {
       queryClient.setQueryData<FileNode>(["file", pdfId], (oldData) =>

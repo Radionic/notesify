@@ -3,7 +3,7 @@ import { getDefaultStore } from "jotai";
 import { getDocument } from "pdfjs-dist";
 import { configuredProvidersAtom } from "@/atoms/setting/providers";
 import type { ParsedPDFPage } from "@/db/schema";
-import { dbService } from "../db";
+import { addParsedPdfFn, getParsedPdfFn } from "@/server/pdf";
 import { readNativeFile } from "../tauri";
 
 export const parsePdf = async ({
@@ -13,7 +13,7 @@ export const parsePdf = async ({
   pdfId: string;
   method?: "pdfjs" | "ocr";
 }) => {
-  const parsedPdf = await dbService.pdf.getParsedPdf({ pdfId });
+  const parsedPdf = await getParsedPdfFn({ data: { pdfId } });
   if (parsedPdf.length > 0) {
     console.log("Cached parsed PDF: ", parsedPdf);
     return parsedPdf;
@@ -36,7 +36,7 @@ export const parsePdf = async ({
           apiKey,
           pdfData,
         });
-  await dbService.pdf.addParsedPdf({ parsedPdf: result });
+  await addParsedPdfFn({ data: { parsedPdf: result } });
   return result;
 };
 

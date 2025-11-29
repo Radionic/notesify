@@ -7,31 +7,33 @@ import { activeChatIdAtom } from "@/atoms/chat/chats";
 import type { Chat } from "@/db/schema/chat/chats";
 import { useGetSelectedModel } from "@/hooks/use-model";
 import { getTextFromMessage } from "@/lib/ai/get-text-from-message";
-import { dbService } from "@/lib/db";
-import { createChat } from "@/lib/db/chat";
 import { generateTitleFn } from "@/server/ai/generate-title";
+import { createChatFn, getChatFn, getChatsFn } from "@/server/chat";
 
 export const useChat = ({ id }: { id: string }) => {
+  const getChat = useServerFn(getChatFn);
   return useQuery({
     queryKey: ["chats", id],
-    queryFn: () => dbService.chat.getChat({ id }),
+    queryFn: () => getChat({ data: { id } }),
   });
 };
 
 export const useChats = ({ searchTerm }: { searchTerm?: string }) => {
+  const getChats = useServerFn(getChatsFn);
   return useQuery({
     queryKey: ["chats", searchTerm],
-    queryFn: () => dbService.chat.getChats({ searchTerm }),
+    queryFn: () => getChats({ data: { searchTerm } }),
   });
 };
 
 export const useCreateNewChat = () => {
   const queryClient = useQueryClient();
   const setActiveChatId = useSetAtom(activeChatIdAtom);
+  const createChat = useServerFn(createChatFn);
 
   return useMutation({
     mutationFn: async () => {
-      const chat = await createChat();
+      const chat = await createChat({ data: {} });
       console.log("Created new chat", chat.id);
       setActiveChatId(chat.id);
       return chat;

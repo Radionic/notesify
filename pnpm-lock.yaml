@@ -8,12 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@ai-sdk/mistral':
-        specifier: ^2.0.25
-        version: 2.0.25(zod@4.1.13)
-      '@ai-sdk/openai':
-        specifier: ^2.0.74
-        version: 2.0.74(zod@4.1.13)
       '@ai-sdk/openai-compatible':
         specifier: ^1.0.28
         version: 1.0.28(zod@4.1.13)
@@ -35,9 +29,6 @@ importers:
       '@lobehub/icons':
         specifier: ^2.43.1
         version: 2.43.1(@babel/core@7.28.5)(@types/mdast@4.0.4)(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(antd@5.29.1(date-fns@4.1.0)(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(framer-motion@12.23.24(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(micromark-util-types@2.0.2)(micromark@4.0.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
-      '@mistralai/mistralai':
-        specifier: ^1.10.0
-        version: 1.10.0
       '@neondatabase/serverless':
         specifier: ^1.0.2
         version: 1.0.2
@@ -245,6 +236,9 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@4.1.17)
+      ts-pattern:
+        specifier: ^5.9.0
+        version: 5.9.0
       usehooks-ts:
         specifier: ^3.1.1
         version: 3.1.1(react@19.2.0)
@@ -336,20 +330,8 @@ packages:
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
 
-  '@ai-sdk/mistral@2.0.25':
-    resolution: {integrity: sha512-JRlmXAgG/vuB3ojWjkGzN5W8ZYM8GX6dEkTFJX5sC1NwDgzfiTBIMDeQ/RA6dYZ06OIXtBZTt4oaruP+1xc92g==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.25.76 || ^4.1.8
-
   '@ai-sdk/openai-compatible@1.0.28':
     resolution: {integrity: sha512-yKubDxLYtXyGUzkr9lNStf/lE/I+Okc8tmotvyABhsQHHieLKk6oV5fJeRJxhr67Ejhg+FRnwUOxAmjRoFM4dA==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      zod: ^3.25.76 || ^4.1.8
-
-  '@ai-sdk/openai@2.0.74':
-    resolution: {integrity: sha512-vvsL7rGoBEyQIePs630p31ebLeF+xxwLOrRKeIArHko8w7Wh9Kj3wL4Ns+PCzrEpAij31OKKDcxLQ1dSIg/qMw==}
     engines: {node: '>=18'}
     peerDependencies:
       zod: ^3.25.76 || ^4.1.8
@@ -1351,9 +1333,6 @@ packages:
 
   '@mermaid-js/parser@0.6.3':
     resolution: {integrity: sha512-lnjOhe7zyHjc+If7yT4zoedx2vo4sHaTmtkl1+or8BRTnCtDmcTpAjpzDSfCZrshM5bCoz0GyidzadJAH1xobA==}
-
-  '@mistralai/mistralai@1.10.0':
-    resolution: {integrity: sha512-tdIgWs4Le8vpvPiUEWne6tK0qbVc+jMenujnvTqOjogrJUsCSQhus0tHTU1avDDh5//Rq2dFgP9mWRAdIEoBqg==}
 
   '@napi-rs/canvas-android-arm64@0.1.83':
     resolution: {integrity: sha512-TbKM2fh9zXjqFIU8bgMfzG7rkrIYdLKMafgPhFoPwKrpWk1glGbWP7LEu8Y/WrMDqTGFdRqUmuX89yQEzZbkiw==}
@@ -5440,6 +5419,9 @@ packages:
     resolution: {integrity: sha512-yF35FCoEOFBzOclSkMNEUbFQZuv89KEQ+5Xz03HrMSGUGB1+r+El+JiGOFwsP4p9RFNzwlrydYoTLvPOuICl9w==}
     engines: {node: '>=18'}
 
+  ts-pattern@5.9.0:
+    resolution: {integrity: sha512-6s5V71mX8qBUmlgbrfL33xDUwO0fq48rxAu2LBE11WBeGdpCPOsXksQbZJHvHwhrd3QjUusd3mAOM5Gg0mFBLg==}
+
   tsconfck@3.1.6:
     resolution: {integrity: sha512-ks6Vjr/jEw0P1gmOVwutM3B7fWxoWBL2KRDb1JfqGVawBmO5UsvmWOQFGHBPl5yxYz4eERr19E6L7NMv+Fej4w==}
     engines: {node: ^18 || >=20}
@@ -5731,11 +5713,6 @@ packages:
     resolution: {integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==}
     engines: {node: '>= 6'}
 
-  zod-to-json-schema@3.25.0:
-    resolution: {integrity: sha512-HvWtU2UG41LALjajJrML6uQejQhNJx+JBO9IflpSja4R03iNWfKXrj6W2h7ljuLyc1nKS+9yDyL/9tD1U/yBnQ==}
-    peerDependencies:
-      zod: ^3.25 || ^4
-
   zod@3.25.76:
     resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
@@ -5763,19 +5740,7 @@ snapshots:
       '@vercel/oidc': 3.0.5
       zod: 4.1.13
 
-  '@ai-sdk/mistral@2.0.25(zod@4.1.13)':
-    dependencies:
-      '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.18(zod@4.1.13)
-      zod: 4.1.13
-
   '@ai-sdk/openai-compatible@1.0.28(zod@4.1.13)':
-    dependencies:
-      '@ai-sdk/provider': 2.0.0
-      '@ai-sdk/provider-utils': 3.0.18(zod@4.1.13)
-      zod: 4.1.13
-
-  '@ai-sdk/openai@2.0.74(zod@4.1.13)':
     dependencies:
       '@ai-sdk/provider': 2.0.0
       '@ai-sdk/provider-utils': 3.0.18(zod@4.1.13)
@@ -7201,11 +7166,6 @@ snapshots:
   '@mermaid-js/parser@0.6.3':
     dependencies:
       langium: 3.3.1
-
-  '@mistralai/mistralai@1.10.0':
-    dependencies:
-      zod: 3.25.76
-      zod-to-json-schema: 3.25.0(zod@3.25.76)
 
   '@napi-rs/canvas-android-arm64@0.1.83':
     optional: true
@@ -12105,6 +12065,8 @@ snapshots:
 
   ts-md5@2.0.1: {}
 
+  ts-pattern@5.9.0: {}
+
   tsconfck@3.1.6(typescript@5.9.3):
     optionalDependencies:
       typescript: 5.9.3
@@ -12337,10 +12299,6 @@ snapshots:
   yallist@3.1.1: {}
 
   yaml@1.10.2: {}
-
-  zod-to-json-schema@3.25.0(zod@3.25.76):
-    dependencies:
-      zod: 3.25.76
 
   zod@3.25.76: {}
 

@@ -14,7 +14,6 @@ import { PdfViewerDndProvider } from "@/components/dnd/pdf-viewer-dnd-context";
 import { PDFViewerDroppable } from "@/components/dnd/pdf-viewer-droppable";
 import { FileSystemSidebar } from "@/components/file-system/sidebar";
 import { PdfCommandDialog } from "@/components/pdf/dialog/command-dialog";
-import { ProviderSettingsDialog } from "@/components/pdf/dialog/provider-settings-dialog";
 import { PdfViewer } from "@/components/pdf/pdf-viewer";
 import {
   ResizableHandle,
@@ -99,7 +98,6 @@ const Viewer = () => {
         )}
       </ResizablePanelGroup>
 
-      <ProviderSettingsDialog />
       {/* <PdfCommandDialog /> */}
       {/* </PdfViewerDndProvider> */}
     </div>

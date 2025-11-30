@@ -1,3 +1,5 @@
+CREATE TYPE "public"."model_provider" AS ENUM('Alibaba', 'Anthropic', 'DeepSeek', 'Google', 'Moonshot', 'OpenAI', 'xAI');--> statement-breakpoint
+CREATE TYPE "public"."model_type" AS ENUM('llm', 'vlm', 'embedding', 'ocr');--> statement-breakpoint
 CREATE TABLE "chats" (
 	"id" text PRIMARY KEY NOT NULL,
 	"title" text,
@@ -21,8 +23,15 @@ CREATE TABLE "files" (
 	"name" text NOT NULL,
 	"type" text NOT NULL,
 	"parent_id" text,
-	"created_at" timestamp NOT NULL,
-	"updated_at" timestamp NOT NULL
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE "models" (
+	"id" text PRIMARY KEY NOT NULL,
+	"provider" "model_provider" NOT NULL,
+	"name" text NOT NULL,
+	"type" "model_type" NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "notes" (
@@ -37,8 +46,8 @@ CREATE TABLE "annotations" (
 	"type" text NOT NULL,
 	"path" text NOT NULL,
 	"color" text NOT NULL,
-	"size" integer NOT NULL,
-	"page" integer NOT NULL,
+	"size" smallint NOT NULL,
+	"page" smallint NOT NULL,
 	"pdf_id" text NOT NULL
 );
 --> statement-breakpoint
@@ -47,7 +56,7 @@ CREATE TABLE "highlights" (
 	"rects" jsonb NOT NULL,
 	"color" text NOT NULL,
 	"text" text NOT NULL,
-	"page_number" integer NOT NULL,
+	"page_number" smallint NOT NULL,
 	"pdf_id" text NOT NULL
 );
 --> statement-breakpoint
@@ -57,8 +66,8 @@ CREATE TABLE "pdf_indexing" (
 	"model" text NOT NULL,
 	"summary" text NOT NULL,
 	"level" text NOT NULL,
-	"start_page" integer,
-	"end_page" integer
+	"start_page" smallint,
+	"end_page" smallint
 );
 --> statement-breakpoint
 CREATE TABLE "pdf_parsing" (
@@ -67,14 +76,14 @@ CREATE TABLE "pdf_parsing" (
 	"model" text NOT NULL,
 	"text" text NOT NULL,
 	"images" jsonb,
-	"page" integer NOT NULL
+	"page" smallint NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "pdfs" (
 	"id" text PRIMARY KEY NOT NULL,
-	"page_count" integer DEFAULT 0 NOT NULL,
+	"page_count" smallint DEFAULT 0 NOT NULL,
 	"scroll" jsonb DEFAULT '{"x":0,"y":0}'::jsonb NOT NULL,
-	"zoom" integer DEFAULT 1 NOT NULL
+	"zoom" numeric(4, 2) DEFAULT '1.00' NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "recordings" (

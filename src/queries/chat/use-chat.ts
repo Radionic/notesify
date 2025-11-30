@@ -5,7 +5,6 @@ import { useSetAtom } from "jotai";
 import { toast } from "sonner";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
 import type { Chat } from "@/db/schema/chat/chats";
-import { useGetSelectedModel } from "@/hooks/use-model";
 import { getTextFromMessage } from "@/lib/ai/get-text-from-message";
 import { generateTitleFn } from "@/server/ai/generate-title";
 import { createChatFn, getChatFn, getChatsFn } from "@/server/chat";
@@ -51,7 +50,6 @@ export const useCreateNewChat = () => {
 
 export const useUpdateChatTitle = () => {
   const queryClient = useQueryClient();
-  const { getSelectedModel } = useGetSelectedModel();
   const generateTitle = useServerFn(generateTitleFn);
 
   return useMutation({
@@ -62,11 +60,6 @@ export const useUpdateChatTitle = () => {
       chatId: string;
       messages: UIMessage[];
     }) => {
-      const model = getSelectedModel("Chat");
-      if (!model) {
-        return "Untitled";
-      }
-
       let text = "";
       for (const message of messages) {
         const content = getTextFromMessage(message);

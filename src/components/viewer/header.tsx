@@ -1,4 +1,4 @@
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { AudioLines, FileText, PanelLeft, Sparkles } from "lucide-react";
 import { chatsOpenAtom } from "@/atoms/chat/chats";
 import { fileSystemOpenAtom } from "@/atoms/file-system/file-system";
@@ -8,7 +8,6 @@ import {
   audioRecorderOpenAtom,
   isRecordingAtom,
 } from "@/atoms/recording/audio-recorder";
-import { openSettingsDialogAtom } from "@/atoms/setting/providers";
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -26,7 +25,6 @@ export const Header = ({ pdfId }: { pdfId: string }) => {
   );
   const isRecording = useAtomValue(isRecordingAtom);
 
-  const setOpenSettings = useSetAtom(openSettingsDialogAtom);
   const { navigatePdf } = useNavigatePdf();
 
   // Toggle a panel while ensuring at least one remains open
@@ -101,13 +99,6 @@ export const Header = ({ pdfId }: { pdfId: string }) => {
 
       <div className="flex flex-row items-center gap-0.5">
         <ThemeSwitch />
-        <TooltipButton
-          tooltip="Manage AI Models"
-          onClick={() => setOpenSettings(true)}
-        >
-          <Sparkles />
-          Manage AI Models
-        </TooltipButton>
       </div>
     </Card>
   );

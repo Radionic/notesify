@@ -1,17 +1,20 @@
-import { useAtom, useAtomValue, useSetAtom } from "jotai";
-import { Check, ChevronDown } from "lucide-react";
-import { useState } from "react";
-import { LuSettings } from "react-icons/lu";
-import { RiRobot2Line } from "react-icons/ri";
-
 import {
-  availableModelsAtom,
-  type Model,
-  type ModelType,
-  openSettingsDialogAtom,
-  selectedModelsAtom,
-} from "@/atoms/setting/providers";
-import { Button } from "@/components/ui/button";
+  Alibaba,
+  Anthropic,
+  DeepSeek,
+  Google,
+  Moonshot,
+  OpenAI,
+  XAI,
+} from "@lobehub/icons";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useAtom } from "jotai";
+import { Check } from "lucide-react";
+import { useEffect, useState } from "react";
+import { RiRobot2Line } from "react-icons/ri";
+import { match } from "ts-pattern";
+import { type Model, selectedModelAtom } from "@/atoms/setting/providers";
 import {
   Command,
   CommandEmpty,
@@ -26,155 +29,85 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { getLlmModelsFn } from "@/server/model";
 import { TooltipButton } from "../tooltip/tooltip-button";
 
-export type SelectItem = {
-  label: string;
-  value: Model;
-};
-
-const OCR_MODELS = ["mistral-ocr-latest"];
-
-export const ModelSelector = ({
-  variant,
-  showModelName,
-  modelType = "Chat",
-  model, // If model is provided, the setSelectedModel is controlled by the caller
-  onChange,
-}: {
-  variant: "button" | "select";
-  showModelName?: boolean;
-  modelType?: ModelType;
-  model?: Model;
-  onChange?: (value?: Model) => void;
-}) => {
+export const ModelSelector = () => {
   const [open, setOpen] = useState(false);
-  const models = useAtomValue(availableModelsAtom);
-  const [selectedModels, setSelectedModels] = useAtom(selectedModelsAtom);
-  const setOpenSettings = useSetAtom(openSettingsDialogAtom);
+  const [selectedModel, setSelectedModel] = useAtom(selectedModelAtom);
 
-  const modelItems = Object.entries(models)
-    .flatMap(([provider, models]) =>
-      models.map((model) => ({
-        label: model.name,
-        value: model,
-      })),
-    )
-    .filter(
-      (model) =>
-        modelType !== "Document Parser" || OCR_MODELS.includes(model.value.id),
-    );
+  const getLlmModels = useServerFn(getLlmModelsFn);
+  const { data: models = [], isLoading } = useQuery({
+    queryKey: ["llm-models"],
+    queryFn: () => getLlmModels({ data: {} }),
+  });
 
-  const selectedItem = model
-    ? { label: model.name, value: model }
-    : modelItems?.find(
-        (model) => model.label === selectedModels[modelType]?.name,
-      );
+  const getProviderIcon = (provider: string) => {
+    return match(provider.toLowerCase())
+      .with("anthropic", () => <Anthropic className="h-4 w-4" />)
+      .with("deepseek", () => <DeepSeek.Color className="h-4 w-4" />)
+      .with("google", () => <Google.Color className="h-4 w-4" />)
+      .with("alibaba", () => <Alibaba.Color className="h-4 w-4" />)
+      .with("moonshot", () => <Moonshot className="h-4 w-4" />)
+      .with("openai", () => <OpenAI className="h-4 w-4" />)
+      .with("xai", () => <XAI className="h-4 w-4" />)
+      .otherwise(() => <RiRobot2Line className="h-4 w-4 opacity-60" />);
+  };
 
   // Pin selected model to the top
-  const displayedItems =
-    selectedItem && modelItems
-      ? [
-          selectedItem,
-          ...modelItems.filter((item) => item.label !== selectedItem.label),
-        ]
-      : (modelItems ?? []);
+  const displayedModels =
+    selectedModel && models.length > 0
+      ? [selectedModel, ...models.filter((m) => m.id !== selectedModel.id)]
+      : models;
 
-  const notFoundHint =
-    variant === "button" ? (
-      <>
-        <p>No model found</p>
-        <Button
-          variant="link"
-          className="underline"
-          onClick={() => setOpenSettings(true)}
-        >
-          Manage your models
-        </Button>
-      </>
-    ) : (
-      <>
-        <p>No model found</p>
-        <p>Please provide API key first</p>
-      </>
-    );
-
-  const actionButtons = variant === "button" && (
-    <Button
-      variant="ghost"
-      size="icon"
-      className="opacity-50 w-8 h-8 p-2"
-      onClick={() => setOpenSettings(true)}
-    >
-      <LuSettings />
-    </Button>
-  );
-
-  const triggerButton =
-    variant === "button" ? (
-      <TooltipButton tooltip="AI Model">
-        <RiRobot2Line className="opacity-50 size-5!" />
-        {showModelName && selectedItem && (
-          <span className="text-muted-foreground">
-            {selectedItem.value.name}
-          </span>
-        )}
-      </TooltipButton>
-    ) : (
-      <Button
-        variant="outline"
-        type="button"
-        className="w-full justify-between bg-background px-3"
-      >
-        <span
-          className={cn("truncate", !selectedItem && "text-muted-foreground")}
-        >
-          {selectedItem
-            ? selectedItem.value.name
-            : `Select ${modelType.toLowerCase()} model`}
-        </span>
-        <ChevronDown
-          size={16}
-          strokeWidth={2}
-          className="shrink-0 text-muted-foreground/80"
-        />
-      </Button>
-    );
+  // Auto-select a default model once models load
+  useEffect(() => {
+    if (!isLoading && models.length > 0 && !selectedModel) {
+      const defaultModel =
+        models.find((m) => m.id === import.meta.env.VITE_DEFAULT_MODEL_ID) ??
+        models[0];
+      setSelectedModel(defaultModel);
+    }
+  }, [isLoading, models, selectedModel, setSelectedModel]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger className="w-full">{triggerButton}</PopoverTrigger>
+      <PopoverTrigger className="w-full">
+        <TooltipButton tooltip="AI Model">
+          <RiRobot2Line className="opacity-50 size-5!" />
+          {selectedModel && (
+            <span className="text-muted-foreground">{selectedModel.name}</span>
+          )}
+        </TooltipButton>
+      </PopoverTrigger>
       <PopoverContent className="p-0">
         <Command>
-          <CommandInput
-            placeholder="Search model"
-            actionButtons={actionButtons}
-          />
+          <CommandInput placeholder="Search model" />
           <CommandList>
-            <CommandEmpty>{notFoundHint}</CommandEmpty>
+            <CommandEmpty>
+              {isLoading ? "Loading models..." : "No models available"}
+            </CommandEmpty>
             <CommandGroup>
-              {displayedItems.map((item) => (
+              {displayedModels.map((model: Model) => (
                 <CommandItem
-                  key={item.label}
-                  value={item.label}
+                  key={model.id}
+                  value={model.name}
                   onSelect={() => {
-                    const selectedValue =
-                      item.label === selectedItem?.label ? undefined : item;
-                    onChange?.(selectedValue?.value);
-                    if (!model && selectedValue) {
-                      setSelectedModels((prev) => ({
-                        ...prev,
-                        [modelType]: selectedValue.value,
-                      }));
-                    }
+                    // Always keep a model selected
+                    setSelectedModel(model);
                     setOpen(false);
                   }}
                 >
-                  {item.label}
+                  <span className="flex items-center gap-2">
+                    {getProviderIcon(model.provider)}
+                    <span>{model.name}</span>
+                  </span>
                   <Check
                     className={cn(
                       "ml-auto",
-                      selectedItem?.label !== item.label && "opacity-0",
+                      !selectedModel || selectedModel.id !== model.id
+                        ? "opacity-0"
+                        : "",
                     )}
                   />
                 </CommandItem>

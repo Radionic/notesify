@@ -3,6 +3,7 @@ import { useState } from "react";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
 import { activeContextsAtom } from "@/atoms/chat/contexts";
 import { activePdfIdAtom, currentPageAtomFamily } from "@/atoms/pdf/pdf-viewer";
+import { selectedModelAtom } from "@/atoms/setting/providers";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
 import { useOpenedPdfs } from "@/queries/pdf/use-pdf";
 import { AutogrowingTextarea } from "../origin-ui/autogrowing-textarea";
@@ -14,6 +15,7 @@ export const ChatInput = () => {
   const [contexts, setContexts] = useAtom(activeContextsAtom);
   const pdfId = useAtomValue(activePdfIdAtom);
   const chatId = useAtomValue(activeChatIdAtom);
+  const selectedModel = useAtomValue(selectedModelAtom);
 
   const { data: openedPdfs } = useOpenedPdfs();
   const viewingPage = useAtomValue(currentPageAtomFamily(pdfId));
@@ -21,7 +23,8 @@ export const ChatInput = () => {
 
   const [input, setInput] = useState<string>("");
   const isLoading = status === "submitted" || status === "streaming";
-  const disableSending = input.length === 0 || isLoading || !!error;
+  const disableSending =
+    input.length === 0 || isLoading || !!error || !selectedModel;
 
   const _handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -39,7 +42,7 @@ export const ChatInput = () => {
         openedPdfs,
         viewingPage,
         contexts,
-        modelId: "openai/gpt-5-nano", // TODO: use selected model instead
+        modelId: selectedModel.id,
       },
     });
     setInput("");
@@ -68,7 +71,7 @@ export const ChatInput = () => {
       />
       <div className="flex flex-row justify-between items-center">
         <div className="flex flex-row">
-          <ModelSelector variant="button" showModelName />
+          <ModelSelector />
           <SelectAreaContextButton />
         </div>
         <div className="flex flex-row items-center">

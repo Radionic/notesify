@@ -4,6 +4,9 @@ import {
   createUIMessageStreamResponse,
   streamText,
 } from "ai";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { modelsTable } from "@/db/schema";
 import { buildMessages, buildSystemMessage } from "@/lib/ai/build-message";
 import { aiProvider } from "@/lib/ai/provider";
 
@@ -17,8 +20,11 @@ export const Route = createFileRoute("/api/ai/")({
         const { openedPdfs, pdfId, viewingPage, contexts, modelId } =
           lastMessage.metadata ?? {};
 
-        if (!modelId) {
-          throw new Error("Chat modelId is missing from message metadata.");
+        const model = await db.query.modelsTable.findFirst({
+          where: eq(modelsTable.id, modelId),
+        });
+        if (!model) {
+          throw new Error("Invalid modelId.");
         }
 
         const system = buildSystemMessage(openedPdfs, pdfId, viewingPage);

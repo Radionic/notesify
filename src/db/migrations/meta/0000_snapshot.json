@@ -1,5 +1,5 @@
 {
-  "id": "17d75f8a-a72c-436b-9c89-b281779e1fcb",
+  "id": "d97e2d0a-09c9-4d8e-87c2-8a1aa9e97b27",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -195,13 +195,15 @@
           "name": "created_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "now()"
         },
         "updated_at": {
           "name": "updated_at",
           "type": "timestamp",
           "primaryKey": false,
-          "notNull": true
+          "notNull": true,
+          "default": "now()"
         }
       },
       "indexes": {
@@ -281,6 +283,45 @@
           "onUpdate": "no action"
         }
       },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.models": {
+      "name": "models",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "provider": {
+          "name": "provider",
+          "type": "model_provider",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "type": {
+          "name": "type",
+          "type": "model_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {},
       "policies": {},
@@ -397,13 +438,13 @@
         },
         "size": {
           "name": "size",
-          "type": "integer",
+          "type": "smallint",
           "primaryKey": false,
           "notNull": true
         },
         "page": {
           "name": "page",
-          "type": "integer",
+          "type": "smallint",
           "primaryKey": false,
           "notNull": true
         },
@@ -482,7 +523,7 @@
         },
         "page_number": {
           "name": "page_number",
-          "type": "integer",
+          "type": "smallint",
           "primaryKey": false,
           "notNull": true
         },
@@ -567,13 +608,13 @@
         },
         "start_page": {
           "name": "start_page",
-          "type": "integer",
+          "type": "smallint",
           "primaryKey": false,
           "notNull": false
         },
         "end_page": {
           "name": "end_page",
-          "type": "integer",
+          "type": "smallint",
           "primaryKey": false,
           "notNull": false
         }
@@ -636,7 +677,7 @@
         },
         "page": {
           "name": "page",
-          "type": "integer",
+          "type": "smallint",
           "primaryKey": false,
           "notNull": true
         }
@@ -675,7 +716,7 @@
         },
         "page_count": {
           "name": "page_count",
-          "type": "integer",
+          "type": "smallint",
           "primaryKey": false,
           "notNull": true,
           "default": 0
@@ -689,10 +730,10 @@
         },
         "zoom": {
           "name": "zoom",
-          "type": "integer",
+          "type": "numeric(4, 2)",
           "primaryKey": false,
           "notNull": true,
-          "default": 1
+          "default": "'1.00'"
         }
       },
       "indexes": {},
@@ -786,7 +827,31 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.model_provider": {
+      "name": "model_provider",
+      "schema": "public",
+      "values": [
+        "Alibaba",
+        "Anthropic",
+        "DeepSeek",
+        "Google",
+        "Moonshot",
+        "OpenAI",
+        "xAI"
+      ]
+    },
+    "public.model_type": {
+      "name": "model_type",
+      "schema": "public",
+      "values": [
+        "llm",
+        "vlm",
+        "embedding",
+        "ocr"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

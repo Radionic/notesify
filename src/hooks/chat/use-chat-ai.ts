@@ -2,46 +2,9 @@ import { useChat } from "@ai-sdk/react";
 import type { UIMessage } from "ai";
 import { useAtomValue } from "jotai";
 import { useEffect } from "react";
-import { z } from "zod";
 import { chatInstanceAtomFamily } from "@/atoms/chat/chats";
 import { useMessages } from "@/queries/chat/use-messages";
-
-export const messageMetadataSchema = z.object({
-  openedPdfs: z
-    .array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-        pageCount: z.number(),
-      }),
-    )
-    .optional(),
-  viewingPage: z.number().optional(),
-  contexts: z
-    .array(
-      z.object({
-        id: z.string(),
-        type: z.enum(["text", "area", "page", "viewing-page"]),
-        content: z.string().optional(),
-        rects: z.array(
-          z.object({
-            page: z.number(),
-            top: z.number(),
-            right: z.number(),
-            bottom: z.number(),
-            left: z.number(),
-          }),
-        ),
-        page: z.number(),
-        pdfId: z.string(),
-      }),
-    )
-    .optional(),
-  modelId: z.string().optional(),
-  chatId: z.string(),
-});
-
-export type MessageMetadata = z.infer<typeof messageMetadataSchema>;
+import type { MessageMetadata, MyUIMessage } from "@/routes/api/ai";
 
 export const useChatAI = ({ chatId }: { chatId: string }) => {
   const { data: initialMessages, isLoading: isLoadingInitMessages } =
@@ -58,7 +21,7 @@ export const useChatAI = ({ chatId }: { chatId: string }) => {
       initialMessages.length > 0 &&
       messages.length === 0
     ) {
-      setMessages(initialMessages as UIMessage<MessageMetadata>[]);
+      setMessages(initialMessages as MyUIMessage[]);
     }
   }, [initialMessages, messages, setMessages]);
 

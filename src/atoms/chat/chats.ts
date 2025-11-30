@@ -19,6 +19,9 @@ export const chatInstanceAtomFamily = atomFamily((chatId: string) =>
       transport: new DefaultChatTransport({
         api: "/api/ai",
       }),
+      onData: () => {
+        // TODO: a good way to set the chat title...
+      },
     }),
   ),
 );

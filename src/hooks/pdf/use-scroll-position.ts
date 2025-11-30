@@ -1,4 +1,6 @@
 import { useEffect } from "react";
+import { useDebounceCallback } from "usehooks-ts";
+import type { ScrollPosition } from "@/db/schema";
 import { useUpdatePdf } from "@/queries/pdf/use-pdf";
 
 export const useScrollPosition = (
@@ -6,23 +8,29 @@ export const useScrollPosition = (
   containerRef: React.RefObject<HTMLDivElement | null>,
 ) => {
   const { mutate: setScrollPositions } = useUpdatePdf();
+  const saveScrollPosition = useDebounceCallback((scroll: ScrollPosition) => {
+    setScrollPositions({
+      pdfId,
+      scroll,
+    });
+  }, 500);
 
-  // Save scroll position when scrolling
   useEffect(() => {
+    if (!containerRef.current) return;
+
     const handleScroll = () => {
       if (!containerRef.current) return;
-
-      setScrollPositions({
-        pdfId,
-        scroll: {
-          x: containerRef.current.scrollLeft,
-          y: containerRef.current.scrollTop,
-        },
+      saveScrollPosition({
+        x: containerRef.current.scrollLeft,
+        y: containerRef.current.scrollTop,
       });
     };
 
-    containerRef.current?.addEventListener("scroll", handleScroll);
-    return () =>
-      containerRef.current?.removeEventListener("scroll", handleScroll);
-  }, [pdfId, containerRef, setScrollPositions]);
+    const container = containerRef.current;
+    container.addEventListener("scroll", handleScroll);
+
+    return () => {
+      container.removeEventListener("scroll", handleScroll);
+    };
+  }, [containerRef, saveScrollPosition]);
 };

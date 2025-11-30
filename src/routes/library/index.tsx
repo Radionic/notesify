@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useMediaQuery } from "react-responsive";
 import { PdfFileUploader } from "@/components/file-system/file-uploader";
 import { FileSystemSidebar } from "@/components/file-system/sidebar";
@@ -7,6 +7,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import { authClient } from "@/lib/auth-client";
 
 const RouteComponent = () => {
   const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
@@ -33,4 +34,13 @@ const RouteComponent = () => {
 
 export const Route = createFileRoute("/library/")({
   component: RouteComponent,
+  beforeLoad: async ({ location }) => {
+    const { data } = await authClient.getSession();
+    if (!data?.user) {
+      throw redirect({
+        to: "/auth/login",
+        search: { redirect: location.href },
+      });
+    }
+  },
 });

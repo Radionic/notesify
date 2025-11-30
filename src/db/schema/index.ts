@@ -1,3 +1,4 @@
+export * from "./auth";
 export * from "./chat/chats";
 export * from "./chat/messages";
 export * from "./files/files";

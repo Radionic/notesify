@@ -1,4 +1,4 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate, redirect } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
 import { Suspense } from "react";
 import { toast } from "sonner";
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/resizable";
 import { Header } from "@/components/viewer/header";
 import { PdfToolbar } from "@/components/viewer/toolbars/pdf-toolbar";
+import { authClient } from "@/lib/auth-client";
 
 const viewerSearchSchema = z.object({
   // id: z.union([z.string().array(), z.string()]),
@@ -107,4 +108,13 @@ const Viewer = () => {
 export const Route = createFileRoute("/viewer/")({
   component: Viewer,
   validateSearch: viewerSearchSchema,
+  beforeLoad: async ({ location }) => {
+    const { data } = await authClient.getSession();
+    if (!data?.user) {
+      throw redirect({
+        to: "/auth/login",
+        search: { redirect: location.href },
+      });
+    }
+  },
 });

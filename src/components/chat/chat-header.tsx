@@ -1,4 +1,4 @@
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useSetAtom } from "jotai";
 import { History, Plus, X } from "lucide-react";
 
 import {
@@ -9,14 +9,13 @@ import {
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
 import { Card } from "@/components/ui/card";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
-import { useChat, useCreateNewChat } from "@/queries/chat/use-chat";
+import { useChat } from "@/queries/chat/use-chat";
 
 export const ChatHeader = () => {
-  const activeChatId = useAtomValue(activeChatIdAtom);
+  const [activeChatId, setActiveChatId] = useAtom(activeChatIdAtom);
   const { data: activeChat } = useChat({ id: activeChatId });
   const setThreadFinderOpen = useSetAtom(threadFinderOpenAtom);
   const setChatsOpen = useSetAtom(chatsOpenAtom);
-  const { mutate: createNewChat } = useCreateNewChat();
 
   const { status } = useChatAI({ chatId: activeChatId });
   const isLoading = status === "submitted" || status === "streaming";
@@ -33,7 +32,7 @@ export const ChatHeader = () => {
         <TooltipButton
           tooltip="New thread"
           disabled={isLoading}
-          onClick={() => createNewChat()}
+          onClick={() => setActiveChatId("")}
         >
           <Plus />
         </TooltipButton>

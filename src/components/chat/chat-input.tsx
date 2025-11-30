@@ -1,10 +1,11 @@
 import { useAtom, useAtomValue } from "jotai";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
 import { activeContextsAtom } from "@/atoms/chat/contexts";
 import { activePdfIdAtom, currentPageAtomFamily } from "@/atoms/pdf/pdf-viewer";
 import { selectedModelAtom } from "@/atoms/setting/providers";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
+import { generateId } from "@/lib/id";
 import { useOpenedPdfs } from "@/queries/pdf/use-pdf";
 import { AutogrowingTextarea } from "../origin-ui/autogrowing-textarea";
 import { ModelSelector } from "../pdf/model-selector";
@@ -14,9 +15,13 @@ import { SendButton } from "./action-button/send-button";
 export const ChatInput = () => {
   const [contexts, setContexts] = useAtom(activeContextsAtom);
   const pdfId = useAtomValue(activePdfIdAtom);
-  const chatId = useAtomValue(activeChatIdAtom);
-  const selectedModel = useAtomValue(selectedModelAtom);
+  const [activeChatId, setActiveChatId] = useAtom(activeChatIdAtom);
+  const chatId = useMemo(
+    () => (activeChatId ? activeChatId : generateId()),
+    [activeChatId],
+  );
 
+  const selectedModel = useAtomValue(selectedModelAtom);
   const { data: openedPdfs } = useOpenedPdfs();
   const viewingPage = useAtomValue(currentPageAtomFamily(pdfId));
   const { sendMessage, stop, status, error } = useChatAI({ chatId });
@@ -43,8 +48,10 @@ export const ChatInput = () => {
         viewingPage,
         contexts,
         modelId: selectedModel.id,
+        chatId,
       },
     });
+    setActiveChatId(chatId);
     setInput("");
     setContexts([]);
   };

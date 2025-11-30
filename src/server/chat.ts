@@ -3,7 +3,6 @@ import { desc, eq, like } from "drizzle-orm";
 import z from "zod";
 import { db } from "@/db";
 import { chatsTable } from "@/db/schema";
-import { generateId } from "@/lib/id";
 
 const getChatsSchema = z.object({
   searchTerm: z.string().optional(),
@@ -32,21 +31,6 @@ export const getChatFn = createServerFn()
       where: eq(chatsTable.id, data.id),
     });
     return value;
-  });
-
-const createChatSchema = z.object({});
-
-export const createChatFn = createServerFn()
-  .inputValidator(createChatSchema)
-  .handler(async () => {
-    const newChat = {
-      id: generateId(),
-      title: "",
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    };
-    await db.insert(chatsTable).values(newChat);
-    return newChat;
   });
 
 const updateChatTitleSchema = z.object({

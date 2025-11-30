@@ -5,7 +5,7 @@ import { atomFamily, atomWithStorage } from "jotai/utils";
 
 export const chatsOpenAtom = atom<boolean>(false);
 export const threadFinderOpenAtom = atom<boolean>(false);
-export const activeChatIdAtom = atom<string>("TMP");
+export const activeChatIdAtom = atom<string>("");
 
 export const withThinkingAtom = atomWithStorage<boolean>(
   "with-thinking",

@@ -5,8 +5,8 @@ export const chatsTable = pgTable(
   {
     id: text("id").primaryKey(),
     title: text("title"),
-    createdAt: timestamp("created_at", { mode: "date" }).notNull(),
-    updatedAt: timestamp("updated_at", { mode: "date" }).notNull(),
+    createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
   },
   (table) => [
     index("chats_updated_at_idx").on(table.updatedAt),

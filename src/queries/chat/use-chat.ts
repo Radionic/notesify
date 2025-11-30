@@ -1,19 +1,18 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import type { UIMessage } from "ai";
-import { useSetAtom } from "jotai";
 import { toast } from "sonner";
-import { activeChatIdAtom } from "@/atoms/chat/chats";
 import type { Chat } from "@/db/schema/chat/chats";
 import { getTextFromMessage } from "@/lib/ai/get-text-from-message";
 import { generateTitleFn } from "@/server/ai/generate-title";
-import { createChatFn, getChatFn, getChatsFn } from "@/server/chat";
+import { getChatFn, getChatsFn } from "@/server/chat";
 
 export const useChat = ({ id }: { id: string }) => {
   const getChat = useServerFn(getChatFn);
   return useQuery({
     queryKey: ["chats", id],
     queryFn: () => getChat({ data: { id } }),
+    enabled: !!id,
   });
 };
 
@@ -22,29 +21,6 @@ export const useChats = ({ searchTerm }: { searchTerm?: string }) => {
   return useQuery({
     queryKey: ["chats", searchTerm],
     queryFn: () => getChats({ data: { searchTerm } }),
-  });
-};
-
-export const useCreateNewChat = () => {
-  const queryClient = useQueryClient();
-  const setActiveChatId = useSetAtom(activeChatIdAtom);
-  const createChat = useServerFn(createChatFn);
-
-  return useMutation({
-    mutationFn: async () => {
-      const chat = await createChat({ data: {} });
-      console.log("Created new chat", chat.id);
-      setActiveChatId(chat.id);
-      return chat;
-    },
-    onSuccess: (newChat) => {
-      queryClient.setQueryData<Chat[]>(["chats"], (oldData) => {
-        if (!oldData) {
-          return [newChat];
-        }
-        return [...oldData, newChat];
-      });
-    },
   });
 };
 

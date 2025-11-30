@@ -38,6 +38,7 @@ export const messageMetadataSchema = z.object({
     )
     .optional(),
   modelId: z.string().optional(),
+  chatId: z.string(),
 });
 
 export type MessageMetadata = z.infer<typeof messageMetadataSchema>;

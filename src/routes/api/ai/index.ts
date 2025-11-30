@@ -6,7 +6,7 @@ import {
 } from "ai";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { modelsTable } from "@/db/schema";
+import { chatsTable, modelsTable } from "@/db/schema";
 import { buildMessages, buildSystemMessage } from "@/lib/ai/build-message";
 import { aiProvider } from "@/lib/ai/provider";
 
@@ -17,12 +17,25 @@ export const Route = createFileRoute("/api/ai/")({
         const { messages } = await request.json();
 
         const lastMessage = messages[messages.length - 1];
-        const { openedPdfs, pdfId, viewingPage, contexts, modelId } =
+        const { openedPdfs, pdfId, viewingPage, contexts, modelId, chatId } =
           lastMessage.metadata ?? {};
 
-        const model = await db.query.modelsTable.findFirst({
-          where: eq(modelsTable.id, modelId),
-        });
+        const [, model] = await Promise.all([
+          db
+            .insert(chatsTable)
+            .values({
+              id: chatId,
+              title: undefined,
+            })
+            .onConflictDoUpdate({
+              target: chatsTable.id,
+              set: { updatedAt: new Date() },
+            }),
+          db.query.modelsTable.findFirst({
+            where: eq(modelsTable.id, modelId),
+          }),
+        ]);
+
         if (!model) {
           throw new Error("Invalid modelId.");
         }

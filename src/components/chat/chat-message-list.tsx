@@ -1,10 +1,8 @@
 import { useAtomValue } from "jotai";
-import { useEffect } from "react";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
 import { useAutoScroll } from "@/hooks/chat/use-auto-scroll";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
 import { cn } from "@/lib/utils";
-import { useCreateNewChat } from "@/queries/chat/use-chat";
 import { Badge } from "../badge";
 import { ChatGuide } from "./chat-guide";
 import { ChatMessage } from "./chat-message";
@@ -14,13 +12,6 @@ import { TextContextsPreview } from "./contexts/text-content-preview";
 export const ChatMessageList = ({ className }: { className?: string }) => {
   const chatId = useAtomValue(activeChatIdAtom);
   const { messages, error, isLoading } = useChatAI({ chatId });
-  const { mutateAsync: createNewChat } = useCreateNewChat();
-
-  useEffect(() => {
-    if (chatId === "TMP") {
-      createNewChat();
-    }
-  }, [chatId, createNewChat]);
 
   const { containerRef, messagesEndRef, handleScroll } =
     useAutoScroll(messages);

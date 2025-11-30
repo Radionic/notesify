@@ -1,4 +1,4 @@
-import { jsonb, pgTable, smallint, text } from "drizzle-orm/pg-core";
+import { jsonb, numeric, pgTable, smallint, text } from "drizzle-orm/pg-core";
 import { filesTable } from "@/db/schema/files/files";
 
 export type ScrollPosition = {
@@ -11,14 +11,11 @@ export const pdfsTable = pgTable("pdfs", {
     .primaryKey()
     .references(() => filesTable.id, { onDelete: "cascade" }),
   pageCount: smallint("page_count").notNull().default(0),
-  scroll: jsonb("scroll")
-    .$type<ScrollPosition>()
-    .notNull()
-    .default({
-      x: 0,
-      y: 0,
-    }),
-  zoom: smallint("zoom").notNull().default(1),
+  scroll: jsonb("scroll").$type<ScrollPosition>().notNull().default({
+    x: 0,
+    y: 0,
+  }),
+  zoom: numeric("zoom", { precision: 4, scale: 2 }).notNull().default("1.00"),
 });
 
 export type Pdf = typeof pdfsTable.$inferSelect;

@@ -1,38 +1,7 @@
 import { GitHubLogoIcon } from "@radix-ui/react-icons";
-import { Link } from "@tanstack/react-router";
-import { Menu, Moon, Sun } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { cn } from "@/lib/utils";
+import { UserIcon } from "../auth/user-icon";
 import { Logo } from "../logo";
 import { ThemeSwitch } from "../theme-switch";
-
-const NavItem = ({
-  href,
-  children,
-  className = "",
-}: {
-  href: string;
-  children: React.ReactNode;
-  className?: string;
-}) => {
-  return (
-    <Link
-      to={href}
-      className={cn(
-        `flex items-center text-sm font-medium text-muted-foreground transition-colors hover:text-primary`,
-        className,
-      )}
-    >
-      {children}
-    </Link>
-  );
-};
 
 export const Header = () => {
   return (
@@ -40,36 +9,16 @@ export const Header = () => {
       <div className="flex justify-between items-center p-4 w-full max-w-6xl mx-auto">
         <Logo />
 
-        <nav className="flex items-center justify-center space-x-2">
-          <ThemeSwitch />
-          <NavItem
+        <nav className="flex items-center justify-center">
+          <a
             href="https://github.com/Radionic/notesify"
-            className="hover:text-primary gap-2"
+            className="mr-2"
           >
-            GitHub
             <GitHubLogoIcon className="h-5 w-5" />
-          </NavItem>
+          </a>
+          <ThemeSwitch />
+          <UserIcon />
         </nav>
-
-        {/* Mobile Menu */}
-        {/* <DropdownMenu>
-            <DropdownMenuTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem asChild>
-                <NavItem
-                  href="https://github.com/Radionic/notesify"
-                  className="gap-2"
-                >
-                  <GitHubLogoIcon className="h-4 w-4" />
-                  GitHub
-                </NavItem>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu> */}
       </div>
     </header>
   );

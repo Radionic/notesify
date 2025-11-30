@@ -12,6 +12,7 @@ import { TooltipButton } from "@/components/tooltip/tooltip-button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useNavigatePdf } from "@/queries/pdf/use-pdf";
+import { UserIcon } from "../auth/user-icon";
 import { ThemeSwitch } from "../theme-switch";
 import { Separator } from "../ui/separator";
 
@@ -99,6 +100,7 @@ export const Header = ({ pdfId }: { pdfId: string }) => {
 
       <div className="flex flex-row items-center gap-0.5">
         <ThemeSwitch />
+        <UserIcon />
       </div>
     </Card>
   );

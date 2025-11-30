@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { AiOutlineLinux } from "react-icons/ai";
 import { IoLogoApple, IoLogoWindows } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
-import { isTauri } from "@/lib/tauri";
 
 export function HeroSection() {
   return (
@@ -17,7 +16,7 @@ export function HeroSection() {
 
         <Link to="/library" className="p-0">
           <Button className="text-lg rounded-md bg-blue-500 px-8 py-5 font-medium text-white hover:bg-blue-600 mt-6">
-            {isTauri ? "Get Started" : "Try Online"}
+            Get Started
           </Button>
         </Link>
 

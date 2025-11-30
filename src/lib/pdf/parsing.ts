@@ -4,7 +4,7 @@ import { getDocument } from "pdfjs-dist";
 import { configuredProvidersAtom } from "@/atoms/setting/providers";
 import type { ParsedPDFPage } from "@/db/schema";
 import { addParsedPdfFn, getParsedPdfFn } from "@/server/pdf";
-import { readNativeFile } from "../tauri";
+import { getFileUrlFn } from "@/server/storage";
 
 export const parsePdf = async ({
   pdfId,
@@ -26,7 +26,19 @@ export const parsePdf = async ({
   method = method || (apiKey ? "ocr" : "pdfjs");
   console.log("Parsing PDF: ", method);
 
-  const pdfData: Blob = await readNativeFile("pdfs", `${pdfId}.pdf`);
+  const url = await getFileUrlFn({
+    data: { dirName: "pdfs", filename: `${pdfId}.pdf` },
+  });
+
+  const res = await fetch(url);
+  if (!res.ok) {
+    if (res.status === 404) {
+      throw new Error("PDF file not found");
+    }
+    throw new Error("Failed to load PDF for parsing");
+  }
+
+  const pdfData: Blob = await res.blob();
 
   const result: ParsedPDFPage[] =
     method === "pdfjs"

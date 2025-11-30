@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import type { FileNode, Pdf } from "@/db/schema";
-import { removeNativeFile, writeNativeFile } from "@/lib/tauri";
 import {
   getFileFn,
   getFilesFn,
@@ -9,6 +8,7 @@ import {
   renameFileFn,
 } from "@/server/file-system";
 import { addPdfFn } from "@/server/pdf";
+import { removeFileFn as removeStorageFileFn, uploadFileFn } from "@/server/storage";
 
 export const useFile = ({ id, enabled }: { id: string; enabled?: boolean }) => {
   const getFile = useServerFn(getFileFn);
@@ -41,7 +41,12 @@ export const useAddPdf = () => {
   return useMutation({
     mutationFn: async ({ name, pdfData }: { name: string; pdfData: Blob }) => {
       const { newFile, newPdf } = await addPdf({ data: { name } });
-      await writeNativeFile("pdfs", `${newPdf.id}.pdf`, pdfData);
+      const formData = new FormData();
+      formData.append("dirName", "pdfs");
+      formData.append("filename", `${newPdf.id}.pdf`);
+      formData.append("file", pdfData);
+
+      await uploadFileFn({ data: formData });
 
       return { newFile, newPdf };
     },
@@ -64,7 +69,9 @@ export const useRemovePdf = () => {
   const removeFile = useServerFn(removeFileFn);
   return useMutation({
     mutationFn: async ({ fileId }: { fileId: string }) => {
-      await removeNativeFile("pdfs", fileId);
+      await removeStorageFileFn({
+        data: { dirName: "pdfs", filename: fileId },
+      });
       await removeFile({ data: { id: fileId } });
     },
     onSuccess: (_, { fileId }) => {

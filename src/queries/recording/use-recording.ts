@@ -6,7 +6,7 @@ import {
 } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import type { Recording } from "@/db/schema";
-import { readNativeFile, removeNativeFile, writeNativeFile } from "@/lib/tauri";
+import { fetchFileBlob } from "@/lib/storage";
 import {
   addRecordingFn,
   getRecordingFn,
@@ -14,6 +14,7 @@ import {
   removeRecordingFn,
   updateRecordingFn,
 } from "@/server/recording";
+import { removeFileFn, uploadFileFn } from "@/server/storage";
 
 export const recordingQueryOptions = ({
   id,
@@ -44,7 +45,12 @@ export const recordingDataQueryOptions = ({
 }) =>
   queryOptions({
     queryKey: ["recording-data", id],
-    queryFn: () => readNativeFile("recordings", `${id}.webm`),
+    queryFn: () =>
+      fetchFileBlob({
+        dirName: "recordings",
+        filename: `${id}.webm`,
+        errorMessage: "Failed to load recording",
+      }),
     enabled,
   });
 export const useRecordingData = ({
@@ -74,11 +80,12 @@ export const useAddRecording = () => {
       recording: Recording;
       recordingData: Blob;
     }) => {
-      await writeNativeFile(
-        "recordings",
-        `${recording.id}.webm`,
-        recordingData,
-      );
+      const formData = new FormData();
+      formData.append("dirName", "recordings");
+      formData.append("filename", `${recording.id}.webm`);
+      formData.append("file", recordingData);
+
+      await uploadFileFn({ data: formData });
       await addRecording({ data: { recording } });
     },
     onSuccess: (_, { recording, recordingData }) => {
@@ -105,7 +112,9 @@ export const useRemoveRecording = () => {
   return useMutation({
     mutationFn: async ({ id }: { id: string }) => {
       await removeRecording({ data: { id } });
-      await removeNativeFile("recordings", `${id}.webm`);
+      await removeFileFn({
+        data: { dirName: "recordings", filename: `${id}.webm` },
+      });
     },
     onSuccess: (_, { id }) => {
       queryClient.setQueryData<Recording[]>(["recordings"], (oldRecordings) => {

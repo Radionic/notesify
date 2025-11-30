@@ -1,7 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { save } from "@tauri-apps/plugin-dialog";
-import { writeFile } from "@tauri-apps/plugin-fs";
 import { getDefaultStore, useAtom, useAtomValue } from "jotai";
 import { AnnotationMode, getDocument } from "pdfjs-dist";
 import {
@@ -20,7 +18,7 @@ import {
   viewerAtomFamily,
 } from "@/atoms/pdf/pdf-viewer";
 import type { Pdf, ScrollPosition } from "@/db/schema";
-import { isTauri, readNativeFile } from "@/lib/tauri";
+import { fetchFileBlob } from "@/lib/storage";
 import { getRouter } from "@/router";
 import { getFileFn } from "@/server/file-system";
 import { getPdfFn, updatePdfFn } from "@/server/pdf";
@@ -53,7 +51,14 @@ export const usePdfData = ({
   return useQuery({
     queryKey: ["pdf-data", pdfId],
     queryFn: async () => {
-      const data: Blob = await readNativeFile("pdfs", `${pdfId}.pdf`);
+      const data = await fetchFileBlob({
+        dirName: "pdfs",
+        filename: `${pdfId}.pdf`,
+        errorMessage: "Failed to load PDF data",
+      });
+      if (!data) {
+        throw new Error("Failed to load PDF data");
+      }
       return data;
     },
     retry: 0,
@@ -110,7 +115,11 @@ export const useLoadPdf = () => {
     container: HTMLDivElement | null;
   }) => {
     const pdf = await getPdf({ data: { id: pdfId } });
-    const pdfData = await readNativeFile("pdfs", `${pdfId}.pdf`);
+    const pdfData = await fetchFileBlob({
+      dirName: "pdfs",
+      filename: `${pdfId}.pdf`,
+      errorMessage: "Failed to load PDF data",
+    });
     if (!pdf || !pdfData || !container) {
       throw new Error("Failed to load PDF");
     }
@@ -235,28 +244,26 @@ export const useDownloadPdf = () => {
       pdfId: string;
       filename: string;
     }) => {
-      const pdfData = await readNativeFile("pdfs", `${pdfId}.pdf`);
+      const pdfData = await fetchFileBlob({
+        dirName: "pdfs",
+        filename: `${pdfId}.pdf`,
+        errorMessage: "Failed to load PDF data",
+      });
       if (!pdfData) {
         toast.error("Failed to download PDF");
         return;
       }
 
       filename = filename.endsWith(".pdf") ? filename : `${filename}.pdf`;
-      if (isTauri) {
-        const filePath = await save({ defaultPath: filename });
-        if (!filePath) return;
-        const data = new Uint8Array(await pdfData.arrayBuffer());
-        await writeFile(filePath, data);
-      } else {
-        const url = URL.createObjectURL(pdfData);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-      }
+
+      const url = URL.createObjectURL(pdfData);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
     },
   });
 };

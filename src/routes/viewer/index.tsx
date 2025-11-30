@@ -1,6 +1,6 @@
 import { createFileRoute, Navigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
-import { Suspense, useEffect } from "react";
+import { Suspense } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
 import { chatsOpenAtom } from "@/atoms/chat/chats";
@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/resizable";
 import { Header } from "@/components/viewer/header";
 import { PdfToolbar } from "@/components/viewer/toolbars/pdf-toolbar";
-import { isTauri } from "@/lib/tauri";
 
 const viewerSearchSchema = z.object({
   // id: z.union([z.string().array(), z.string()]),
@@ -33,22 +32,6 @@ const viewerSearchSchema = z.object({
 });
 
 const Viewer = () => {
-  useEffect(() => {
-    if (!isTauri) {
-      toast.warning(
-        "Warning: This is a demo app. Data is discarded when the app is closed.",
-        {
-          position: "bottom-right",
-          action: {
-            label: "Ok",
-            onClick: () => {},
-          },
-          duration: 5000,
-        },
-      );
-    }
-  }, []);
-
   const { sid: pdfId, nid: notesId, page } = Route.useSearch();
 
   const fileSystemOpen = useAtomValue(fileSystemOpenAtom);

@@ -40,7 +40,7 @@ export function useRecorder({
 
   const updateDuration = () => {
     if (startTimeRef.current) {
-      const currentSessionDuration = (Date.now() - startTimeRef.current) / 1000;
+      const currentSessionDuration = Date.now() - startTimeRef.current;
       const totalDuration =
         accumulatedDurationRef.current + currentSessionDuration;
       setDuration(totalDuration);
@@ -87,7 +87,7 @@ export function useRecorder({
 
         // Calculate final duration
         const currentSessionDuration = startTimeRef.current
-          ? (Date.now() - startTimeRef.current) / 1000
+          ? Date.now() - startTimeRef.current
           : 0;
         const finalDuration =
           accumulatedDurationRef.current + currentSessionDuration;
@@ -131,8 +131,7 @@ export function useRecorder({
 
       // When pausing, add the current session duration to the accumulated total
       if (startTimeRef.current) {
-        const currentSessionDuration =
-          (Date.now() - startTimeRef.current) / 1000;
+        const currentSessionDuration = Date.now() - startTimeRef.current;
         accumulatedDurationRef.current += currentSessionDuration;
       }
 

@@ -27,10 +27,11 @@ export const RecordingControls = () => {
       setIsRecording(false);
 
       const recordingId = generateId();
+      const durationMs = Math.max(Math.round(duration), 1000);
       const recording: Recording = {
         id: recordingId,
         name: `New Recording`,
-        duration: Math.max(duration, 1), // Min 1 second
+        duration: durationMs,
         createdAt: new Date(),
       };
       await addRecording({ recording, recordingData: blob });
@@ -41,7 +42,9 @@ export const RecordingControls = () => {
     <div className="border-t p-4">
       <div className="flex flex-col items-center gap-4">
         {status !== "inactive" && (
-          <div className="text-lg font-medium">{formatDuration(duration)}</div>
+          <div className="text-lg font-medium">
+            {formatDuration(duration / 1000)}
+          </div>
         )}
         <div className="flex justify-center items-center gap-6">
           {status === "inactive" ? (

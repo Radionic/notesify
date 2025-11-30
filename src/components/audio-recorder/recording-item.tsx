@@ -30,7 +30,7 @@ export const RecordingItem = ({ recording }: { recording: Recording }) => {
           <div>
             <div className="font-medium">{recording.name}</div>
             <div className="text-xs text-neutral-500 flex gap-2">
-              <span>{formatDuration(recording.duration)}</span>
+              <span>{formatDuration(recording.duration / 1000)}</span>
               <span>•</span>
               <span>{format(recording.createdAt, "MMM d, yyyy")}</span>
             </div>
@@ -40,7 +40,7 @@ export const RecordingItem = ({ recording }: { recording: Recording }) => {
       </div>
       {isSelected && recordingData && (
         <AudioPlayer
-          duration={recording.duration}
+          durationMs={recording.duration}
           recordingUrl={URL.createObjectURL(recordingData)}
         />
       )}

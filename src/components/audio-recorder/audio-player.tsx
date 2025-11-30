@@ -14,10 +14,10 @@ import { cn } from "@/lib/utils";
 import { formatDuration } from "../../lib/audio/utils";
 
 export const AudioPlayer = ({
-  duration,
+  durationMs,
   recordingUrl,
 }: {
-  duration: number;
+  durationMs: number;
   recordingUrl: string;
 }) => {
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
@@ -27,6 +27,8 @@ export const AudioPlayer = ({
     src: recordingUrl,
     autoPlay: false,
   });
+
+  const durationSeconds = durationMs / 1000;
 
   // Update playback speed when it changes
   useEffect(() => {
@@ -40,7 +42,7 @@ export const AudioPlayer = ({
   };
 
   const handleSkipForward = () => {
-    controls.seek(Math.min(duration, state.time + 10));
+    controls.seek(Math.min(durationSeconds, state.time + 10));
   };
 
   const handleChangePlaybackTime = (value: number) => {
@@ -55,12 +57,12 @@ export const AudioPlayer = ({
         <Slider
           value={[state.time]}
           min={0}
-          max={duration}
+          max={durationSeconds}
           step={0.1}
           className="flex-1"
           onValueChange={(value) => handleChangePlaybackTime(value[0])}
         />
-        <div className="text-xs">{formatDuration(duration)}</div>
+        <div className="text-xs">{formatDuration(durationSeconds)}</div>
       </div>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1">

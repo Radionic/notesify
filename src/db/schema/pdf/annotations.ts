@@ -1,4 +1,4 @@
-import { index, integer, pgTable, text } from "drizzle-orm/pg-core";
+import { index, pgTable, smallint, text } from "drizzle-orm/pg-core";
 import { pdfsTable } from "@/db/schema/pdf/pdfs";
 
 export const annotationsTable = pgTable(
@@ -8,8 +8,8 @@ export const annotationsTable = pgTable(
     type: text("type", { enum: ["pen", "highlighter"] }).notNull(),
     path: text("path").notNull(),
     color: text("color").notNull(),
-    size: integer("size").notNull(),
-    page: integer("page").notNull(),
+    size: smallint("size").notNull(),
+    page: smallint("page").notNull(),
     pdfId: text("pdf_id")
       .references(() => pdfsTable.id, { onDelete: "cascade" })
       .notNull(),

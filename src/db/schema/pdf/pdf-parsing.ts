@@ -1,4 +1,4 @@
-import { integer, jsonb, pgTable, text } from "drizzle-orm/pg-core";
+import { jsonb, pgTable, smallint, text } from "drizzle-orm/pg-core";
 import { pdfsTable } from "@/db/schema/pdf/pdfs";
 
 export const pdfParsingTable = pgTable("pdf_parsing", {
@@ -9,7 +9,7 @@ export const pdfParsingTable = pgTable("pdf_parsing", {
   model: text("model").notNull(),
   text: text("text").notNull(),
   images: jsonb("images").$type<string[]>(),
-  page: integer("page").notNull(),
+  page: smallint("page").notNull(),
 });
 
 export type ParsedPDFPage = typeof pdfParsingTable.$inferSelect;

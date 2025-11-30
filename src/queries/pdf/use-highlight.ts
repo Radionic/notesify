@@ -10,9 +10,6 @@ import {
 } from "@/server/highlight";
 import { usePushHistory } from "./use-pdf-history";
 
-// export const useHighlight = ({ id }: { id: string }) => {
-//   return useQuery({
-
 export const useHighlights = ({ pdfId }: { pdfId: string }) => {
   const getHighlights = useServerFn(getHighlightsFn);
   return useQuery({

@@ -1,4 +1,4 @@
-import { integer, pgTable, text } from "drizzle-orm/pg-core";
+import { pgTable, smallint, text } from "drizzle-orm/pg-core";
 import { pdfsTable } from "@/db/schema/pdf/pdfs";
 
 export type PDFIndexingLevel = "document" | "page" | "section";
@@ -11,8 +11,8 @@ export const pdfIndexingTable = pgTable("pdf_indexing", {
   model: text("model").notNull(),
   summary: text("summary").notNull(),
   level: text("level").$type<PDFIndexingLevel>().notNull(),
-  startPage: integer("start_page"), // null for document level
-  endPage: integer("end_page"), // null for document and page level
+  startPage: smallint("start_page"), // null for document level
+  endPage: smallint("end_page"), // null for document and page level
 });
 
 export type IndexedPDFPage = typeof pdfIndexingTable.$inferSelect;

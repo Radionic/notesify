@@ -195,7 +195,7 @@ export const AnnotatorLayer = ({
           }}
           d={ann.path}
           stroke={ann.color}
-          strokeWidth={`${ann.size / 100}`}
+          strokeWidth={`${ann.size / 10000}`}
           fill="none"
           strokeLinecap={ann.type === "highlighter" ? "square" : "round"}
           strokeLinejoin={ann.type === "highlighter" ? "miter" : "round"}
@@ -207,7 +207,7 @@ export const AnnotatorLayer = ({
         <path
           d={currentPath}
           stroke={getActiveToolColor()}
-          strokeWidth={`${getActiveToolSize() / 100}`}
+          strokeWidth={`${getActiveToolSize() / 10000}`}
           fill="none"
           strokeLinecap={annotator === "highlighter" ? "square" : "round"}
           strokeLinejoin={annotator === "highlighter" ? "miter" : "round"}

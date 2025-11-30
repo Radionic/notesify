@@ -1,7 +1,7 @@
 import { atom } from "jotai";
 import { atomFamily } from "jotai/utils";
 
-export const penSizes = [0.4, 0.6, 0.8, 1.0];
+export const penSizes = [40, 60, 80, 100];
 export const penColors = [
   "#000000", // Black
   "#FFC300", // Yellow
@@ -12,7 +12,7 @@ export const penColors = [
   "#FF4500", // Red
 ];
 
-export const highlighterSizes = [1, 2, 3, 4];
+export const highlighterSizes = [100, 200, 300, 400];
 export const highlighterColors = [
   "#FFC30080", // Yellow with opacity
   "#32CD3280", // Green with opacity

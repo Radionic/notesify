@@ -6,9 +6,15 @@ import {
 } from "ai";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
-import { chatsTable, modelsTable } from "@/db/schema";
+import {
+  chatsTable,
+  type Message,
+  messagesTable,
+  modelsTable,
+} from "@/db/schema";
 import { buildMessages, buildSystemMessage } from "@/lib/ai/build-message";
 import { aiProvider } from "@/lib/ai/provider";
+import { generateId } from "@/lib/id";
 
 export const Route = createFileRoute("/api/ai/")({
   server: {
@@ -40,6 +46,14 @@ export const Route = createFileRoute("/api/ai/")({
           throw new Error("Invalid modelId.");
         }
 
+        await db.insert(messagesTable).values({
+          id: generateId(),
+          chatId,
+          role: "user",
+          parts: lastMessage.parts,
+          metadata: lastMessage.metadata,
+        } as Message);
+
         const system = buildSystemMessage(openedPdfs, pdfId, viewingPage);
         const messagesWithContext = buildMessages(messages, contexts);
 
@@ -58,6 +72,15 @@ export const Route = createFileRoute("/api/ai/")({
                   if (part.type === "start") {
                     return { modelId };
                   }
+                },
+                onFinish: async ({ responseMessage }) => {
+                  await db.insert(messagesTable).values({
+                    id: generateId(),
+                    chatId,
+                    role: "assistant",
+                    parts: responseMessage.parts,
+                    metadata: responseMessage.metadata,
+                  } as Message);
                 },
               }),
             );

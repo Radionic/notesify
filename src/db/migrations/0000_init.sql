@@ -3,19 +3,17 @@ CREATE TYPE "public"."model_type" AS ENUM('llm', 'vlm', 'embedding', 'ocr');--> 
 CREATE TABLE "chats" (
 	"id" text PRIMARY KEY NOT NULL,
 	"title" text,
-	"created_at" timestamp NOT NULL,
-	"updated_at" timestamp NOT NULL
+	"created_at" timestamp DEFAULT now() NOT NULL,
+	"updated_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "messages" (
 	"id" text PRIMARY KEY NOT NULL,
 	"chat_id" text NOT NULL,
 	"role" text NOT NULL,
-	"content" text NOT NULL,
-	"data" jsonb,
-	"annotations" jsonb,
 	"parts" jsonb,
-	"created_at" timestamp NOT NULL
+	"metadata" jsonb,
+	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "files" (

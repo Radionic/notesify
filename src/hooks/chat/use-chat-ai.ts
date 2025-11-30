@@ -44,7 +44,8 @@ export const messageMetadataSchema = z.object({
 export type MessageMetadata = z.infer<typeof messageMetadataSchema>;
 
 export const useChatAI = ({ chatId }: { chatId: string }) => {
-  const { data: initialMessages } = useMessages(chatId);
+  const { data: initialMessages, isLoading: isLoadingInitMessages } =
+    useMessages(chatId);
   const chat = useAtomValue(chatInstanceAtomFamily(chatId));
 
   const { messages, status, error, setMessages, sendMessage, stop } = useChat({
@@ -72,6 +73,7 @@ export const useChatAI = ({ chatId }: { chatId: string }) => {
     status,
     error,
     isRunningTool,
+    isLoadingInitMessages,
     isLoading,
     sendMessage,
     stop,

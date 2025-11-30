@@ -4,6 +4,7 @@ import { useAutoScroll } from "@/hooks/chat/use-auto-scroll";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
 import { cn } from "@/lib/utils";
 import { Badge } from "../badge";
+import { Spinner } from "../ui/spinner";
 import { ChatGuide } from "./chat-guide";
 import { ChatMessage } from "./chat-message";
 import { ImageContextsPreview } from "./contexts/image-context-preview";
@@ -11,12 +12,22 @@ import { TextContextsPreview } from "./contexts/text-content-preview";
 
 export const ChatMessageList = ({ className }: { className?: string }) => {
   const chatId = useAtomValue(activeChatIdAtom);
-  const { messages, error, isLoading } = useChatAI({ chatId });
+  const { messages, error, isLoading, isLoadingInitMessages } = useChatAI({
+    chatId,
+  });
 
   const { containerRef, messagesEndRef, handleScroll } =
     useAutoScroll(messages);
 
   if (messages?.length === 0) {
+    if (isLoadingInitMessages) {
+      return (
+        <div className="flex items-center justify-center gap-2 grow">
+          <Spinner />
+          <p>Loading messages...</p>
+        </div>
+      );
+    }
     return <ChatGuide />;
   }
 

@@ -47,7 +47,7 @@ export const recordingDataQueryOptions = ({
     queryKey: ["recording-data", id],
     queryFn: () =>
       fetchFileBlob({
-        dirName: "recordings",
+        type: "recordings",
         filename: `${id}.webm`,
         errorMessage: "Failed to load recording",
       }),
@@ -81,7 +81,7 @@ export const useAddRecording = () => {
       recordingData: Blob;
     }) => {
       const formData = new FormData();
-      formData.append("dirName", "recordings");
+      formData.append("type", "recordings");
       formData.append("filename", `${recording.id}.webm`);
       formData.append("file", recordingData);
 
@@ -113,7 +113,7 @@ export const useRemoveRecording = () => {
     mutationFn: async ({ id }: { id: string }) => {
       await removeRecording({ data: { id } });
       await removeFileFn({
-        data: { dirName: "recordings", filename: `${id}.webm` },
+        data: { type: "recordings", filename: `${id}.webm` },
       });
     },
     onSuccess: (_, { id }) => {

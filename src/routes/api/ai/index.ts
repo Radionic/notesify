@@ -18,6 +18,7 @@ import {
 import { buildMessages, buildSystemMessage } from "@/lib/ai/build-message";
 import { getTextFromMessage } from "@/lib/ai/get-text-from-message";
 import { aiProvider } from "@/lib/ai/provider";
+import { getSession } from "@/lib/auth";
 import { generateId } from "@/lib/id";
 
 export const messageMetadataSchema = z.object({
@@ -73,12 +74,20 @@ export const Route = createFileRoute("/api/ai/")({
         const { openedPdfs, pdfId, viewingPage, contexts, modelId, chatId } =
           lastMessage.metadata ?? {};
 
+        const session = await getSession();
+        if (!session?.user) {
+          throw new Error("Unauthorized");
+        }
+
+        const userId = session.user.id;
+
         const [[chat], model] = await Promise.all([
           db
             .insert(chatsTable)
             .values({
               id: chatId,
               title: undefined,
+              userId,
             })
             .onConflictDoUpdate({
               target: chatsTable.id,

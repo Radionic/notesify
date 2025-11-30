@@ -52,7 +52,7 @@ export const usePdfData = ({
     queryKey: ["pdf-data", pdfId],
     queryFn: async () => {
       const data = await fetchFileBlob({
-        dirName: "pdfs",
+        type: "pdfs",
         filename: `${pdfId}.pdf`,
         errorMessage: "Failed to load PDF data",
       });
@@ -116,7 +116,7 @@ export const useLoadPdf = () => {
   }) => {
     const pdf = await getPdf({ data: { id: pdfId } });
     const pdfData = await fetchFileBlob({
-      dirName: "pdfs",
+      type: "pdfs",
       filename: `${pdfId}.pdf`,
       errorMessage: "Failed to load PDF data",
     });
@@ -245,7 +245,7 @@ export const useDownloadPdf = () => {
       filename: string;
     }) => {
       const pdfData = await fetchFileBlob({
-        dirName: "pdfs",
+        type: "pdfs",
         filename: `${pdfId}.pdf`,
         errorMessage: "Failed to load PDF data",
       });

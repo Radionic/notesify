@@ -1,8 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
-import { asc, desc, eq, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, isNull } from "drizzle-orm";
 import z from "zod";
 import { db } from "@/db";
 import { type FileNode, filesTable } from "@/db/schema";
+import { getSession } from "@/lib/auth";
 import { generateId } from "@/lib/id";
 
 const getFileSchema = z.object({
@@ -12,8 +13,16 @@ const getFileSchema = z.object({
 export const getFileFn = createServerFn()
   .inputValidator(getFileSchema)
   .handler(async ({ data }) => {
+    const session = await getSession();
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
+
     const file = await db.query.filesTable.findFirst({
-      where: eq(filesTable.id, data.id),
+      where: and(
+        eq(filesTable.id, data.id),
+        eq(filesTable.userId, session.user.id),
+      ),
     });
     return file ?? null;
   });
@@ -26,11 +35,19 @@ const getFilesSchema = z.object({
 export const getFilesFn = createServerFn()
   .inputValidator(getFilesSchema)
   .handler(async ({ data }) => {
+    const session = await getSession();
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
+
     const { parentId, orderBy = "desc" } = data;
     const files = await db.query.filesTable.findMany({
-      where: parentId
-        ? eq(filesTable.parentId, parentId)
-        : isNull(filesTable.parentId),
+      where: and(
+        eq(filesTable.userId, session.user.id),
+        parentId
+          ? eq(filesTable.parentId, parentId)
+          : isNull(filesTable.parentId),
+      ),
       orderBy: [
         orderBy === "desc"
           ? desc(filesTable.updatedAt)
@@ -48,12 +65,18 @@ const addFolderSchema = z.object({
 export const addFolderFn = createServerFn()
   .inputValidator(addFolderSchema)
   .handler(async ({ data }) => {
+    const session = await getSession();
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
+
     const { name, parentId } = data;
     const newFile = {
       id: generateId(),
       name,
       type: "folder",
       parentId,
+      userId: session.user.id,
       createdAt: new Date(),
       updatedAt: new Date(),
     } as FileNode;
@@ -71,6 +94,11 @@ const addFileSchema = z.object({
 export const addFileFn = createServerFn()
   .inputValidator(addFileSchema)
   .handler(async ({ data }) => {
+    const session = await getSession();
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
+
     const { name, parentId, notesId, pdfId } = data;
     if (!pdfId && !notesId) {
       throw Error("No PDF or Notes provided");
@@ -85,6 +113,7 @@ export const addFileFn = createServerFn()
       name,
       type: pdfId ? "pdf" : "notes",
       parentId,
+      userId: session.user.id,
       createdAt: new Date(),
       updatedAt: new Date(),
     } as FileNode;
@@ -99,7 +128,16 @@ const removeFileSchema = z.object({
 export const removeFileFn = createServerFn()
   .inputValidator(removeFileSchema)
   .handler(async ({ data }) => {
-    await db.delete(filesTable).where(eq(filesTable.id, data.id));
+    const session = await getSession();
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
+
+    await db
+      .delete(filesTable)
+      .where(
+        and(eq(filesTable.id, data.id), eq(filesTable.userId, session.user.id)),
+      );
   });
 
 const renameFileSchema = z.object({
@@ -110,8 +148,15 @@ const renameFileSchema = z.object({
 export const renameFileFn = createServerFn()
   .inputValidator(renameFileSchema)
   .handler(async ({ data }) => {
+    const session = await getSession();
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
+
     await db
       .update(filesTable)
       .set({ name: data.name, updatedAt: new Date() })
-      .where(eq(filesTable.id, data.id));
+      .where(
+        and(eq(filesTable.id, data.id), eq(filesTable.userId, session.user.id)),
+      );
   });

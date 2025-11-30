@@ -42,7 +42,7 @@ export const useAddPdf = () => {
     mutationFn: async ({ name, pdfData }: { name: string; pdfData: Blob }) => {
       const { newFile, newPdf } = await addPdf({ data: { name } });
       const formData = new FormData();
-      formData.append("dirName", "pdfs");
+      formData.append("type", "pdfs");
       formData.append("filename", `${newPdf.id}.pdf`);
       formData.append("file", pdfData);
 
@@ -70,7 +70,7 @@ export const useRemovePdf = () => {
   return useMutation({
     mutationFn: async ({ fileId }: { fileId: string }) => {
       await removeStorageFileFn({
-        data: { dirName: "pdfs", filename: fileId },
+        data: { type: "pdfs", filename: `${fileId}.pdf` },
       });
       await removeFile({ data: { id: fileId } });
     },

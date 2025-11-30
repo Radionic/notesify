@@ -1,8 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
-import { desc, eq, like } from "drizzle-orm";
+import { and, desc, eq, ilike } from "drizzle-orm";
 import z from "zod";
 import { db } from "@/db";
 import { chatsTable } from "@/db/schema";
+import { getSession } from "@/lib/auth";
 
 const getChatsSchema = z.object({
   searchTerm: z.string().optional(),
@@ -11,10 +12,18 @@ const getChatsSchema = z.object({
 export const getChatsFn = createServerFn()
   .inputValidator(getChatsSchema)
   .handler(async ({ data }) => {
+    const session = await getSession();
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
+
     const values = await db.query.chatsTable.findMany({
-      where: data.searchTerm
-        ? like(chatsTable.id, `%${data.searchTerm}%`)
-        : undefined,
+      where: and(
+        eq(chatsTable.userId, session.user.id),
+        data.searchTerm
+          ? ilike(chatsTable.title, `%${data.searchTerm}%`)
+          : undefined,
+      ),
       orderBy: [desc(chatsTable.updatedAt)],
     });
     return values;
@@ -27,8 +36,16 @@ const getChatSchema = z.object({
 export const getChatFn = createServerFn()
   .inputValidator(getChatSchema)
   .handler(async ({ data }) => {
+    const session = await getSession();
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
+
     const value = await db.query.chatsTable.findFirst({
-      where: eq(chatsTable.id, data.id),
+      where: and(
+        eq(chatsTable.id, data.id),
+        eq(chatsTable.userId, session.user.id),
+      ),
     });
     return value;
   });
@@ -41,8 +58,18 @@ const updateChatTitleSchema = z.object({
 export const updateChatTitleFn = createServerFn()
   .inputValidator(updateChatTitleSchema)
   .handler(async ({ data }) => {
+    const session = await getSession();
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
+
     await db
       .update(chatsTable)
       .set({ title: data.title })
-      .where(eq(chatsTable.id, data.chatId));
+      .where(
+        and(
+          eq(chatsTable.id, data.chatId),
+          eq(chatsTable.userId, session.user.id),
+        ),
+      );
   });

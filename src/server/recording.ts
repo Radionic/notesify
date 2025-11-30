@@ -1,15 +1,22 @@
 import { createServerFn } from "@tanstack/react-start";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import z from "zod";
 import { db } from "@/db";
 import { type Recording, recordingsTable } from "@/db/schema";
+import { getSession } from "@/lib/auth";
 
 const getRecordingsSchema = z.object({});
 
 export const getRecordingsFn = createServerFn()
   .inputValidator(getRecordingsSchema)
   .handler(async () => {
+    const session = await getSession();
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
+
     return await db.query.recordingsTable.findMany({
+      where: (recordings) => eq(recordings.userId, session.user.id),
       orderBy: (recordings, { desc }) => [desc(recordings.createdAt)],
     });
   });
@@ -21,8 +28,17 @@ const getRecordingSchema = z.object({
 export const getRecordingFn = createServerFn()
   .inputValidator(getRecordingSchema)
   .handler(async ({ data }) => {
+    const session = await getSession();
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
+
     const result = await db.query.recordingsTable.findFirst({
-      where: (recordings) => eq(recordings.id, data.id),
+      where: (recordings) =>
+        and(
+          eq(recordings.id, data.id),
+          eq(recordings.userId, session.user.id),
+        ),
     });
     return result;
   });
@@ -34,9 +50,15 @@ const addRecordingSchema = z.object({
 export const addRecordingFn = createServerFn()
   .inputValidator(addRecordingSchema)
   .handler(async ({ data }) => {
-    await db
-      .insert(recordingsTable)
-      .values(data.recording as Recording);
+    const session = await getSession();
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
+
+    await db.insert(recordingsTable).values({
+      ...(data.recording as Recording),
+      userId: session.user.id,
+    });
   });
 
 const removeRecordingSchema = z.object({
@@ -46,7 +68,19 @@ const removeRecordingSchema = z.object({
 export const removeRecordingFn = createServerFn()
   .inputValidator(removeRecordingSchema)
   .handler(async ({ data }) => {
-    await db.delete(recordingsTable).where(eq(recordingsTable.id, data.id));
+    const session = await getSession();
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
+
+    await db
+      .delete(recordingsTable)
+      .where(
+        and(
+          eq(recordingsTable.id, data.id),
+          eq(recordingsTable.userId, session.user.id),
+        ),
+      );
   });
 
 const updateRecordingSchema = z.object({
@@ -57,8 +91,18 @@ const updateRecordingSchema = z.object({
 export const updateRecordingFn = createServerFn()
   .inputValidator(updateRecordingSchema)
   .handler(async ({ data }) => {
+    const session = await getSession();
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
+
     await db
       .update(recordingsTable)
       .set({ name: data.name })
-      .where(eq(recordingsTable.id, data.id));
+      .where(
+        and(
+          eq(recordingsTable.id, data.id),
+          eq(recordingsTable.userId, session.user.id),
+        ),
+      );
   });

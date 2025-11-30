@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import z from "zod";
 import { db } from "@/db";
 import {
@@ -13,6 +13,7 @@ import {
   pdfsTable,
   type ScrollPosition,
 } from "@/db/schema";
+import { getSession } from "@/lib/auth";
 import { generateId } from "@/lib/id";
 
 const getPdfSchema = z.object({
@@ -22,6 +23,22 @@ const getPdfSchema = z.object({
 export const getPdfFn = createServerFn()
   .inputValidator(getPdfSchema)
   .handler(async ({ data }) => {
+    const session = await getSession();
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
+
+    const file = await db.query.filesTable.findFirst({
+      where: and(
+        eq(filesTable.id, data.id),
+        eq(filesTable.userId, session.user.id),
+      ),
+    });
+
+    if (!file) {
+      return null;
+    }
+
     const pdf = await db.query.pdfsTable.findFirst({
       where: eq(pdfsTable.id, data.id),
     });
@@ -35,6 +52,11 @@ const addPdfSchema = z.object({
 export const addPdfFn = createServerFn()
   .inputValidator(addPdfSchema)
   .handler(async ({ data }) => {
+    const session = await getSession();
+    if (!session?.user) {
+      throw new Error("Unauthorized");
+    }
+
     const id = generateId();
     const newPdf: Pdf = {
       id,
@@ -47,6 +69,7 @@ export const addPdfFn = createServerFn()
       name: data.name,
       type: "pdf",
       parentId: null,
+      userId: session.user.id,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

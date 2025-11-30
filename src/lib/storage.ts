@@ -1,16 +1,16 @@
 import { getFileUrlFn } from "@/server/storage";
 
 export const fetchFileBlob = async ({
-  dirName,
+  type,
   filename,
   errorMessage,
 }: {
-  dirName: string;
+  type: "pdfs" | "recordings";
   filename: string;
   errorMessage: string;
 }): Promise<Blob | null> => {
   const url = await getFileUrlFn({
-    data: { dirName, filename },
+    data: { type, filename },
   });
 
   const res = await fetch(url);

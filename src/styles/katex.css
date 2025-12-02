@@ -1,5 +1,0 @@
-@import "katex/dist/katex.min.css";
-
-.katex-mathml {
-  height: 0px !important; /* fix empty space under chats */
-}

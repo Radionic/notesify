@@ -1,8 +1,8 @@
 import { CgClose } from "react-icons/cg";
 import { VscGoToFile } from "react-icons/vsc";
-
 import type { Context } from "@/atoms/chat/contexts";
 import { useChatContext } from "@/hooks/chat/use-chat-context";
+import { cn } from "@/lib/utils";
 
 interface TextContextPreviewProps {
   context: Context;
@@ -41,14 +41,16 @@ const TextContextPreview = ({
 export const TextContextsPreview = ({
   contexts,
   removable,
+  className,
 }: {
   contexts?: Context[];
   removable?: boolean;
+  className?: string;
 }) => {
   const { jumpToContext, removeContext } = useChatContext();
   if (!contexts || contexts.length === 0) return null;
   return (
-    <div className="flex flex-col gap-2">
+    <div className={cn("flex flex-col gap-2", className)}>
       {contexts
         .filter((context) => context.type === "text")
         .map((context: Context) => (

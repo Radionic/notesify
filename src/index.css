@@ -3,6 +3,7 @@
 @plugin "@tailwindcss/typography";
 @plugin "tailwind-scrollbar";
 @plugin "tailwind-scrollbar-hide";
+@source "../node_modules/streamdown/dist/*.js";
 
 @custom-variant dark (&:is(.dark *));
 

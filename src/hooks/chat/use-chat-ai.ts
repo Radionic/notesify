@@ -1,17 +1,25 @@
 import { useChat } from "@ai-sdk/react";
-import type { UIMessage } from "ai";
 import { useAtomValue } from "jotai";
 import { useEffect } from "react";
 import { chatInstanceAtomFamily } from "@/atoms/chat/chats";
 import { useMessages } from "@/queries/chat/use-messages";
-import type { MessageMetadata, MyUIMessage } from "@/routes/api/ai";
+import type { MyUIMessage } from "@/routes/api/ai";
 
 export const useChatAI = ({ chatId }: { chatId: string }) => {
   const { data: initialMessages, isLoading: isLoadingInitMessages } =
     useMessages(chatId);
   const chat = useAtomValue(chatInstanceAtomFamily(chatId));
 
-  const { messages, status, error, setMessages, sendMessage, stop } = useChat({
+  const {
+    messages,
+    status,
+    error,
+    setMessages,
+    sendMessage,
+    stop,
+    regenerate,
+  } = useChat({
+    id: chatId,
     chat,
   });
 
@@ -32,7 +40,7 @@ export const useChatAI = ({ chatId }: { chatId: string }) => {
   const isLoading = status === "submitted" || status === "streaming";
 
   return {
-    messages: messages as UIMessage<MessageMetadata>[],
+    messages: messages as MyUIMessage[],
     status,
     error,
     isRunningTool,
@@ -40,5 +48,6 @@ export const useChatAI = ({ chatId }: { chatId: string }) => {
     isLoading,
     sendMessage,
     stop,
+    regenerate,
   };
 };

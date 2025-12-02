@@ -1,8 +1,11 @@
 import { useAtomValue } from "jotai";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
-import { useAutoScroll } from "@/hooks/chat/use-auto-scroll";
+import {
+  Conversation,
+  ConversationContent,
+  ConversationScrollButton,
+} from "@/components/ai-elements/conversation";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
-import { cn } from "@/lib/utils";
 import { Badge } from "../badge";
 import { Spinner } from "../ui/spinner";
 import { ChatGuide } from "./chat-guide";
@@ -12,12 +15,10 @@ import { TextContextsPreview } from "./contexts/text-content-preview";
 
 export const ChatMessageList = ({ className }: { className?: string }) => {
   const chatId = useAtomValue(activeChatIdAtom);
-  const { messages, error, isLoading, isLoadingInitMessages } = useChatAI({
+
+  const { messages, error, isLoading, isLoadingInitMessages, regenerate } = useChatAI({
     chatId,
   });
-
-  const { containerRef, messagesEndRef, handleScroll } =
-    useAutoScroll(messages);
 
   if (messages?.length === 0) {
     if (isLoadingInitMessages) {
@@ -32,48 +33,38 @@ export const ChatMessageList = ({ className }: { className?: string }) => {
   }
 
   return (
-    <div
-      ref={containerRef}
-      onScroll={handleScroll}
-      className={cn("overflow-y-auto flex flex-col p-2", className)}
-    >
-      {messages.map((message, i) => {
-        const contexts = message.metadata?.contexts;
-        const showHeader =
-          message.role === "assistant" && messages[i - 1]?.role === "user";
-        return message.role === "user" ? (
-          <div key={message.id} className="flex flex-col gap-1">
-            <TextContextsPreview contexts={contexts} />
-            <ImageContextsPreview contexts={contexts} />
-            <ChatMessage message={message} />
-          </div>
-        ) : (
-          <ChatMessage
-            key={message.id}
-            message={message}
-            showHeader={showHeader}
-          />
-        );
-      })}
+    <Conversation className={className}>
+      <ConversationContent>
+        {messages.map((message, i) => {
+          const contexts = message.metadata?.contexts;
+          const showHeader =
+            message.role === "assistant" && messages[i - 1]?.role === "user";
+          const isLast = i === messages.length - 1;
+          return message.role === "user" ? (
+            <div key={message.id} className="flex flex-col gap-1 items-end">
+              <TextContextsPreview contexts={contexts} className="items-end" />
+              <ImageContextsPreview contexts={contexts} className="justify-end" />
+              <ChatMessage message={message} />
+            </div>
+          ) : (
+            <ChatMessage
+              key={message.id}
+              message={message}
+              showHeader={showHeader}
+              isLoading={isLast && isLoading}
+              isLast={isLast}
+              reload={regenerate}
+            />
+          );
+        })}
 
-      {isLoading && (
-        <ChatMessage
-          message={{
-            id: "loading",
-            role: "assistant",
-            parts: [],
-          }}
-          isLoading
-        />
-      )}
-
-      {error && (
-        <Badge variant="red" className="w-fit p-2">
-          Something went wrong. Please start a new chat instead.
-        </Badge>
-      )}
-
-      <div ref={messagesEndRef} />
-    </div>
+        {error && (
+          <Badge variant="red" className="w-fit p-2">
+            Something went wrong. Please start a new chat instead.
+          </Badge>
+        )}
+      </ConversationContent>
+      <ConversationScrollButton />
+    </Conversation>
   );
 };

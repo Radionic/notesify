@@ -127,6 +127,7 @@ export const Route = createFileRoute("/api/ai/")({
             writer.merge(
               result.toUIMessageStream({
                 sendFinish: false,
+                sendReasoning: true,
                 messageMetadata: ({ part }) => {
                   if (part.type === "start") {
                     return { modelId };

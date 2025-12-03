@@ -22,15 +22,8 @@ import { getSession } from "@/lib/auth";
 import { generateId } from "@/lib/id";
 
 export const messageMetadataSchema = z.object({
-  openedPdfs: z
-    .array(
-      z.object({
-        id: z.string(),
-        name: z.string(),
-        pageCount: z.number(),
-      }),
-    )
-    .optional(),
+  openedPdfIds: z.array(z.string()).optional(),
+  pdfId: z.string().optional(),
   viewingPage: z.number().optional(),
   contexts: z
     .array(
@@ -71,7 +64,7 @@ export const Route = createFileRoute("/api/ai/")({
         const { messages } = await request.json();
 
         const lastMessage = messages[messages.length - 1];
-        const { openedPdfs, pdfId, viewingPage, contexts, modelId, chatId } =
+        const { openedPdfIds, pdfId, viewingPage, contexts, modelId, chatId } =
           lastMessage.metadata ?? {};
 
         const session = await getSession();
@@ -113,7 +106,11 @@ export const Route = createFileRoute("/api/ai/")({
           metadata: lastMessage.metadata,
         } as Message);
 
-        const system = buildSystemMessage(openedPdfs, pdfId, viewingPage);
+        const system = await buildSystemMessage(
+          openedPdfIds,
+          pdfId,
+          viewingPage,
+        );
         const messagesWithContext = buildMessages(messages, contexts);
 
         const stream = createUIMessageStream<MyUIMessage>({

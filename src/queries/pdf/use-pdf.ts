@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { getDefaultStore, useAtom, useAtomValue } from "jotai";
+import { getDefaultStore, useAtom } from "jotai";
 import { AnnotationMode, getDocument } from "pdfjs-dist";
 import {
   EventBus,
@@ -20,7 +20,6 @@ import {
 import type { Pdf, ScrollPosition } from "@/db/schema";
 import { fetchFileBlob } from "@/lib/storage";
 import { getRouter } from "@/router";
-import { getFileFn } from "@/server/file-system";
 import { getPdfFn, updatePdfFn } from "@/server/pdf";
 
 export const usePdf = ({
@@ -296,38 +295,4 @@ export const useNavigatePdf = () => {
   };
 
   return { navigatePdf };
-};
-
-export type OpenedPDF = {
-  id: string;
-  name: string;
-  pageCount: number;
-};
-
-export const useOpenedPdfs = () => {
-  const pdfIds = useAtomValue(openedPdfIdsAtom);
-  const getPdf = useServerFn(getPdfFn);
-  const getFile = useServerFn(getFileFn);
-
-  return useQuery({
-    queryKey: ["opened-pdfs"],
-    queryFn: async () => {
-      const openedPdfs = await Promise.all(
-        pdfIds.map(async (pdfId) => {
-          const pdf = await getPdf({ data: { id: pdfId } });
-          const pdfFile = await getFile({ data: { id: pdfId } });
-          if (!pdf || !pdfFile) {
-            return null;
-          }
-          return {
-            id: pdf.id,
-            name: pdfFile.name,
-            pageCount: pdf.pageCount,
-          };
-        }),
-      );
-      return openedPdfs.filter((pdf) => pdf !== null);
-    },
-    enabled: pdfIds.length > 0,
-  });
 };

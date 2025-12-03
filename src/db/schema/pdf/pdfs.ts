@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import { jsonb, numeric, pgTable, smallint, text } from "drizzle-orm/pg-core";
 import { filesTable } from "@/db/schema/files/files";
 
@@ -15,7 +16,16 @@ export const pdfsTable = pgTable("pdfs", {
     x: 0,
     y: 0,
   }),
-  zoom: numeric("zoom", { precision: 4, scale: 2 }).notNull().default("1.00"),
+  zoom: numeric("zoom", { precision: 4, scale: 2, mode: "number" })
+    .notNull()
+    .default(1),
 });
+
+export const pdfsRelations = relations(pdfsTable, ({ one }) => ({
+  file: one(filesTable, {
+    fields: [pdfsTable.id],
+    references: [filesTable.id],
+  }),
+}));
 
 export type Pdf = typeof pdfsTable.$inferSelect;

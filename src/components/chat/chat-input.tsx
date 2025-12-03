@@ -2,11 +2,14 @@ import { useAtom, useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
 import { activeContextsAtom } from "@/atoms/chat/contexts";
-import { activePdfIdAtom, currentPageAtomFamily } from "@/atoms/pdf/pdf-viewer";
+import {
+  activePdfIdAtom,
+  currentPageAtomFamily,
+  openedPdfIdsAtom,
+} from "@/atoms/pdf/pdf-viewer";
 import { selectedModelAtom } from "@/atoms/setting/providers";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
 import { generateId } from "@/lib/id";
-import { useOpenedPdfs } from "@/queries/pdf/use-pdf";
 import { AutogrowingTextarea } from "../origin-ui/autogrowing-textarea";
 import { ModelSelector } from "../pdf/model-selector";
 import { SelectAreaContextButton } from "./action-button/select-context-button";
@@ -22,7 +25,7 @@ export const ChatInput = () => {
   );
 
   const selectedModel = useAtomValue(selectedModelAtom);
-  const { data: openedPdfs } = useOpenedPdfs();
+  const openedPdfIds = useAtomValue(openedPdfIdsAtom);
   const viewingPage = useAtomValue(currentPageAtomFamily(pdfId));
   const { sendMessage, stop, status, error } = useChatAI({ chatId });
 
@@ -44,7 +47,8 @@ export const ChatInput = () => {
     sendMessage({
       text: input,
       metadata: {
-        openedPdfs,
+        openedPdfIds,
+        pdfId,
         viewingPage,
         contexts,
         modelId: selectedModel.id,

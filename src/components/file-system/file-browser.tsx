@@ -1,3 +1,4 @@
+import { useSearch } from "@tanstack/react-router";
 import { FolderPlus, Upload } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ import {
 import { useDownloadPdf, useNavigatePdf } from "@/queries/pdf/use-pdf";
 import { FileBreadcrumb, type PathItem } from "./file-breadcrumb";
 import { FileGrid } from "./file-grid";
+import { FileSearch } from "./file-search";
 import { PdfFileUploader } from "./file-uploader";
 
 export const FileBrowser = ({
@@ -41,9 +43,11 @@ export const FileBrowser = ({
   );
   const [uploadDialog, setUploadDialog] = useState(false);
 
+  const searchParams = useSearch({ from: "/library/" });
   const currentFolderId = path[path.length - 1].id;
   const { data: files = [], isLoading } = useFiles({
     parentId: currentFolderId,
+    search: searchParams.q,
   });
 
   const { mutate: addFolder } = useAddFolder();
@@ -99,6 +103,10 @@ export const FileBrowser = ({
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <FileBreadcrumb path={path} onNavigate={navigateToBreadcrumb} />
+
+        <div className="grow" />
+
+        <FileSearch />
 
         {!readOnly && (
           <div className="flex gap-2">

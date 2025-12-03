@@ -53,11 +53,17 @@ export const useFileData = ({
   });
 };
 
-export const useFiles = ({ parentId }: { parentId: string | null }) => {
+export const useFiles = ({
+  parentId,
+  search,
+}: {
+  parentId: string | null;
+  search?: string;
+}) => {
   const getFiles = useServerFn(getFilesFn);
   return useQuery({
-    queryKey: ["files", parentId],
-    queryFn: () => getFiles({ data: { parentId } }),
+    queryKey: ["files", parentId, search ?? ""],
+    queryFn: () => getFiles({ data: { parentId, search } }),
   });
 };
 

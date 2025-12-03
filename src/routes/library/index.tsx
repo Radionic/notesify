@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import z from "zod";
 import { FileBrowser } from "@/components/file-system/file-browser";
 import { Header } from "@/components/landing/header";
 import { protectRouteFn } from "@/server/auth";
@@ -17,6 +18,9 @@ const RouteComponent = () => {
 export const Route = createFileRoute("/library/")({
   component: RouteComponent,
   ssr: "data-only",
+  validateSearch: z.object({
+    q: z.string().optional(),
+  }),
   beforeLoad: async ({ location }) => {
     await protectRouteFn({
       data: {

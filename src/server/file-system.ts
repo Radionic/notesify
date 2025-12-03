@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { and, asc, desc, eq, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, isNull } from "drizzle-orm";
 import z from "zod";
 import { db } from "@/db";
 import { type FileNode, filesTable } from "@/db/schema";
@@ -29,6 +29,7 @@ export const getFileFn = createServerFn()
 
 const getFilesSchema = z.object({
   parentId: z.string().nullable(),
+  search: z.string().optional(),
   orderBy: z.enum(["asc", "desc"]).optional(),
 });
 
@@ -40,13 +41,15 @@ export const getFilesFn = createServerFn()
       throw new Error("Unauthorized");
     }
 
-    const { parentId, orderBy = "desc" } = data;
+    const { parentId, search, orderBy = "desc" } = data;
     const files = await db.query.filesTable.findMany({
       where: and(
         eq(filesTable.userId, session.user.id),
-        parentId
-          ? eq(filesTable.parentId, parentId)
-          : isNull(filesTable.parentId),
+        search && search.trim().length > 0
+          ? ilike(filesTable.name, `%${search}%`)
+          : parentId
+            ? eq(filesTable.parentId, parentId)
+            : isNull(filesTable.parentId),
       ),
       orderBy: [
         orderBy === "desc"

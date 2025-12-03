@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import {
   type AnyPgColumn,
   index,
@@ -26,6 +27,7 @@ export const filesTable = pgTable(
     index("files_type_idx").on(table.type),
     index("files_created_at_idx").on(table.createdAt),
     index("files_updated_at_idx").on(table.updatedAt),
+    index("files_name_trgm_idx").using("gin", sql`${table.name} gin_trgm_ops`),
   ],
 );
 

@@ -1,7 +1,7 @@
+import { Link } from "@tanstack/react-router";
 import { useAtom, useAtomValue } from "jotai";
-import { AudioLines, FileText, PanelLeft, Sparkles } from "lucide-react";
+import { AudioLines, FileText, Sparkles } from "lucide-react";
 import { chatsOpenAtom } from "@/atoms/chat/chats";
-import { fileSystemOpenAtom } from "@/atoms/file-system/file-system";
 import { notesOpenAtom } from "@/atoms/notes/notes";
 import { pdfViewerOpenAtom } from "@/atoms/pdf/pdf-viewer";
 import {
@@ -11,13 +11,10 @@ import {
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { useNavigatePdf } from "@/queries/pdf/use-pdf";
 import { UserIcon } from "../auth/user-icon";
 import { ThemeSwitch } from "../theme-switch";
-import { Separator } from "../ui/separator";
 
-export const Header = ({ pdfId }: { pdfId: string }) => {
-  const [fileSystemOpen, setFileSystemOpen] = useAtom(fileSystemOpenAtom);
+export const Header = () => {
   const [chatsOpen, setChatsOpen] = useAtom(chatsOpenAtom);
   const [pdfOpen, setPdfOpen] = useAtom(pdfViewerOpenAtom);
   const [notesOpen, setNotesOpen] = useAtom(notesOpenAtom);
@@ -25,8 +22,6 @@ export const Header = ({ pdfId }: { pdfId: string }) => {
     audioRecorderOpenAtom,
   );
   const isRecording = useAtomValue(isRecordingAtom);
-
-  const { navigatePdf } = useNavigatePdf();
 
   // Toggle a panel while ensuring at least one remains open
   const togglePanel = (
@@ -50,17 +45,13 @@ export const Header = ({ pdfId }: { pdfId: string }) => {
   return (
     <Card className="sticky flex flex-row w-full px-0.5 py-1 border-2 border-transparent border-b-border justify-between z-30 rounded-none bg-header">
       <div className="flex flex-row items-center gap-0.5">
-        <TooltipButton
-          tooltip="Toggle Library"
-          active={fileSystemOpen}
-          onClick={() => {
-            setFileSystemOpen((open) => !open);
-          }}
-        >
-          <PanelLeft />
-        </TooltipButton>
-
-        <Separator orientation="vertical" className="mx-0.5 h-6" />
+        <Link to="/library">
+          <img
+            src="/icon.png"
+            alt="Notesify Icon"
+            className="w-6 h-6 rounded-sm mx-1"
+          />
+        </Link>
 
         <TooltipButton
           tooltip="Toggle Sources"

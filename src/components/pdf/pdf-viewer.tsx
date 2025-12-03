@@ -1,6 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
 import { useAtomValue, useSetAtom } from "jotai";
-import { GlobalWorkerOptions } from "pdfjs-dist";
 import { activeAnnotatorAtomFamily } from "@/atoms/pdf/annotator-options";
 import {
   activePdfIdAtom,
@@ -10,9 +9,11 @@ import {
 import { useHistoryShortcuts } from "@/hooks/pdf/use-history-shortcuts";
 import { useScrollPosition } from "@/hooks/pdf/use-scroll-position";
 import { cn } from "@/lib/utils";
-import { useLoadPdf } from "@/queries/pdf/use-pdf";
+import { usePdf } from "@/queries/pdf/use-pdf";
 import "pdfjs-dist/web/pdf_viewer.css";
 import { useEffect, useRef } from "react";
+import { useLoadPdf, useUnloadPdf } from "@/hooks/pdf/use-pdf-loading";
+import { useFileData } from "@/queries/file-system/use-file-system";
 import { useZoom } from "../../hooks/pdf/use-zoom";
 import { ContextBoundingBox } from "../chat/contexts/context-bounding-box";
 import { PreviewImageDialog } from "./dialog/preview-image-dialog";
@@ -24,11 +25,6 @@ import { SelectContextArea } from "./layer/select-context-layer";
 import { HighlightMenu } from "./menu/highlight-menu";
 import { TextMenu } from "./menu/text-menu";
 
-GlobalWorkerOptions.workerSrc = new URL(
-  "pdfjs-dist/build/pdf.worker.min.mjs",
-  import.meta.url,
-).toString();
-
 export const PdfViewer = ({
   pdfId,
   page,
@@ -37,25 +33,48 @@ export const PdfViewer = ({
   page?: number;
 }) => {
   const navigate = useNavigate();
+  const setActivePdfId = useSetAtom(activePdfIdAtom);
+  const viewer = useAtomValue(viewerAtomFamily(pdfId));
   const inited = !!useAtomValue(currentPageAtomFamily(pdfId));
   const annotator = useAtomValue(activeAnnotatorAtomFamily(pdfId));
   const containerRef = useRef<HTMLDivElement>(null);
-  const { loadPdf, unloadPdf } = useLoadPdf();
-  const setActivePdfId = useSetAtom(activePdfIdAtom);
-  const viewer = useAtomValue(viewerAtomFamily(pdfId));
+  const loadedPdfIdRef = useRef<string | null>(null);
+
+  const { data: pdf } = usePdf({ pdfId });
+  const { data: pdfData } = useFileData({
+    id: pdfId,
+    type: "pdfs",
+  });
+
+  const loadPdf = useLoadPdf();
+  const unloadPdf = useUnloadPdf();
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    if (
+      !pdf ||
+      !pdfData ||
+      !containerRef.current ||
+      loadedPdfIdRef.current === pdfId
+    )
+      return;
+
+    loadedPdfIdRef.current = pdfId;
     loadPdf({
-      pdfId,
+      pdf,
+      pdfData,
       container: containerRef.current,
     }).catch(() => {
       navigate({ to: "/library" });
     });
+  }, [pdf, pdfData]);
+
+  useEffect(() => {
     return () => {
-      unloadPdf({ pdfId });
+      if (loadedPdfIdRef.current === pdfId && inited) {
+        unloadPdf({ pdfId });
+      }
     };
-  }, [pdfId]);
+  }, [pdfId, inited]);
 
   useEffect(() => {
     if (inited && viewer && page) {

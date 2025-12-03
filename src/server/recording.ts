@@ -35,10 +35,7 @@ export const getRecordingFn = createServerFn()
 
     const result = await db.query.recordingsTable.findFirst({
       where: (recordings) =>
-        and(
-          eq(recordings.id, data.id),
-          eq(recordings.userId, session.user.id),
-        ),
+        and(eq(recordings.id, data.id), eq(recordings.userId, session.user.id)),
     });
     return result;
   });

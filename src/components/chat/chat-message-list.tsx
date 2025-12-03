@@ -16,9 +16,10 @@ import { TextContextsPreview } from "./contexts/text-content-preview";
 export const ChatMessageList = ({ className }: { className?: string }) => {
   const chatId = useAtomValue(activeChatIdAtom);
 
-  const { messages, error, isLoading, isLoadingInitMessages, regenerate } = useChatAI({
-    chatId,
-  });
+  const { messages, error, isLoading, isLoadingInitMessages, regenerate } =
+    useChatAI({
+      chatId,
+    });
 
   if (messages?.length === 0) {
     if (isLoadingInitMessages) {
@@ -43,7 +44,10 @@ export const ChatMessageList = ({ className }: { className?: string }) => {
           return message.role === "user" ? (
             <div key={message.id} className="flex flex-col gap-1 items-end">
               <TextContextsPreview contexts={contexts} className="items-end" />
-              <ImageContextsPreview contexts={contexts} className="justify-end" />
+              <ImageContextsPreview
+                contexts={contexts}
+                className="justify-end"
+              />
               <ChatMessage message={message} />
             </div>
           ) : (

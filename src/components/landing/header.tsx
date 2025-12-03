@@ -10,10 +10,7 @@ export const Header = () => {
         <Logo />
 
         <nav className="flex items-center justify-center">
-          <a
-            href="https://github.com/Radionic/notesify"
-            className="mr-2"
-          >
+          <a href="https://github.com/Radionic/notesify" className="mr-2">
             <GitHubLogoIcon className="h-5 w-5" />
           </a>
           <ThemeSwitch />

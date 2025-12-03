@@ -89,32 +89,34 @@ export const ChatMessage = ({
         })}
         {isLoading && <l-dot-pulse size="24" speed="1.25" color="#525252" />}
       </MessageContent>
-      {message.role === "assistant" && !isLoading && message.parts?.length > 0 && (
-        <MessageActions>
-          {isLast && reload && (
+      {message.role === "assistant" &&
+        !isLoading &&
+        message.parts?.length > 0 && (
+          <MessageActions>
+            {isLast && reload && (
+              <MessageAction
+                onClick={() => reload()}
+                label="Regenerate"
+                className="text-foreground/40 hover:text-foreground transition-colors"
+              >
+                <RefreshCcwIcon className="size-3" />
+              </MessageAction>
+            )}
             <MessageAction
-              onClick={() => reload()}
-              label="Regenerate"
+              onClick={() => {
+                const text = message.parts
+                  .filter((p) => p.type === "text")
+                  .map((p) => (p as { type: "text"; text: string }).text)
+                  .join("");
+                navigator.clipboard.writeText(text);
+              }}
+              label="Copy"
               className="text-foreground/40 hover:text-foreground transition-colors"
             >
-              <RefreshCcwIcon className="size-3" />
+              <CopyIcon className="size-3" />
             </MessageAction>
-          )}
-          <MessageAction
-            onClick={() => {
-              const text = message.parts
-                .filter((p) => p.type === "text")
-                .map((p) => (p as { type: "text"; text: string }).text)
-                .join("");
-              navigator.clipboard.writeText(text);
-            }}
-            label="Copy"
-            className="text-foreground/40 hover:text-foreground transition-colors"
-          >
-            <CopyIcon className="size-3" />
-          </MessageAction>
-        </MessageActions>
-      )}
+          </MessageActions>
+        )}
     </Message>
   );
 };

@@ -1,10 +1,10 @@
-import { createFileRoute } from '@tanstack/react-router'
-import { SignupForm } from '@/components/auth/signup-form'
-import { Header } from '@/components/landing/header'
+import { createFileRoute } from "@tanstack/react-router";
+import { SignupForm } from "@/components/auth/signup-form";
+import { Header } from "@/components/landing/header";
 
-export const Route = createFileRoute('/auth/signup/')({
+export const Route = createFileRoute("/auth/signup/")({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
   return (
@@ -14,5 +14,5 @@ function RouteComponent() {
         <SignupForm className="w-full max-w-md" />
       </main>
     </div>
-  )
+  );
 }

@@ -1,7 +1,7 @@
 import { Pause, Play } from "lucide-react";
 import { useEffect, useState } from "react";
 import { GrBackTen, GrForwardTen } from "react-icons/gr";
-import { useAudio } from "react-use";
+import * as reactUse from "react-use";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,6 +12,8 @@ import {
 import { Slider } from "@/components/ui/slider";
 import { cn } from "@/lib/utils";
 import { formatDuration } from "../../lib/audio/utils";
+
+const { useAudio } = reactUse;
 
 export const AudioPlayer = ({
   durationMs,

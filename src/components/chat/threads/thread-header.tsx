@@ -19,7 +19,7 @@ export const ThreadHeader = () => {
         <ChevronLeft className="h-4 w-4" />
       </TooltipButton>
       <span className="font-medium hover:underline cursor-pointer truncate">
-        {activeChat?.title}
+        {activeChat?.title || "Back"}
       </span>
     </div>
   );

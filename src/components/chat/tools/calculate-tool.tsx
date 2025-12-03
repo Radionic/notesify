@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { InlineMath } from "react-katex";
 import { Badge } from "@/components/badge";
 import { cn } from "@/lib/utils";
-import "@/styles/katex.css";
+
+// import "@/styles/katex.css";
 
 type CalculateInput = {
   expression: string;

@@ -47,6 +47,7 @@ export const getPdfFn = createServerFn()
 
 const addPdfSchema = z.object({
   name: z.string(),
+  parentId: z.string().nullable(),
 });
 
 export const addPdfFn = createServerFn()
@@ -68,7 +69,7 @@ export const addPdfFn = createServerFn()
       id,
       name: data.name,
       type: "pdf",
-      parentId: null,
+      parentId: data.parentId,
       userId: session.user.id,
       createdAt: new Date(),
       updatedAt: new Date(),

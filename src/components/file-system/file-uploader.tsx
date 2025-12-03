@@ -1,6 +1,5 @@
 import { Plus } from "lucide-react";
 import { BsFiletypeDoc, BsFiletypePdf, BsFiletypePpt } from "react-icons/bs";
-import { useMediaQuery } from "react-responsive";
 import { toast } from "sonner";
 import { FileInput, FileUploader } from "@/components/ui/file-uploader";
 import { cn } from "@/lib/utils";
@@ -37,12 +36,12 @@ const FileSvgDraw = ({ thin }: { thin?: boolean }) => {
 export const PdfFileUploader = ({
   className,
   thin,
+  parentId = null,
 }: {
   className?: string;
   thin?: boolean;
+  parentId?: string | null;
 }) => {
-  const isMobile = useMediaQuery({ query: "(max-width: 767px)" });
-
   const { navigatePdf } = useNavigatePdf();
   const { mutateAsync: convertToPdf } = useConvertPdf();
   const { mutateAsync: addPdf } = useAddPdf();
@@ -52,13 +51,6 @@ export const PdfFileUploader = ({
     fileName: string,
     originalType?: string,
   ) => {
-    if (isMobile) {
-      toast.info(
-        "Mobile version is not supported yet. Please view on a desktop or laptop.",
-      );
-      return;
-    }
-
     if (originalType !== "application/pdf") {
       data = await toast
         .promise(convertToPdf({ file: data, filename: fileName }), {
@@ -69,7 +61,11 @@ export const PdfFileUploader = ({
         .unwrap();
     }
 
-    const { newPdf } = await addPdf({ name: fileName, pdfData: data });
+    const { newPdf } = await addPdf({
+      name: fileName,
+      pdfData: data,
+      parentId,
+    });
     if (!newPdf) {
       return;
     }

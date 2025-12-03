@@ -3,7 +3,7 @@ import { useAtom } from "jotai";
 import { selectedRecordingIdAtom } from "@/atoms/recording/audio-recorder";
 import type { Recording } from "@/db/schema";
 import { cn } from "@/lib/utils";
-import { useRecordingData } from "@/queries/recording/use-recording";
+import { useFileData } from "@/queries/file-system/use-file-system";
 import { formatDuration } from "../../lib/audio/utils";
 import { AudioPlayer } from "./audio-player";
 import { RecordingItemMenu } from "./recording-item-menu";
@@ -13,9 +13,9 @@ export const RecordingItem = ({ recording }: { recording: Recording }) => {
     selectedRecordingIdAtom,
   );
   const isSelected = selectedRecordingId === recording.id;
-  const { data: recordingData } = useRecordingData({
+  const { data: recordingData } = useFileData({
     id: recording.id,
-    enabled: isSelected,
+    type: "recordings",
   });
 
   return (

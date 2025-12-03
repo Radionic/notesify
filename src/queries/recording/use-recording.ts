@@ -6,7 +6,6 @@ import {
 } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import type { Recording } from "@/db/schema";
-import { fetchFileBlob } from "@/lib/storage";
 import {
   addRecordingFn,
   getRecordingFn,
@@ -16,50 +15,12 @@ import {
 } from "@/server/recording";
 import { removeFileFn, uploadFileFn } from "@/server/storage";
 
-export const recordingQueryOptions = ({
-  id,
-  enabled,
-}: {
-  id: string;
-  enabled?: boolean;
-}) =>
-  queryOptions({
+export const useRecording = ({ id }: { id: string }) =>
+  useQuery({
     queryKey: ["recording", id],
     queryFn: () => getRecordingFn({ data: { id } }),
-    enabled,
+    enabled: !!id,
   });
-export const useRecording = ({
-  id,
-  enabled,
-}: {
-  id: string;
-  enabled?: boolean;
-}) => useQuery(recordingQueryOptions({ id, enabled }));
-
-export const recordingDataQueryOptions = ({
-  id,
-  enabled,
-}: {
-  id: string;
-  enabled?: boolean;
-}) =>
-  queryOptions({
-    queryKey: ["recording-data", id],
-    queryFn: () =>
-      fetchFileBlob({
-        type: "recordings",
-        filename: `${id}.webm`,
-        errorMessage: "Failed to load recording",
-      }),
-    enabled,
-  });
-export const useRecordingData = ({
-  id,
-  enabled,
-}: {
-  id: string;
-  enabled?: boolean;
-}) => useQuery(recordingDataQueryOptions({ id, enabled }));
 
 export const recordingsQueryOptions = () =>
   queryOptions({

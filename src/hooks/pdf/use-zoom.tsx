@@ -15,12 +15,7 @@ export const useZoom = (
   const viewer = useAtomValue(viewerAtomFamily(pdfId));
 
   const { mutate: updatePdfMetadata } = useUpdatePdf();
-  const debouncedUpdateZoom = useDebounceCallback((zoom: number) => {
-    updatePdfMetadata({
-      pdfId,
-      zoom,
-    });
-  }, 500);
+  const debouncedUpdateZoom = useDebounceCallback(updatePdfMetadata, 500);
 
   const isPinching = useRef(false);
   const lastUpdateTime = useRef(0);
@@ -42,10 +37,16 @@ export const useZoom = (
     if (now - lastUpdateTime.current >= THROTTLE_DELAY) {
       if (activeTarget) {
         activeViewer?.updateScale({ steps, scaleFactor, origin });
-        debouncedUpdateZoom(activeViewer?.currentScale || 1);
+        debouncedUpdateZoom({
+          pdfId,
+          zoom: activeViewer?.currentScale || 1,
+        });
       } else {
         viewer?.updateScale({ steps, scaleFactor, origin });
-        debouncedUpdateZoom(viewer?.currentScale || 1);
+        debouncedUpdateZoom({
+          pdfId,
+          zoom: viewer?.currentScale || 1,
+        });
       }
       lastUpdateTime.current = now;
     }
@@ -55,13 +56,13 @@ export const useZoom = (
     "mod+equal",
     () => zoom({ scaleFactor: 1.25, activeTarget: true }),
     { preventDefault: true },
-    [activeViewer],
+    [activeViewer, pdfId],
   );
   useHotkeys(
     "mod+minus",
     () => zoom({ scaleFactor: 1 / 1.25, activeTarget: true }),
     { preventDefault: true },
-    [activeViewer],
+    [activeViewer, pdfId],
   );
 
   useEffect(() => {
@@ -80,7 +81,7 @@ export const useZoom = (
     });
     return () =>
       containerRef.current?.removeEventListener("wheel", handleWheel);
-  }, [viewer, containerRef]);
+  }, [viewer, pdfId, containerRef]);
 
   useEffect(() => {
     if (!containerRef.current) return;

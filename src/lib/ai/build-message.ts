@@ -1,8 +1,5 @@
 import { convertToModelMessages, type ModelMessage, type UIMessage } from "ai";
-import { inArray } from "drizzle-orm";
 import type { Context } from "@/atoms/chat/contexts";
-import { db } from "@/db";
-import { pdfsTable } from "@/db/schema";
 import { getTextFromMessage } from "./get-text-from-message";
 
 const buildTextContent = (content: string, contexts?: Context[]) => {
@@ -23,49 +20,13 @@ const buildImageContent = (contexts?: Context[]) => {
     contexts
       ?.filter(
         (c) =>
-          c.type === "page" ||
-          c.type === "area" ||
-          c.type === "uploaded-image",
+          c.type === "page" || c.type === "area" || c.type === "uploaded-image",
       )
       .map((c) => ({
         type: "image" as const,
         image: c.content || "",
       })) || []
   );
-};
-
-export const buildSystemMessage = async (
-  openedPdfIds?: string[],
-  viewingPdfId?: string,
-  viewingPage?: number,
-) => {
-  if (!openedPdfIds || !viewingPdfId || !viewingPage) {
-    return "You are a helpful assistant. Reply in Markdown format.";
-  }
-
-  const openedPdfs = await db.query.pdfsTable.findMany({
-    with: {
-      file: {
-        columns: {
-          name: true,
-        },
-      },
-    },
-    where: inArray(pdfsTable.id, openedPdfIds),
-  });
-
-  const openedPdfsContext = openedPdfs
-    .map(
-      (pdf) =>
-        `{ name: "${pdf.file.name}", id: "${pdf.id}", totalPages: ${pdf.pageCount} }`,
-    )
-    .join(", ");
-  const viewingPdfName = openedPdfs.find((pdf) => pdf.id === viewingPdfId)?.file
-    .name;
-
-  const systemMessage = `You are a helpful PDF assistant. The user has opened ${openedPdfs.length} PDFs: ${openedPdfsContext}, and is currently viewing page ${viewingPage} of "${viewingPdfName}". Reply in Markdown format.`;
-  // console.log("System message", systemMessage);
-  return systemMessage;
 };
 
 export const buildMessages = (

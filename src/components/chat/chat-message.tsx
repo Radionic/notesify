@@ -16,6 +16,7 @@ import {
 import type { MyUIMessage } from "@/routes/api/ai";
 import { CalculateTool } from "./tools/calculate-tool";
 import { GetPageTextTool } from "./tools/get-page-text-tool";
+import { GetViewingPdfMetadataTool } from "./tools/get-viewing-pdf-metadata-tool";
 import { SearchPagesTool } from "./tools/search-pages-tool";
 
 dotPulse.register();
@@ -37,11 +38,14 @@ export const ChatMessage = ({
   const modelId = message.metadata?.modelId;
 
   const renderTool = (tool: DynamicToolUIPart) => {
-    const { toolName } = tool;
+    const toolName = tool.type.split("-")[1];
     if (!toolName) return null;
 
     if (toolName === "getPDFPageText") {
       return <GetPageTextTool tool={tool} />;
+    }
+    if (toolName === "getViewingPdfMetadata") {
+      return <GetViewingPdfMetadataTool tool={tool} />;
     }
     if (toolName === "calculate") {
       return <CalculateTool tool={tool} />;

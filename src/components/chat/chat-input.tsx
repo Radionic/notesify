@@ -9,6 +9,7 @@ import {
 } from "@/atoms/pdf/pdf-viewer";
 import { selectedModelAtom } from "@/atoms/setting/providers";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
+import { ensureVisionModel } from "@/lib/ai/ensure-vision-model";
 import { generateId } from "@/lib/id";
 import { ModelSelector } from "../pdf/model-selector";
 import { Textarea } from "../ui/textarea";
@@ -43,8 +44,11 @@ export const ChatInput = () => {
     const imageFile = Array.from(files).find((file) =>
       file.type.startsWith("image/"),
     );
-
     if (!imageFile) {
+      return;
+    }
+
+    if (!ensureVisionModel({ model: selectedModel })) {
       return;
     }
 
@@ -73,7 +77,14 @@ export const ChatInput = () => {
       stop();
       return;
     }
-    if (disableSending) {
+
+    const hasVisionContext = contexts.some((context) =>
+      ["uploaded-image", "area", "page"].includes(context.type),
+    );
+    if (
+      disableSending ||
+      (hasVisionContext && !ensureVisionModel({ model: selectedModel }))
+    ) {
       return;
     }
 

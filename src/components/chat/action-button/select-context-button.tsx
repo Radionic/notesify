@@ -1,9 +1,11 @@
-import { useAtom } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { Crop, File, SquareMousePointer, Type } from "lucide-react";
 import { toast } from "sonner";
 import { selectContextModeAtom } from "@/atoms/pdf/pdf-viewer";
+import { selectedModelAtom } from "@/atoms/setting/providers";
 import { TooltipDropdown } from "@/components/tooltip/tooltip-dropdown";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { ensureVisionModel } from "@/lib/ai/ensure-vision-model";
 
 const ContextRow = ({
   icon,
@@ -31,6 +33,7 @@ const ContextRow = ({
 
 export const SelectAreaContextButton = () => {
   const [mode, setMode] = useAtom(selectContextModeAtom);
+  const selectedModel = useAtomValue(selectedModelAtom);
 
   return (
     <TooltipDropdown
@@ -55,13 +58,23 @@ export const SelectAreaContextButton = () => {
         icon={<Crop className="h-4 w-4" />}
         label="Select Area"
         description="Add area as context"
-        onClick={() => setMode("area")}
+        onClick={() => {
+          if (!ensureVisionModel({ model: selectedModel })) {
+            return;
+          }
+          setMode("area");
+        }}
       />
       <ContextRow
         icon={<File className="h-4 w-4" />}
         label="Select Page"
         description="Add page as context"
-        onClick={() => setMode("page")}
+        onClick={() => {
+          if (!ensureVisionModel({ model: selectedModel })) {
+            return;
+          }
+          setMode("page");
+        }}
       />
     </TooltipDropdown>
   );

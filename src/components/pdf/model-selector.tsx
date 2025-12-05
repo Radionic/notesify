@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { getLlmModelsFn } from "@/server/model";
+import { Badge } from "../badge";
 import { TooltipButton } from "../tooltip/tooltip-button";
 
 export const ModelSelector = () => {
@@ -100,7 +101,12 @@ export const ModelSelector = () => {
                 >
                   <span className="flex items-center gap-2">
                     {getProviderIcon(model.provider)}
-                    <span>{model.name}</span>
+                    <span className="flex items-center gap-2">
+                      <span>{model.name}</span>
+                      {model.type === "vlm" && (
+                        <Badge className="text-[10px]">Vision</Badge>
+                      )}
+                    </span>
                   </span>
                   <Check
                     className={cn(

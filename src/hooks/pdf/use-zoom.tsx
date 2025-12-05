@@ -17,6 +17,11 @@ export const useZoom = (
   const { mutate: updatePdfMetadata } = useUpdatePdf();
   const debouncedUpdateZoom = useDebounceCallback(updatePdfMetadata, 500);
 
+  // To prevent zooming during inertial scrolling
+  const wheelStateRef = useRef({
+    lastEventTime: 0,
+    startedWithModifier: false,
+  });
   const isPinching = useRef(false);
   const lastUpdateTime = useRef(0);
   const THROTTLE_DELAY = 16; // 60 fps
@@ -69,7 +74,15 @@ export const useZoom = (
     if (!containerRef.current) return;
 
     const handleWheel = (e: WheelEvent) => {
-      if ((!e.ctrlKey && !e.metaKey) || !viewer) return;
+      // To prevent zooming during inertial scrolling
+      const now = Date.now();
+      const timeSinceLast = now - wheelStateRef.current.lastEventTime;
+      if (timeSinceLast > 250) {
+        wheelStateRef.current.startedWithModifier = e.ctrlKey || e.metaKey;
+      }
+      wheelStateRef.current.lastEventTime = now;
+
+      if (!wheelStateRef.current.startedWithModifier || !viewer) return;
       e.preventDefault();
       const origin = [e.clientX, e.clientY];
       const scaleFactor = e.deltaY < 0 ? 1.25 : 1 / 1.25;

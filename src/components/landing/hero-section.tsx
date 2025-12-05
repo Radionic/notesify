@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 
 export function HeroSection() {
   return (
-    <section className="py-16 px-4 max-w-5xl mx-auto">
+    <section className="font-ebg py-16 px-4 max-w-5xl mx-auto">
       <div className="text-center">
-        <h1 className="font-ebg text-4xl md:text-5xl lg:text-6xl">
+        <h1 className="text-4xl md:text-5xl lg:text-6xl">
           Read, Write, and Organize Notes
         </h1>
-        <p className="font-ebg mt-4 text-muted-foreground text-xl sm:text-2xl">
+        <p className="mt-4 text-muted-foreground text-xl sm:text-2xl">
           The AI-powered note-taking workspace
         </p>
 

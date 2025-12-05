@@ -7,8 +7,12 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --font-ebg: EBGaramond;
+}
+
 @font-face {
-  font-family: "ebg";
+  font-family: EBGaramond;
   src: url("/EBGaramond.ttf") format("truetype");
 }
 
@@ -161,9 +165,4 @@ code {
   body {
     @apply bg-background text-foreground;
   }
-}
-
-@font-face {
-  font-family: "EBGaramond";
-  src: url("/EBGaramond.ttf") format("truetype");
 }

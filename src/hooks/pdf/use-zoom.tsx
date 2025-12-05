@@ -23,8 +23,7 @@ export const useZoom = (
     startedWithModifier: false,
   });
   const isPinching = useRef(false);
-  const lastUpdateTime = useRef(0);
-  const THROTTLE_DELAY = 16; // 60 fps
+  const pinchLastScale = useRef(1);
 
   const zoom = ({
     activeTarget,
@@ -37,23 +36,18 @@ export const useZoom = (
     scaleFactor?: number;
     origin?: number[];
   }) => {
-    // Throttled zoom
-    const now = Date.now();
-    if (now - lastUpdateTime.current >= THROTTLE_DELAY) {
-      if (activeTarget) {
-        activeViewer?.updateScale({ steps, scaleFactor, origin });
-        debouncedUpdateZoom({
-          pdfId,
-          zoom: activeViewer?.currentScale || 1,
-        });
-      } else {
-        viewer?.updateScale({ steps, scaleFactor, origin });
-        debouncedUpdateZoom({
-          pdfId,
-          zoom: viewer?.currentScale || 1,
-        });
-      }
-      lastUpdateTime.current = now;
+    if (activeTarget) {
+      activeViewer?.updateScale({ steps, scaleFactor, origin });
+      debouncedUpdateZoom({
+        pdfId,
+        zoom: activeViewer?.currentScale || 1,
+      });
+    } else {
+      viewer?.updateScale({ steps, scaleFactor, origin });
+      debouncedUpdateZoom({
+        pdfId,
+        zoom: viewer?.currentScale || 1,
+      });
     }
   };
 
@@ -111,16 +105,25 @@ export const useZoom = (
 
   useGesture(
     {
-      onPinchStart: () => {
+      onPinchStart: ({ movement: [scale] }) => {
         isPinching.current = true;
+        pinchLastScale.current = scale || 1;
       },
       onPinchEnd: () => {
         isPinching.current = false;
+        pinchLastScale.current = 1;
       },
-      onPinch: ({ movement: [mx, my], origin }) => {
-        if (!viewer || mx === 0 || my === 0) return;
-        // toast.info(`${mx}, ${my}`);
-        zoom({ scaleFactor: mx > 1 ? 1.1 : 1 / 1.1, origin });
+      onPinch: ({ movement: [scale], origin }) => {
+        if (!viewer) return;
+
+        const lastScale = pinchLastScale.current || 1;
+        const scaleFactor = scale && lastScale ? scale / lastScale : 1;
+
+        if (!Number.isFinite(scaleFactor) || scaleFactor <= 0) return;
+        if (Math.abs(scaleFactor - 1) < 0.01) return;
+
+        pinchLastScale.current = scale || 1;
+        zoom({ scaleFactor, origin });
       },
     },
     {

@@ -29,7 +29,9 @@ const ImageContextPreview = ({
         onClick={onPreview}
       />
       <div className="absolute top-1 right-1 flex flex-row gap-1 opacity-50 bg-white/80 rounded p-0.5">
-        <VscGoToFile className="cursor-pointer w-3 h-3" onClick={onJump} />
+        {context.type !== "uploaded-image" && (
+          <VscGoToFile className="cursor-pointer w-3 h-3" onClick={onJump} />
+        )}
         {removable && (
           <CgClose className="cursor-pointer w-3 h-3" onClick={onRemove} />
         )}
@@ -50,7 +52,10 @@ export const ImageContextsPreview = ({
   const { jumpToContext, removeContext } = useChatContext();
   const setActivePreviewContext = useSetAtom(activePreviewContextAtom);
   const validContexts = contexts?.filter(
-    (context) => context.type === "area" || context.type === "page",
+    (context) =>
+      context.type === "area" ||
+      context.type === "page" ||
+      context.type === "uploaded-image",
   );
 
   if (!validContexts || validContexts.length === 0) return null;
@@ -61,7 +66,11 @@ export const ImageContextsPreview = ({
           key={context.id}
           context={context}
           removable={removable}
-          onJump={() => jumpToContext(context)}
+          onJump={() => {
+            if (context.pdfId && context.page) {
+              jumpToContext(context);
+            }
+          }}
           onPreview={() => setActivePreviewContext(context)}
           onRemove={() => removeContext(context.id)}
         />

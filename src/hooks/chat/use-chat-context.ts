@@ -20,6 +20,9 @@ export const useChatContext = () => {
   };
 
   const jumpToContext = (context: Context) => {
+    if (!context.pdfId || !context.page) {
+      return;
+    }
     navigatePdf({
       pdfId: context.pdfId,
       page: context.page,

@@ -13,7 +13,8 @@ export const PreviewImageDialog = () => {
     <Dialog
       open={
         activePreviewContext?.type === "area" ||
-        activePreviewContext?.type === "page"
+        activePreviewContext?.type === "page" ||
+        activePreviewContext?.type === "uploaded-image"
       }
       onOpenChange={() => setActivePreviewContext(undefined)}
     >

@@ -4,11 +4,11 @@ import type { Rect } from "@/lib/types";
 
 export type Context = {
   id: string;
-  type: "text" | "area" | "page" | "viewing-page";
+  type: "text" | "area" | "page" | "viewing-page" | "uploaded-image";
   content?: string;
-  rects: Rect[];
-  page: number;
-  pdfId: string;
+  rects?: Rect[];
+  page?: number;
+  pdfId?: string;
 };
 
 export const activeContextsAtom = atom<Context[]>([]);

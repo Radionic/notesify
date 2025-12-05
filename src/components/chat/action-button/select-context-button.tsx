@@ -43,9 +43,12 @@ export const SelectAreaContextButton = () => {
         label="Select Text"
         description="Add text as context"
         onClick={() => {
-          toast.info("Select text and click 'Ask AI' to add as context", {
-            position: "bottom-right",
-          });
+          toast.info(
+            "Select text in PDF and click 'Ask AI' to add as context",
+            {
+              position: "top-right",
+            },
+          );
         }}
       />
       <ContextRow

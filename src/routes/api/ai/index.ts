@@ -29,19 +29,27 @@ export const messageMetadataSchema = z.object({
     .array(
       z.object({
         id: z.string(),
-        type: z.enum(["text", "area", "page", "viewing-page"]),
+        type: z.enum([
+          "text",
+          "area",
+          "page",
+          "viewing-page",
+          "uploaded-image",
+        ]),
         content: z.string().optional(),
-        rects: z.array(
-          z.object({
-            page: z.number(),
-            top: z.number(),
-            right: z.number(),
-            bottom: z.number(),
-            left: z.number(),
-          }),
-        ),
-        page: z.number(),
-        pdfId: z.string(),
+        rects: z
+          .array(
+            z.object({
+              page: z.number(),
+              top: z.number(),
+              right: z.number(),
+              bottom: z.number(),
+              left: z.number(),
+            }),
+          )
+          .optional(),
+        page: z.number().optional(),
+        pdfId: z.string().optional(),
       }),
     )
     .optional(),

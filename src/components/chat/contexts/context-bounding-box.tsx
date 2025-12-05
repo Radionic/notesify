@@ -6,7 +6,15 @@ import { BoundingRect } from "../../pdf/menu/bounding-rect";
 
 export const ContextBoundingBox = ({ pdfId }: { pdfId: string }) => {
   const [context, setContext] = useAtom(activeBoundingContextAtom);
-  if (!context || context.pdfId !== pdfId) return null;
+  if (
+    !context ||
+    !context.pdfId ||
+    context.pdfId !== pdfId ||
+    !context.rects ||
+    !pdfId
+  ) {
+    return null;
+  }
 
   return (
     <BoundingRect

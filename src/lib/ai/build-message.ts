@@ -21,7 +21,12 @@ const buildTextContent = (content: string, contexts?: Context[]) => {
 const buildImageContent = (contexts?: Context[]) => {
   return (
     contexts
-      ?.filter((c) => c.type === "page" || c.type === "area")
+      ?.filter(
+        (c) =>
+          c.type === "page" ||
+          c.type === "area" ||
+          c.type === "uploaded-image",
+      )
       .map((c) => ({
         type: "image" as const,
         image: c.content || "",

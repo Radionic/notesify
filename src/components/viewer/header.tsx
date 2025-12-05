@@ -47,7 +47,7 @@ export const Header = () => {
       <div className="flex flex-row items-center gap-0.5">
         <Link to="/library">
           <img
-            src="/icon.png"
+            src="/favicon.png"
             alt="Notesify Icon"
             className="w-6 h-6 rounded-sm mx-1"
           />

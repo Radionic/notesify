@@ -21,8 +21,18 @@ export const Route = createRootRoute({
     ],
     links: [
       {
+        rel: "icon",
+        href: "/favicon.png",
+      },
+      {
         rel: "stylesheet",
         href: appCss,
+      },
+    ],
+    scripts: [
+      {
+        src: "https://cloud.umami.is/script.js",
+        "data-website-id": "0434a434-24ff-4b0e-ad6b-2dabf5be145b",
       },
     ],
   }),

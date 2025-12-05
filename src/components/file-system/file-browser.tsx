@@ -1,6 +1,6 @@
-import { useSearch } from "@tanstack/react-router";
-import { FolderPlus, Upload } from "lucide-react";
-import { useState } from "react";
+import { FolderPlus, Search, Upload } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useDebounceValue } from "usehooks-ts";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -11,6 +11,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import type { FileNode } from "@/db/schema";
 import {
   useAddFolder,
@@ -21,19 +26,28 @@ import {
 import { useDownloadPdf, useNavigatePdf } from "@/queries/pdf/use-pdf";
 import { FileBreadcrumb, type PathItem } from "./file-breadcrumb";
 import { FileGrid } from "./file-grid";
-import { FileSearch } from "./file-search";
 import { PdfFileUploader } from "./file-uploader";
 
 export const FileBrowser = ({
   className,
   readOnly,
   onPdfSelected,
+  initialSearch,
+  onSearchChanged,
+  initialFolderId,
+  onFolderIdChanged,
 }: {
   className?: string;
   readOnly?: boolean;
   onPdfSelected?: (pdfId: string) => void;
+  initialSearch?: string;
+  onSearchChanged?: (value: string) => void;
+  initialFolderId?: string | null;
+  onFolderIdChanged?: (folderId: string | null) => void;
 }) => {
   const [path, setPath] = useState<PathItem[]>([{ id: null, name: "Library" }]);
+  const isInitialized = useRef(!initialFolderId);
+
   const [renameDialog, setRenameDialog] = useState<{
     file: FileNode;
     newName: string;
@@ -43,12 +57,28 @@ export const FileBrowser = ({
   );
   const [uploadDialog, setUploadDialog] = useState(false);
 
-  const searchParams = useSearch({ from: "/library/" });
-  const currentFolderId = path[path.length - 1].id;
-  const { data: files = [], isLoading } = useFiles({
+  const [debouncedQuery, setQuery] = useDebounceValue(initialSearch, 500);
+  const currentFolderId = isInitialized.current
+    ? path[path.length - 1].id
+    : (initialFolderId ?? null);
+  const { data, isLoading } = useFiles({
     parentId: currentFolderId,
-    search: searchParams.q,
+    search: debouncedQuery,
+    // Only fetch breadcrumbs on initial page load, not on every navigation
+    includeBreadcrumbs: !isInitialized.current,
   });
+
+  // Initialize path from breadcrumbs when we have an initialFolderId
+  useEffect(() => {
+    if (!isInitialized.current && data?.breadcrumbs) {
+      const newPath: PathItem[] = [{ id: null, name: "Library" }];
+      for (const crumb of data.breadcrumbs) {
+        newPath.push({ id: crumb.id, name: crumb.name });
+      }
+      setPath(newPath);
+      isInitialized.current = true;
+    }
+  }, [data?.breadcrumbs]);
 
   const { mutate: addFolder } = useAddFolder();
   const { mutate: removeFile } = useRemoveFile();
@@ -64,7 +94,9 @@ export const FileBrowser = ({
 
   const handleItemClick = (item: FileNode) => {
     if (item.type === "folder") {
-      setPath([...path, { id: item.id, name: item.name }]);
+      const newPath = [...path, { id: item.id, name: item.name }];
+      setPath(newPath);
+      onFolderIdChanged?.(item.id);
     } else if (item.type === "pdf") {
       navigatePdf({ pdfId: item.id });
       onPdfSelected?.(item.id);
@@ -94,20 +126,48 @@ export const FileBrowser = ({
     setRenameDialog(null);
   };
 
-  const navigateToBreadcrumb = (index: number) => {
-    setPath(path.slice(0, index + 1));
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
+    onSearchChanged?.(value);
+  };
+
+  const handleBreadcrumbNavigate = (index: number) => {
+    const newPath = path.slice(0, index + 1);
+    setPath(newPath);
+    onFolderIdChanged?.(newPath[newPath.length - 1].id);
   };
 
   return (
     <div className={className}>
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <FileBreadcrumb path={path} onNavigate={navigateToBreadcrumb} />
+        {debouncedQuery ? (
+          <h1 className="text-lg font-semibold">
+            Library{" "}
+            <span className="text-muted-foreground font-normal">
+              (Search Results)
+            </span>
+          </h1>
+        ) : (
+          <FileBreadcrumb path={path} onNavigate={handleBreadcrumbNavigate} />
+        )}
 
         <div className="grow" />
 
-        <FileSearch />
+        {/* Search */}
+        <InputGroup className="w-64">
+          <InputGroupInput
+            placeholder="Search..."
+            defaultValue={debouncedQuery}
+            onChange={handleSearchChange}
+          />
+          <InputGroupAddon>
+            <Search className="h-4 w-4" />
+          </InputGroupAddon>
+        </InputGroup>
 
+        {/* Actions */}
         {!readOnly && (
           <div className="flex gap-2">
             <Button
@@ -132,7 +192,7 @@ export const FileBrowser = ({
 
       {/* Grid */}
       <FileGrid
-        files={files}
+        files={data?.files || []}
         isLoading={isLoading}
         readOnly={readOnly}
         onItemClick={handleItemClick}

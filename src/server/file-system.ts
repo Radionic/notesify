@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { and, asc, desc, eq, ilike, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, isNull, sql } from "drizzle-orm";
 import z from "zod";
 import { db } from "@/db";
 import { type FileNode, filesTable } from "@/db/schema";
@@ -27,10 +27,59 @@ export const getFileFn = createServerFn()
     return file ?? null;
   });
 
+export type BreadcrumbItem = {
+  id: string;
+  name: string;
+  parentId: string | null;
+};
+
+async function getFolderBreadcrumbs(
+  folderId: string,
+): Promise<BreadcrumbItem[]> {
+  const cteName = sql`file_path`;
+
+  const baseQuery = db
+    .select({
+      id: filesTable.id,
+      name: filesTable.name,
+      parentId: filesTable.parentId,
+      depth: sql`1`.as("depth"),
+    })
+    .from(filesTable)
+    .where(eq(filesTable.id, folderId));
+
+  const recursiveQuery = db
+    .select({
+      id: filesTable.id,
+      name: filesTable.name,
+      parentId: filesTable.parentId,
+      depth: sql`file_path.depth + 1`.as("depth"),
+    })
+    .from(filesTable)
+    .innerJoin(cteName, eq(filesTable.id, sql`file_path.parent_id`));
+
+  const combinedQuery = baseQuery.unionAll(recursiveQuery);
+
+  const result = await db.execute(sql`
+    WITH RECURSIVE ${cteName} AS (
+      ${combinedQuery}
+    )
+    SELECT * FROM ${cteName}
+    ORDER BY depth DESC
+  `);
+
+  return result.rows.map((row) => ({
+    id: row.id as string,
+    name: row.name as string,
+    parentId: row.parent_id as string | null,
+  }));
+}
+
 const getFilesSchema = z.object({
   parentId: z.string().nullable(),
   search: z.string().optional(),
-  orderBy: z.enum(["asc", "desc"]).optional(),
+  orderBy: z.enum(["asc", "desc"]).optional().default("desc"),
+  includeBreadcrumbs: z.boolean().optional(),
 });
 
 export const getFilesFn = createServerFn()
@@ -41,23 +90,27 @@ export const getFilesFn = createServerFn()
       throw new Error("Unauthorized");
     }
 
-    const { parentId, search, orderBy = "desc" } = data;
-    const files = await db.query.filesTable.findMany({
-      where: and(
-        eq(filesTable.userId, session.user.id),
-        search && search.trim().length > 0
-          ? ilike(filesTable.name, `%${search}%`)
-          : parentId
-            ? eq(filesTable.parentId, parentId)
-            : isNull(filesTable.parentId),
-      ),
-      orderBy: [
-        orderBy === "desc"
-          ? desc(filesTable.updatedAt)
-          : asc(filesTable.updatedAt),
-      ],
-    });
-    return files;
+    const { parentId, search, orderBy, includeBreadcrumbs } = data;
+    const [files, breadcrumbs] = await Promise.all([
+      db.query.filesTable.findMany({
+        where: and(
+          eq(filesTable.userId, session.user.id),
+          search && search.trim().length > 0
+            ? ilike(filesTable.name, `%${search}%`)
+            : parentId
+              ? eq(filesTable.parentId, parentId)
+              : isNull(filesTable.parentId),
+        ),
+        orderBy: [
+          orderBy === "desc"
+            ? desc(filesTable.updatedAt)
+            : asc(filesTable.updatedAt),
+        ],
+      }),
+      includeBreadcrumbs && parentId ? getFolderBreadcrumbs(parentId) : null,
+    ]);
+
+    return { files, breadcrumbs };
   });
 
 const addFolderSchema = z.object({

@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import type { FileNode, Pdf } from "@/db/schema";
 import {
   addFolderFn,
+  type BreadcrumbItem,
   getFileFn,
   getFilesFn,
   removeFileFn,
@@ -53,17 +54,24 @@ export const useFileData = ({
   });
 };
 
+export type FilesResult = {
+  files: FileNode[];
+  breadcrumbs: BreadcrumbItem[] | null;
+};
+
 export const useFiles = ({
   parentId,
   search,
+  includeBreadcrumbs,
 }: {
   parentId: string | null;
   search?: string;
+  includeBreadcrumbs?: boolean;
 }) => {
   const getFiles = useServerFn(getFilesFn);
   return useQuery({
     queryKey: ["files", parentId, search ?? ""],
-    queryFn: () => getFiles({ data: { parentId, search } }),
+    queryFn: () => getFiles({ data: { parentId, search, includeBreadcrumbs } }),
   });
 };
 
@@ -91,9 +99,12 @@ export const useAddPdf = () => {
       return { newFile, newPdf };
     },
     onSuccess: ({ newFile, newPdf }, { pdfData }) => {
-      queryClient.setQueryData<FileNode[]>(
-        ["files", newFile.parentId],
-        (oldData) => (oldData ? [newFile, ...oldData] : [newFile]),
+      queryClient.setQueryData<FilesResult>(
+        ["files", newFile.parentId, ""],
+        (oldData) => ({
+          files: oldData ? [newFile, ...oldData.files] : [newFile],
+          breadcrumbs: oldData?.breadcrumbs ?? null,
+        }),
       );
       queryClient.setQueryData<FileNode>(["file", newFile.id], newFile);
       queryClient.setQueryData<Blob>(["file-data", newPdf.id], pdfData);
@@ -114,9 +125,12 @@ export const useAddFolder = () => {
       parentId: string | null;
     }) => addFolder({ data: { name, parentId } }),
     onSuccess: (newFolder) => {
-      queryClient.setQueryData<FileNode[]>(
-        ["files", newFolder.parentId],
-        (oldData) => (oldData ? [newFolder, ...oldData] : [newFolder]),
+      queryClient.setQueryData<FilesResult>(
+        ["files", newFolder.parentId, ""],
+        (oldData) => ({
+          files: oldData ? [newFolder, ...oldData.files] : [newFolder],
+          breadcrumbs: oldData?.breadcrumbs ?? null,
+        }),
       );
     },
   });
@@ -144,8 +158,15 @@ export const useRemoveFile = () => {
       return { fileId, parentId, type };
     },
     onSuccess: (_, { fileId, parentId, type }) => {
-      queryClient.setQueryData<FileNode[]>(["files", parentId], (oldData) =>
-        oldData?.filter((file) => file.id !== fileId),
+      queryClient.setQueryData<FilesResult>(
+        ["files", parentId, ""],
+        (oldData) =>
+          oldData
+            ? {
+                ...oldData,
+                files: oldData.files.filter((file) => file.id !== fileId),
+              }
+            : undefined,
       );
       queryClient.setQueryData<FileNode>(["file", fileId], undefined);
       if (type === "pdf") {
@@ -178,14 +199,19 @@ export const useRenameFile = () => {
           ? { ...oldData, name: newName, updatedAt: new Date() }
           : undefined,
       );
-      queryClient.setQueryData<FileNode[]>(
-        ["files", parentId],
-        (oldData = []) =>
-          oldData.map((file) =>
-            file.id === id
-              ? { ...file, name: newName, updatedAt: new Date() }
-              : file,
-          ),
+      queryClient.setQueryData<FilesResult>(
+        ["files", parentId, ""],
+        (oldData) =>
+          oldData
+            ? {
+                ...oldData,
+                files: oldData.files.map((file) =>
+                  file.id === id
+                    ? { ...file, name: newName, updatedAt: new Date() }
+                    : file,
+                ),
+              }
+            : undefined,
       );
     },
   });

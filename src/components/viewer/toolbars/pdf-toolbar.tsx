@@ -40,7 +40,7 @@ export const PdfToolbar = ({ pdfId }: { pdfId: string }) => {
       <Dialog open={browserOpen} onOpenChange={setBrowserOpen}>
         <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Select a PDF</DialogTitle>
+            <DialogTitle>Open a PDF</DialogTitle>
           </DialogHeader>
           <FileBrowser readOnly onPdfSelected={() => setBrowserOpen(false)} />
         </DialogContent>

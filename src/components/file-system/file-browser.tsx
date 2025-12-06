@@ -178,7 +178,7 @@ export const FileBrowser = ({
         <div className="grow" />
 
         {/* Search */}
-        <InputGroup className="w-64">
+        <InputGroup className="w-full sm:w-64">
           <InputGroupInput
             placeholder="Search..."
             defaultValue={debouncedQuery}
@@ -191,7 +191,7 @@ export const FileBrowser = ({
 
         {/* Actions */}
         {!readOnly && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 w-full sm:w-auto">
             <Button
               variant="outline"
               size="sm"

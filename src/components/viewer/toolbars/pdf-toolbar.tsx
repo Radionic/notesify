@@ -27,7 +27,7 @@ export const PdfToolbar = ({ pdfId }: { pdfId: string }) => {
   const [browserOpen, setBrowserOpen] = useState(false);
 
   return (
-    <Card className="sticky top-0 h-9 flex flex-row items-center gap-0.5 border-2 border-transparent z-30 rounded-none overflow-y-scroll scrollbar-hide bg-header">
+    <Card className="sticky top-0 h-9 flex flex-row items-center gap-0.5 border-2 border-transparent z-30 rounded-none bg-header scrollbar-hide overflow-x-auto overflow-y-hidden touch-pan-x md:overflow-visible">
       <Button
         variant="ghost"
         onClick={() => setBrowserOpen(true)}

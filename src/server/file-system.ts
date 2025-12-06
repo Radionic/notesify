@@ -178,6 +178,50 @@ export const addFileFn = createServerFn()
     return newFile;
   });
 
+async function getPdfIdsInFolder(
+  userId: string,
+  folderId: string,
+): Promise<string[]> {
+  const cteName = sql`file_tree`;
+
+  const baseQuery = db
+    .select({
+      id: filesTable.id,
+      type: filesTable.type,
+      parentId: filesTable.parentId,
+    })
+    .from(filesTable)
+    .where(and(eq(filesTable.id, folderId), eq(filesTable.userId, userId)));
+
+  const recursiveQuery = db
+    .select({
+      id: filesTable.id,
+      type: filesTable.type,
+      parentId: filesTable.parentId,
+    })
+    .from(filesTable)
+    .innerJoin(
+      cteName,
+      and(
+        eq(filesTable.parentId, sql`file_tree.id`),
+        eq(filesTable.userId, userId),
+      ),
+    );
+
+  const combinedQuery = baseQuery.unionAll(recursiveQuery);
+
+  const result = await db.execute(sql`
+    WITH RECURSIVE ${cteName} AS (
+      ${combinedQuery}
+    )
+    SELECT id, type FROM ${cteName}
+  `);
+
+  return result.rows
+    .filter((row) => row.type === "pdf")
+    .map((row) => row.id as string);
+}
+
 const removeFileSchema = z.object({
   id: z.string(),
 });
@@ -211,7 +255,23 @@ export const removeFileFn = createServerFn()
         ),
     ];
 
-    if (file.type === "pdf") {
+    if (file.type === "folder") {
+      const pdfIds = await getPdfIdsInFolder(session.user.id, data.id);
+      pdfIds.forEach((pdfId) => {
+        operations.push(
+          removeFileFromStorage({
+            type: "pdfs",
+            userId: session.user.id,
+            filename: `${pdfId}.pdf`,
+          }),
+          removeFolderFromStorage({
+            type: "pdf-images",
+            userId: session.user.id,
+            subfolders: [pdfId],
+          }),
+        );
+      });
+    } else if (file.type === "pdf") {
       operations.push(
         removeFileFromStorage({
           type: "pdfs",

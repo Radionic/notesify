@@ -5,11 +5,9 @@ import { db } from "@/db";
 import {
   type FileNode,
   filesTable,
-  type ParsedPDFPage,
   type PDFIndexItem,
   type Pdf,
   pdfIndexingTable,
-  pdfParsingTable,
   pdfsTable,
   type ScrollPosition,
 } from "@/db/schema";
@@ -173,74 +171,4 @@ export const updatePdfFn = createServerFn({ method: "POST" })
       await db.update(pdfsTable).set(updateValues).where(eq(pdfsTable.id, id));
     }
     return updateValues;
-  });
-
-const getParsedPdfSchema = z.object({
-  pdfId: z.string(),
-});
-
-export const getParsedPdfFn = createServerFn()
-  .inputValidator(getParsedPdfSchema)
-  .handler(async ({ data }) => {
-    return await db.query.pdfParsingTable.findMany({
-      where: eq(pdfParsingTable.pdfId, data.pdfId),
-      orderBy: (pdfParsing, { asc }) => [asc(pdfParsing.page)],
-    });
-  });
-
-const addParsedPdfSchema = z.object({
-  parsedPdf: z.array(z.any()),
-});
-
-export const addParsedPdfFn = createServerFn()
-  .inputValidator(addParsedPdfSchema)
-  .handler(async ({ data }) => {
-    await db.insert(pdfParsingTable).values(data.parsedPdf as ParsedPDFPage[]);
-  });
-
-const removeParsedPdfSchema = z.object({
-  pdfId: z.string(),
-});
-
-export const removeParsedPdfFn = createServerFn()
-  .inputValidator(removeParsedPdfSchema)
-  .handler(async ({ data }) => {
-    await db
-      .delete(pdfParsingTable)
-      .where(eq(pdfParsingTable.pdfId, data.pdfId));
-  });
-
-const getIndexedPdfSchema = z.object({
-  pdfId: z.string(),
-});
-
-export const getIndexedPdfFn = createServerFn()
-  .inputValidator(getIndexedPdfSchema)
-  .handler(async ({ data }) => {
-    return await db.query.pdfIndexingTable.findMany({
-      where: eq(pdfIndexingTable.pdfId, data.pdfId),
-      orderBy: (pdfIndexing, { asc }) => [asc(pdfIndexing.startPage)],
-    });
-  });
-
-const addIndexedPdfSchema = z.object({
-  indexedPdf: z.any(),
-});
-
-export const addIndexedPdfFn = createServerFn()
-  .inputValidator(addIndexedPdfSchema)
-  .handler(async ({ data }) => {
-    await db.insert(pdfIndexingTable).values(data.indexedPdf as PDFIndexItem);
-  });
-
-const removeIndexedPdfSchema = z.object({
-  pdfId: z.string(),
-});
-
-export const removeIndexedPdfFn = createServerFn()
-  .inputValidator(removeIndexedPdfSchema)
-  .handler(async ({ data }) => {
-    await db
-      .delete(pdfIndexingTable)
-      .where(eq(pdfIndexingTable.pdfId, data.pdfId));
   });

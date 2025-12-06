@@ -1,5 +1,5 @@
 {
-  "id": "244e52a8-7e67-4608-aafc-617d852757a4",
+  "id": "7a4315cb-975c-46fa-97f9-c01f70984736",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -696,7 +696,7 @@
           "columnsTo": [
             "id"
           ],
-          "onDelete": "no action",
+          "onDelete": "cascade",
           "onUpdate": "no action"
         },
         "files_user_id_user_id_fk": {
@@ -1018,21 +1018,16 @@
           "primaryKey": false,
           "notNull": true
         },
-        "model": {
-          "name": "model",
+        "text": {
+          "name": "text",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "summary": {
-          "name": "summary",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "level": {
-          "name": "level",
-          "type": "text",
+        "type": {
+          "name": "type",
+          "type": "pdf_indexing_type",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
@@ -1054,69 +1049,6 @@
         "pdf_indexing_pdf_id_pdfs_id_fk": {
           "name": "pdf_indexing_pdf_id_pdfs_id_fk",
           "tableFrom": "pdf_indexing",
-          "tableTo": "pdfs",
-          "columnsFrom": [
-            "pdf_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.pdf_parsing": {
-      "name": "pdf_parsing",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "pdf_id": {
-          "name": "pdf_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "model": {
-          "name": "model",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "text": {
-          "name": "text",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "images": {
-          "name": "images",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "page": {
-          "name": "page",
-          "type": "smallint",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {},
-      "foreignKeys": {
-        "pdf_parsing_pdf_id_pdfs_id_fk": {
-          "name": "pdf_parsing_pdf_id_pdfs_id_fk",
-          "tableFrom": "pdf_parsing",
           "tableTo": "pdfs",
           "columnsFrom": [
             "pdf_id"
@@ -1314,6 +1246,15 @@
         "vlm",
         "embedding",
         "ocr"
+      ]
+    },
+    "public.pdf_indexing_type": {
+      "name": "pdf_indexing_type",
+      "schema": "public",
+      "values": [
+        "document",
+        "page",
+        "section"
       ]
     }
   },

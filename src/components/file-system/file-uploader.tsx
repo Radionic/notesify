@@ -5,23 +5,36 @@ import { FileInput, FileUploader } from "@/components/ui/file-uploader";
 import { cn } from "@/lib/utils";
 import { useAddPdf } from "@/queries/file-system/use-file-system";
 import { useConvertPdf, useNavigatePdf } from "@/queries/pdf/use-pdf";
+import { Spinner } from "../ui/spinner";
 
-const FileSvgDraw = ({ thin }: { thin?: boolean }) => {
+const FileSvgDraw = ({
+  thin,
+  uploading,
+}: {
+  thin?: boolean;
+  uploading?: boolean;
+}) => {
   return (
     <div
       className={cn(
         "flex items-center justify-center flex-col border border-dashed border-gray-400 rounded-md",
         thin ? "h-fit w-full py-2 mt-2" : "h-48 w-80",
+        uploading && "opacity-60 pointer-events-none",
       )}
     >
-      {thin ? (
+      {uploading ? (
+        <div className="flex items-center justify-center gap-2">
+          <Spinner />
+          Uploading...
+        </div>
+      ) : thin ? (
         <Plus className="text-gray-500 w-4 h-4" />
       ) : (
         <>
           <div className="flex items-center justify-center space-x-3 mb-2">
-            <BsFiletypeDoc className="text-gray-500 w-8 h-8" />
+            {/* <BsFiletypeDoc className="text-gray-500 w-8 h-8" /> */}
             <BsFiletypePdf className="text-gray-500 w-8 h-8" />
-            <BsFiletypePpt className="text-gray-500 w-8 h-8" />
+            {/* <BsFiletypePpt className="text-gray-500 w-8 h-8" /> */}
           </div>
           <p className="my-1 text-sm text-gray-500 font-semibold">
             Drag and drop a file
@@ -43,8 +56,10 @@ export const PdfFileUploader = ({
   parentId?: string | null;
 }) => {
   const { navigatePdf } = useNavigatePdf();
-  const { mutateAsync: convertToPdf } = useConvertPdf();
-  const { mutateAsync: addPdf } = useAddPdf();
+  const { mutateAsync: convertToPdf, isPending: convertingPdf } =
+    useConvertPdf();
+  const { mutateAsync: addPdf, isPending: addingPdf } = useAddPdf();
+  const isLoading = convertingPdf || addingPdf;
 
   const loadPdfFromBlob = async (
     data: Blob,
@@ -78,12 +93,12 @@ export const PdfFileUploader = ({
     multiple: false,
     accept: {
       "application/pdf": [".pdf"],
-      "application/msword": [".doc"],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        [".docx"],
-      "application/vnd.ms-powerpoint": [".ppt"],
-      "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-        [".pptx"],
+      // "application/msword": [".doc"],
+      // "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+      //   [".docx"],
+      // "application/vnd.ms-powerpoint": [".ppt"],
+      // "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+      //   [".pptx"],
     },
   };
 
@@ -92,6 +107,7 @@ export const PdfFileUploader = ({
       <FileUploader
         value={[]}
         onValueChange={async (files) => {
+          if (isLoading) return;
           const file = files?.[0];
           if (file) {
             const blob = new Blob([file], { type: file.type });
@@ -99,10 +115,9 @@ export const PdfFileUploader = ({
           }
         }}
         dropzoneOptions={dropZoneConfig}
-        className={cn(thin && "w-full")}
       >
         <FileInput>
-          <FileSvgDraw thin={thin} />
+          <FileSvgDraw uploading={isLoading} thin={thin} />
         </FileInput>
       </FileUploader>
     </div>

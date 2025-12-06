@@ -1,5 +1,6 @@
 import { FolderPlus, Search, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { useDebounceValue } from "usehooks-ts";
 import { Button } from "@/components/ui/button";
 import {
@@ -80,15 +81,22 @@ export const FileBrowser = ({
     }
   }, [data?.breadcrumbs]);
 
-  const { mutate: addFolder } = useAddFolder();
-  const { mutate: removeFile } = useRemoveFile();
-  const { mutate: renameFile } = useRenameFile();
-  const { mutate: downloadPdf } = useDownloadPdf();
+  const { mutateAsync: addFolder } = useAddFolder();
+  const { mutateAsync: removeFile } = useRemoveFile();
+  const { mutateAsync: renameFile } = useRenameFile();
+  const { mutateAsync: downloadPdf } = useDownloadPdf();
   const { navigatePdf } = useNavigatePdf();
 
   const handleCreateFolderSubmit = () => {
     if (!folderDialog?.name.trim()) return;
-    addFolder({ name: folderDialog.name.trim(), parentId: currentFolderId });
+    toast.promise(
+      addFolder({ name: folderDialog.name.trim(), parentId: currentFolderId }),
+      {
+        loading: "Creating...",
+        success: "Created folder successfully",
+        error: "Failed to create folder",
+      },
+    );
     setFolderDialog(null);
   };
 
@@ -104,11 +112,18 @@ export const FileBrowser = ({
   };
 
   const handleDelete = (item: FileNode) => {
-    removeFile({
-      fileId: item.id,
-      parentId: currentFolderId,
-      type: item.type,
-    });
+    toast.promise(
+      removeFile({
+        fileId: item.id,
+        parentId: currentFolderId,
+        type: item.type,
+      }),
+      {
+        loading: "Deleting...",
+        success: "Deleted successfully",
+        error: "Failed to delete",
+      },
+    );
   };
 
   const handleDownload = (item: FileNode) => {
@@ -118,11 +133,18 @@ export const FileBrowser = ({
 
   const handleRenameSubmit = () => {
     if (!renameDialog || !renameDialog.newName.trim()) return;
-    renameFile({
-      id: renameDialog.file.id,
-      parentId: currentFolderId,
-      newName: renameDialog.newName.trim(),
-    });
+    toast.promise(
+      renameFile({
+        id: renameDialog.file.id,
+        parentId: currentFolderId,
+        newName: renameDialog.newName.trim(),
+      }),
+      {
+        loading: "Renaming...",
+        success: "Renamed successfully",
+        error: "Failed to rename",
+      },
+    );
     setRenameDialog(null);
   };
 

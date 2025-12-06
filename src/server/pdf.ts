@@ -5,8 +5,8 @@ import { db } from "@/db";
 import {
   type FileNode,
   filesTable,
-  type IndexedPDFPage,
   type ParsedPDFPage,
+  type PDFIndexItem,
   type Pdf,
   pdfIndexingTable,
   pdfParsingTable,
@@ -15,6 +15,7 @@ import {
 } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { generateId } from "@/lib/id";
+import { uploadFilesToStorage } from "@/lib/storage";
 
 const getPdfSchema = z.object({
   id: z.string(),
@@ -45,13 +46,47 @@ export const getPdfFn = createServerFn()
     return pdf ?? null;
   });
 
-const addPdfSchema = z.object({
-  name: z.string(),
-  parentId: z.string().nullable(),
-});
+type AddPdfInput = {
+  name: string;
+  parentId: string | null;
+  texts: string[];
+  images: File[];
+  pdfData: File;
+};
 
-export const addPdfFn = createServerFn()
-  .inputValidator(addPdfSchema)
+export const addPdfFn = createServerFn({ method: "POST" })
+  .inputValidator((formData: FormData): AddPdfInput => {
+    const name = formData.get("name");
+    const parentId = formData.get("parentId");
+    const textEntries = formData.getAll("texts");
+    const imageEntries = formData.getAll("images");
+    const pdfData = formData.get("pdfData");
+
+    if (!(pdfData instanceof File)) {
+      throw new Error("PDF file is required");
+    }
+
+    if (typeof name !== "string" || !name) {
+      throw new Error("Invalid name");
+    }
+
+    if (typeof parentId !== "string" && parentId !== null) {
+      throw new Error("Invalid parentId");
+    }
+
+    const texts: string[] = textEntries.filter(
+      (entry): entry is string => typeof entry === "string",
+    );
+
+    const images: File[] = imageEntries.filter(
+      (entry): entry is File => entry instanceof File,
+    );
+    if (!images.length) {
+      throw new Error("At least one image is required");
+    }
+
+    return { name, parentId, texts, images, pdfData };
+  })
   .handler(async ({ data }) => {
     const session = await getSession();
     if (!session?.user) {
@@ -74,8 +109,41 @@ export const addPdfFn = createServerFn()
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    await db.insert(filesTable).values(newFile);
-    await db.insert(pdfsTable).values(newPdf);
+    const pdfIndexingItems: PDFIndexItem[] = data.texts.map((text, i) => {
+      return {
+        id: generateId(),
+        pdfId: newPdf.id,
+        type: "page" as const,
+        startPage: i,
+        endPage: i,
+        text,
+      };
+    });
+
+    await Promise.all([
+      (async () => {
+        await db.insert(filesTable).values(newFile);
+        await db.insert(pdfsTable).values(newPdf);
+        await db.insert(pdfIndexingTable).values(pdfIndexingItems);
+      })(),
+      uploadFilesToStorage({
+        userId: session.user.id,
+        files: [
+          {
+            type: "pdfs" as const,
+            filename: `${id}.pdf`,
+            file: data.pdfData,
+          },
+          ...data.images.map((file, index) => ({
+            type: "pdf-images" as const,
+            subfolders: [id],
+            filename: `p-${index + 1}.jpg`,
+            file,
+          })),
+        ],
+      }),
+    ]);
+
     return { newPdf, newFile };
   });
 
@@ -91,7 +159,7 @@ const updatePdfSchema = z.object({
   zoom: z.number().optional(),
 });
 
-export const updatePdfFn = createServerFn()
+export const updatePdfFn = createServerFn({ method: "POST" })
   .inputValidator(updatePdfSchema)
   .handler(async ({ data }) => {
     const { id, pageCount, scroll, zoom } = data;
@@ -162,7 +230,7 @@ const addIndexedPdfSchema = z.object({
 export const addIndexedPdfFn = createServerFn()
   .inputValidator(addIndexedPdfSchema)
   .handler(async ({ data }) => {
-    await db.insert(pdfIndexingTable).values(data.indexedPdf as IndexedPDFPage);
+    await db.insert(pdfIndexingTable).values(data.indexedPdf as PDFIndexItem);
   });
 
 const removeIndexedPdfSchema = z.object({

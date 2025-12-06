@@ -1,4 +1,5 @@
-import type { PDFPageProxy } from "pdfjs-dist";
+import type { PDFDocumentProxy, PDFPageProxy } from "pdfjs-dist";
+import { GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 
 export interface PageDimensions {
   width: number;
@@ -48,6 +49,53 @@ export const renderPageToCanvas = async (
     height: viewport.height,
     scale,
   };
+};
+
+GlobalWorkerOptions.workerSrc = new URL(
+  "pdfjs-dist/build/pdf.worker.min.mjs",
+  import.meta.url,
+).toString();
+
+export const extractPdfPageImagesAndTexts = async (
+  pdfData: Blob,
+): Promise<{ texts: string[]; images: File[] }> => {
+  const buffer = await pdfData.arrayBuffer();
+  const loadingTask = getDocument(buffer);
+  const pdfDocument: PDFDocumentProxy = await loadingTask.promise;
+
+  const texts: string[] = [];
+  const images: File[] = [];
+
+  for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber++) {
+    const page = await pdfDocument.getPage(pageNumber);
+
+    const textContent = await page.getTextContent();
+    const pageText = (textContent.items as any[])
+      .map((item) => ("str" in item ? (item as any).str : ""))
+      .join(" ")
+      .trim();
+    texts.push(pageText);
+
+    const canvas = document.createElement("canvas");
+    await renderPageToCanvas(page, canvas, 1, 1.5);
+
+    const blob = await new Promise<Blob>((resolve, reject) => {
+      canvas.toBlob(
+        (b) => {
+          if (!b) {
+            reject(new Error("Failed to create JPEG blob"));
+            return;
+          }
+          resolve(b);
+        },
+        "image/jpeg",
+        0.8,
+      );
+    });
+    images.push(new File([blob], `p-${pageNumber}.jpg`, { type: "image/jpeg" }));
+  }
+
+  return { texts, images };
 };
 
 /**

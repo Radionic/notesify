@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import type { FileNode, Pdf } from "@/db/schema";
+import { extractPdfPageImagesAndTexts } from "@/lib/pdf/canvas";
 import {
   addFolderFn,
   type BreadcrumbItem,
@@ -10,11 +11,7 @@ import {
   renameFileFn,
 } from "@/server/file-system";
 import { addPdfFn } from "@/server/pdf";
-import {
-  getFileUrlFn,
-  removeFileFn as removeStorageFileFn,
-  uploadFileFn,
-} from "@/server/storage";
+import { getFileUrlFn } from "@/server/storage";
 
 export const useFile = ({ id, enabled }: { id: string; enabled?: boolean }) => {
   const getFile = useServerFn(getFileFn);
@@ -78,7 +75,6 @@ export const useFiles = ({
 export const useAddPdf = () => {
   const queryClient = useQueryClient();
   const addPdf = useServerFn(addPdfFn);
-  const uploadFile = useServerFn(uploadFileFn);
 
   return useMutation({
     mutationFn: async ({
@@ -90,12 +86,24 @@ export const useAddPdf = () => {
       pdfData: Blob;
       parentId: string | null;
     }) => {
-      const { newFile, newPdf } = await addPdf({ data: { name, parentId } });
+      // TODO: Extract texts and images in backend instead?
+      // Cloudflare Workers seems not supporting this yet
+      const { texts, images } = await extractPdfPageImagesAndTexts(pdfData);
+
       const formData = new FormData();
-      formData.append("type", "pdfs");
-      formData.append("filename", `${newPdf.id}.pdf`);
-      formData.append("file", pdfData);
-      await uploadFile({ data: formData });
+      formData.append("name", name);
+      formData.append("pdfData", pdfData, name);
+      if (parentId !== null) {
+        formData.append("parentId", parentId);
+      }
+      texts.forEach((text) => {
+        formData.append("texts", text);
+      });
+      images.forEach((image) => {
+        formData.append("images", image);
+      });
+
+      const { newFile, newPdf } = await addPdf({ data: formData });
       return { newFile, newPdf };
     },
     onSuccess: ({ newFile, newPdf }, { pdfData }) => {
@@ -139,23 +147,16 @@ export const useAddFolder = () => {
 export const useRemoveFile = () => {
   const queryClient = useQueryClient();
   const removeFile = useServerFn(removeFileFn);
+
   return useMutation({
     mutationFn: async ({
       fileId,
-      parentId,
-      type,
     }: {
       fileId: string;
       parentId: string | null;
       type: FileNode["type"];
     }) => {
-      if (type === "pdf") {
-        await removeStorageFileFn({
-          data: { type: "pdfs", filename: `${fileId}.pdf` },
-        });
-      }
       await removeFile({ data: { id: fileId } });
-      return { fileId, parentId, type };
     },
     onSuccess: (_, { fileId, parentId, type }) => {
       queryClient.setQueryData<FilesResult>(

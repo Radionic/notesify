@@ -5,6 +5,7 @@ import { db } from "@/db";
 import { type FileNode, filesTable } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { generateId } from "@/lib/id";
+import { removeFileFromStorage, removeFolderFromStorage } from "@/lib/storage";
 
 const getFileSchema = z.object({
   id: z.string(),
@@ -189,11 +190,43 @@ export const removeFileFn = createServerFn()
       throw new Error("Unauthorized");
     }
 
-    await db
-      .delete(filesTable)
-      .where(
-        and(eq(filesTable.id, data.id), eq(filesTable.userId, session.user.id)),
+    const file = await db.query.filesTable.findFirst({
+      where: and(
+        eq(filesTable.id, data.id),
+        eq(filesTable.userId, session.user.id),
+      ),
+    });
+    if (!file) {
+      throw new Error("File not found");
+    }
+
+    const operations: Promise<unknown>[] = [
+      db
+        .delete(filesTable)
+        .where(
+          and(
+            eq(filesTable.id, data.id),
+            eq(filesTable.userId, session.user.id),
+          ),
+        ),
+    ];
+
+    if (file.type === "pdf") {
+      operations.push(
+        removeFileFromStorage({
+          type: "pdfs",
+          userId: session.user.id,
+          filename: `${data.id}.pdf`,
+        }),
+        removeFolderFromStorage({
+          type: "pdf-images",
+          userId: session.user.id,
+          subfolders: [data.id],
+        }),
       );
+    }
+
+    await Promise.all(operations);
   });
 
 const renameFileSchema = z.object({

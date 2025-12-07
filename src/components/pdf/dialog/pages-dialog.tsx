@@ -102,10 +102,7 @@ export const PagesDialog = ({
 
   return (
     <Dialog open={!!pdfId} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="max-w-[80vw] max-h-[80vh] overflow-y-auto"
-        onOpenAutoFocus={(e) => e.preventDefault()}
-      >
+      <DialogContent className="max-w-[80vw] max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Pages</DialogTitle>
         </DialogHeader>

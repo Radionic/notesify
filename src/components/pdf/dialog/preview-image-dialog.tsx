@@ -18,10 +18,7 @@ export const PreviewImageDialog = () => {
       }
       onOpenChange={() => setActivePreviewContext(undefined)}
     >
-      <DialogContent
-        className="max-w-3xl"
-        onOpenAutoFocus={(e) => e.preventDefault()}
-      >
+      <DialogContent className="max-w-3xl">
         {activePreviewContext?.content && (
           <img
             src={activePreviewContext.content}

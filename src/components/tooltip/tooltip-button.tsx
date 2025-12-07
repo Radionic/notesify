@@ -1,5 +1,5 @@
 import { TooltipProvider } from "@radix-ui/react-tooltip";
-import type { ReactNode } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 import { Button, type ButtonProps } from "@/components/ui/button";
 import {
   Tooltip,
@@ -32,7 +32,7 @@ export const TooltipButton = ({
             className={cn(
               "p-2 w-fit h-fit",
               active &&
-                "bg-buttonblue/80 text-blue-500 hover:text-blue-600 hover:bg-buttonblue",
+                "bg-muted/70 border border-border/60 shadow-sm hover:bg-muted",
               className,
             )}
             {...rest}

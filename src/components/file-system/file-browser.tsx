@@ -183,6 +183,7 @@ export const FileBrowser = ({
             placeholder="Search..."
             defaultValue={debouncedQuery}
             onChange={handleSearchChange}
+            autoFocus={false}
           />
           <InputGroupAddon>
             <Search className="h-4 w-4" />

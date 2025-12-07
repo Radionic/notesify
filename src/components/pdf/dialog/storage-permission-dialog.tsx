@@ -21,10 +21,7 @@ export function StoragePermissionDialog({
 }: StoragePermissionDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent
-        className="sm:max-w-[425px]"
-        onOpenAutoFocus={(e) => e.preventDefault()}
-      >
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Persistent Storage</DialogTitle>
           <DialogDescription>

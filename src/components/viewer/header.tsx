@@ -1,42 +1,37 @@
 import { Link } from "@tanstack/react-router";
 import { useAtom, useAtomValue } from "jotai";
-import { AudioLines, FileText, Sparkles } from "lucide-react";
+import { AudioLines, Sparkles } from "lucide-react";
 import { chatsOpenAtom } from "@/atoms/chat/chats";
 import { notesOpenAtom } from "@/atoms/notes/notes";
-import { pdfViewerOpenAtom } from "@/atoms/pdf/pdf-viewer";
 import {
   audioRecorderOpenAtom,
   isRecordingAtom,
 } from "@/atoms/recording/audio-recorder";
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
 import { Card } from "@/components/ui/card";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { UserIcon } from "../auth/user-icon";
 import { ThemeSwitch } from "../theme-switch";
 
 export const Header = () => {
   const [chatsOpen, setChatsOpen] = useAtom(chatsOpenAtom);
-  const [pdfOpen, setPdfOpen] = useAtom(pdfViewerOpenAtom);
   const [notesOpen, setNotesOpen] = useAtom(notesOpenAtom);
   const [audioRecorderOpen, setAudioRecorderOpen] = useAtom(
     audioRecorderOpenAtom,
   );
   const isRecording = useAtomValue(isRecordingAtom);
+  const isMobile = useIsMobile();
 
-  // Toggle a panel while ensuring at least one remains open
   const togglePanel = (
     panel: "notes" | "pdf" | "chats" | "audio-recorder",
     currentlyOpen: boolean,
   ) => {
-    if (currentlyOpen) {
-      const atLeastOneOtherOpen =
-        (panel !== "notes" && notesOpen) ||
-        (panel !== "pdf" && pdfOpen) ||
-        (panel !== "chats" && chatsOpen) ||
-        (panel !== "audio-recorder" && audioRecorderOpen);
-
-      if (!atLeastOneOtherOpen) {
-        return true;
+    if (isMobile && !currentlyOpen) {
+      if (panel === "chats") {
+        setAudioRecorderOpen(false);
+      } else if (panel === "audio-recorder") {
+        setChatsOpen(false);
       }
     }
     return !currentlyOpen;
@@ -54,19 +49,10 @@ export const Header = () => {
         </Link>
 
         <TooltipButton
-          tooltip="Toggle Sources"
-          active={pdfOpen}
-          onClick={() => {
-            setPdfOpen((open) => togglePanel("pdf", open));
-          }}
-        >
-          <FileText />
-        </TooltipButton>
-
-        <TooltipButton
           id="ask-ai-button"
           tooltip="Toggle AI Assistant"
-          active={chatsOpen}
+          size="icon"
+          className={cn(chatsOpen && "bg-secondary")}
           onClick={() => {
             setChatsOpen((open) => togglePanel("chats", open));
           }}
@@ -76,8 +62,9 @@ export const Header = () => {
 
         <TooltipButton
           tooltip="Toggle Audio Recorder"
-          active={audioRecorderOpen}
+          size="icon"
           className={cn(
+            audioRecorderOpen && "bg-secondary",
             isRecording &&
               "bg-red-100 text-red-500 hover:text-red-600 hover:bg-red-100",
           )}

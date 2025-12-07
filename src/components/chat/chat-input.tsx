@@ -1,5 +1,5 @@
 import { useAtom, useAtomValue } from "jotai";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
 import { activeContextsAtom } from "@/atoms/chat/contexts";
 import {
@@ -9,6 +9,7 @@ import {
 } from "@/atoms/pdf/pdf-viewer";
 import { selectedModelAtom } from "@/atoms/setting/providers";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { ensureVisionModel } from "@/lib/ai/ensure-vision-model";
 import { generateId } from "@/lib/id";
 import { ModelSelector } from "../pdf/model-selector";
@@ -29,6 +30,8 @@ export const ChatInput = () => {
   const openedPdfIds = useAtomValue(openedPdfIdsAtom);
   const viewingPage = useAtomValue(currentPageAtomFamily(pdfId));
   const { sendMessage, stop, status, error } = useChatAI({ chatId });
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const isMobile = useIsMobile();
 
   const [input, setInput] = useState<string>("");
   const isLoading = status === "submitted" || status === "streaming";
@@ -102,6 +105,10 @@ export const ChatInput = () => {
     setActiveChatId(chatId);
     setInput("");
     setContexts([]);
+
+    if (isMobile) {
+      textareaRef.current?.blur();
+    }
   };
 
   return (
@@ -110,6 +117,7 @@ export const ChatInput = () => {
       className="flex flex-col p-2 rounded-md border border-input"
     >
       <Textarea
+        ref={textareaRef}
         id="ask-ai-textarea"
         placeholder="Ask AI..."
         className="field-sizing-content border-none shadow-none focus-visible:ring-0 p-2 min-h-0 resize-none"
@@ -123,7 +131,7 @@ export const ChatInput = () => {
           }
         }}
         disabled={!!error}
-        autoFocus
+        autoFocus={!isMobile}
       />
       <div className="flex flex-row justify-between items-center">
         <div className="flex flex-row">

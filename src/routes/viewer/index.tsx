@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/resizable";
 import { Header } from "@/components/viewer/header";
 import { PdfToolbar } from "@/components/viewer/toolbars/pdf-toolbar";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { protectRouteFn } from "@/server/auth";
 
 const viewerSearchSchema = z.object({
@@ -30,10 +31,41 @@ const Viewer = () => {
   const chatsOpen = useAtomValue(chatsOpenAtom);
   const pdfViewerOpen = useAtomValue(pdfViewerOpenAtom);
   const audioRecorderOpen = useAtomValue(audioRecorderOpenAtom);
+  const isMobile = useIsMobile();
 
   if (!pdfId) {
     toast.info("No PDF found");
     return <Navigate to="/library" />;
+  }
+
+  if (isMobile) {
+    return (
+      <div className="flex flex-col h-dvh">
+        <Header />
+        <div className="relative flex-1 overflow-hidden">
+          {pdfViewerOpen && pdfId && (
+            <div className="flex flex-col h-full">
+              <PdfToolbar pdfId={pdfId} />
+              <div className="flex-1 relative">
+                <PdfViewer pdfId={pdfId} page={page} />
+              </div>
+            </div>
+          )}
+
+          {chatsOpen && (
+            <div className="absolute inset-0 z-50 bg-background">
+              <Chat />
+            </div>
+          )}
+
+          {audioRecorderOpen && !chatsOpen && (
+            <div className="absolute inset-0 z-50 bg-background">
+              <AudioRecorder />
+            </div>
+          )}
+        </div>
+      </div>
+    );
   }
 
   return (

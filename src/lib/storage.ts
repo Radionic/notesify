@@ -1,26 +1,38 @@
-import {
-  DeleteObjectCommand,
-  DeleteObjectsCommand,
-  GetObjectCommand,
-  ListObjectsV2Command,
-  PutObjectCommand,
-  S3Client,
-} from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+// @ts-ignore
+import { env } from "cloudflare:workers";
 import sanitizeFilename from "sanitize-filename";
 import z from "zod";
 
 export const storageTypeSchema = z.enum(["pdfs", "recordings", "pdf-images"]);
 export type StorageType = z.infer<typeof storageTypeSchema>;
 
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION || "auto",
-  endpoint: process.env.AWS_ENDPOINT_URL,
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID as string,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY as string,
-  },
-});
+type R2Bucket = {
+  put: (
+    key: string,
+    value: ReadableStream | ArrayBuffer | ArrayBufferView | string | null,
+    options?: {
+      httpMetadata?: Record<string, unknown>;
+    },
+  ) => Promise<unknown>;
+  delete: (key: string) => Promise<unknown>;
+  list: (options: {
+    prefix?: string;
+    cursor?: string;
+    limit?: number;
+  }) => Promise<{
+    objects: { key: string }[];
+    truncated: boolean;
+    cursor?: string;
+  }>;
+  get: (
+    key: string,
+    options?: Record<string, unknown>,
+  ) => Promise<{
+    body: ReadableStream | null;
+  } | null>;
+};
+
+const bucket: R2Bucket = env.BUCKET;
 
 const getObjectKey = ({
   type,
@@ -48,21 +60,7 @@ export const removeFileFromStorage = async ({
   filename: string;
 }) => {
   const key = getObjectKey({ type, userId, filename });
-
-  try {
-    await s3Client.send(
-      new DeleteObjectCommand({
-        Bucket: process.env.AWS_BUCKET,
-        Key: key,
-      }),
-    );
-  } catch (error: unknown) {
-    const err = error as { $metadata?: { httpStatusCode?: number } };
-    if (err?.$metadata?.httpStatusCode === 404) {
-      return;
-    }
-    throw error;
-  }
+  await bucket.delete(key);
 };
 
 export const removeFolderFromStorage = async ({
@@ -74,71 +72,37 @@ export const removeFolderFromStorage = async ({
   userId: string;
   subfolders?: string[];
 }) => {
-  const bucket = process.env.AWS_BUCKET;
-  if (!bucket) {
-    return;
-  }
-
   const parts = [type, userId, ...(subfolders ?? [])];
   const prefix = `${parts.join("/")}/`;
 
-  let continuationToken: string | undefined;
-
+  let cursor: string | undefined;
   do {
-    const res = await s3Client.send(
-      new ListObjectsV2Command({
-        Bucket: bucket,
-        Prefix: prefix,
-        ContinuationToken: continuationToken,
-      }),
-    );
-
-    const contents = res.Contents ?? [];
-    if (!contents.length) {
+    const res = await bucket.list({ prefix, cursor, limit: 1000 });
+    const objects = (res?.objects ?? []) as { key: string }[];
+    if (!objects.length) {
       break;
     }
+    await Promise.all(objects.map((obj) => bucket.delete(obj.key)));
 
-    await s3Client.send(
-      new DeleteObjectsCommand({
-        Bucket: bucket,
-        Delete: {
-          Objects: contents
-            .filter(
-              (obj): obj is { Key: string } => typeof obj.Key === "string",
-            )
-            .map((obj) => ({ Key: obj.Key })),
-          Quiet: true,
-        },
-      }),
-    );
-
-    continuationToken = res.IsTruncated ? res.NextContinuationToken : undefined;
-  } while (continuationToken);
+    cursor = res.truncated ? res.cursor : undefined;
+  } while (cursor);
 };
 
-export const getFileUrlFromStorage = async ({
+export const getFileFromStorage = async ({
   type,
   userId,
   filename,
-  expiresIn,
 }: {
   type: StorageType;
   userId: string;
   filename: string;
-  expiresIn?: number;
 }) => {
   const key = getObjectKey({ type, userId, filename });
-
-  const url = await getSignedUrl(
-    s3Client,
-    new GetObjectCommand({
-      Bucket: process.env.AWS_BUCKET,
-      Key: key,
-    }),
-    { expiresIn: expiresIn ?? 3600 },
-  );
-
-  return url;
+  const object = await bucket.get(key);
+  if (!object || !object.body) {
+    return null;
+  }
+  return object.body;
 };
 
 export type UploadFileItem = {
@@ -160,16 +124,11 @@ export const uploadFilesToStorage = async ({
       const key = getObjectKey({ type, userId, filename, subfolders });
 
       const arrayBuffer = await file.arrayBuffer();
-      const buffer = Buffer.from(arrayBuffer);
-
-      await s3Client.send(
-        new PutObjectCommand({
-          Bucket: process.env.AWS_BUCKET,
-          Key: key,
-          Body: buffer,
-          ContentType: file.type,
-        }),
-      );
+      await bucket.put(key, arrayBuffer, {
+        httpMetadata: {
+          contentType: file.type,
+        },
+      });
     }),
   );
 };

@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import z from "zod";
 import { getSession } from "@/lib/auth";
 import {
-  getFileUrlFromStorage,
+  getFileFromStorage,
   removeFileFromStorage,
   type StorageType,
   storageTypeSchema,
@@ -29,28 +29,42 @@ export const removeFileFn = createServerFn()
     });
   });
 
-const getFileUrlSchema = z.object({
+const getFileDataSchema = z.object({
   type: storageTypeSchema,
   filename: z.string(),
-  expiresIn: z.number().optional(),
 });
 
-export const getFileUrlFn = createServerFn()
-  .inputValidator(getFileUrlSchema)
+export const getFileDataFn = createServerFn()
+  .inputValidator(getFileDataSchema)
   .handler(async ({ data }) => {
     const session = await getSession();
     if (!session?.user) {
       throw new Error("Unauthorized");
     }
 
-    const url = await getFileUrlFromStorage({
+    const body = await getFileFromStorage({
       type: data.type,
       userId: session.user.id,
       filename: data.filename,
-      expiresIn: data.expiresIn,
     });
 
-    return url;
+    if (!body) {
+      return new Response("Not Found", { status: 404 });
+    }
+
+    const contentType =
+      data.type === "pdfs"
+        ? "application/pdf"
+        : data.type === "recordings"
+          ? "audio/webm"
+          : "image/jpeg"; // "pdf-images"
+
+    return new Response(body, {
+      status: 200,
+      headers: {
+        "Content-Type": contentType,
+      },
+    });
   });
 
 type UploadFileInput = {

@@ -1,5 +1,7 @@
 .env*
 *.tsbuildinfo
+.wrangler
+wrangler.jsonc
 
 # Logs
 logs

@@ -11,7 +11,7 @@ import {
   renameFileFn,
 } from "@/server/file-system";
 import { addPdfFn } from "@/server/pdf";
-import { getFileUrlFn } from "@/server/storage";
+import { getFileDataFn } from "@/server/storage";
 
 export const useFile = ({ id, enabled }: { id: string; enabled?: boolean }) => {
   const getFile = useServerFn(getFileFn);
@@ -29,17 +29,15 @@ export const useFileData = ({
   id: string;
   type: "pdfs" | "recordings";
 }) => {
-  const getFileUrl = useServerFn(getFileUrlFn);
+  const getFileData = useServerFn(getFileDataFn);
 
   return useQuery({
     queryKey: ["file-data", id],
     queryFn: async () => {
       const ext = type === "pdfs" ? ".pdf" : ".webm";
-      const url = await getFileUrl({
+      const res = await getFileData({
         data: { type, filename: `${id}${ext}` },
       });
-
-      const res = await fetch(url);
       if (!res.ok) {
         if (res.status === 404) return null;
         throw new Error(`Failed to load data: ${id}`);

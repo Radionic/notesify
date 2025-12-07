@@ -5,7 +5,7 @@ import { useAtom } from "jotai";
 import { notesOpenAtom } from "@/atoms/notes/notes";
 import type { Pdf, ScrollPosition } from "@/db/schema";
 import { getPdfFn, updatePdfFn } from "@/server/pdf";
-import { getFileUrlFn } from "@/server/storage";
+import { getFileDataFn } from "@/server/storage";
 
 export const usePdf = ({ pdfId }: { pdfId: string }) => {
   const getPdf = useServerFn(getPdfFn);
@@ -88,7 +88,7 @@ export const useConvertPdf = () => {
 };
 
 export const useDownloadPdf = () => {
-  const getFileUrl = useServerFn(getFileUrlFn);
+  const getFileData = useServerFn(getFileDataFn);
 
   return useMutation({
     mutationFn: async ({
@@ -100,10 +100,9 @@ export const useDownloadPdf = () => {
     }) => {
       filename = filename.endsWith(".pdf") ? filename : `${filename}.pdf`;
 
-      const url = await getFileUrl({
+      const response = await getFileData({
         data: { type: "pdfs", filename: `${pdfId}.pdf` },
       });
-      const response = await fetch(url);
       if (!response.ok) {
         throw new Error("Failed to download PDF");
       }

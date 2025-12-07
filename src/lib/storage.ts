@@ -92,12 +92,14 @@ export const getFileFromStorage = async ({
   type,
   userId,
   filename,
+  subfolders,
 }: {
   type: StorageType;
   userId: string;
   filename: string;
+  subfolders?: string[];
 }) => {
-  const key = getObjectKey({ type, userId, filename });
+  const key = getObjectKey({ type, userId, filename, subfolders });
   const object = await bucket.get(key);
   if (!object || !object.body) {
     return null;

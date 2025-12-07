@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import type { FileNode, Pdf } from "@/db/schema";
-import { extractPdfPageImagesAndTexts } from "@/lib/pdf/canvas";
+import { extractPdfPageData } from "@/lib/pdf/canvas";
 import {
   addFolderFn,
   type BreadcrumbItem,
@@ -86,11 +86,12 @@ export const useAddPdf = () => {
     }) => {
       // TODO: Extract texts and images in backend instead?
       // Cloudflare Workers seems not supporting this yet
-      const { texts, images } = await extractPdfPageImagesAndTexts(pdfData);
+      const { texts, images, totalPages } = await extractPdfPageData(pdfData);
 
       const formData = new FormData();
       formData.append("name", name);
       formData.append("pdfData", pdfData, name);
+      formData.append("totalPages", totalPages.toString());
       if (parentId !== null) {
         formData.append("parentId", parentId);
       }

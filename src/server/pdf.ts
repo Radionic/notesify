@@ -45,12 +45,19 @@ export const getPdfFn = createServerFn()
     return pdf ?? null;
   });
 
+// Drops all control characters below " " (U+0020), except standard whitespace \n, \r, \t.
+const sanitizePdfText = (text: string): string =>
+  Array.from(text)
+    .filter((ch) => ch >= " " || ch === "\n" || ch === "\r" || ch === "\t")
+    .join("");
+
 type AddPdfInput = {
   name: string;
   parentId: string | null;
   texts: string[];
   images: File[];
   pdfData: File;
+  totalPages: number;
 };
 
 export const addPdfFn = createServerFn({ method: "POST" })
@@ -60,6 +67,7 @@ export const addPdfFn = createServerFn({ method: "POST" })
     const textEntries = formData.getAll("texts");
     const imageEntries = formData.getAll("images");
     const pdfData = formData.get("pdfData");
+    const totalPages = formData.get("totalPages");
 
     if (!(pdfData instanceof File)) {
       throw new Error("PDF file is required");
@@ -73,6 +81,15 @@ export const addPdfFn = createServerFn({ method: "POST" })
       throw new Error("Invalid parentId");
     }
 
+    if (typeof totalPages !== "string") {
+      throw new Error("Invalid totalPages");
+    }
+
+    const parsedTotalPages = Number(totalPages);
+    if (!Number.isFinite(parsedTotalPages) || parsedTotalPages <= 0) {
+      throw new Error("Invalid totalPages");
+    }
+
     const texts: string[] = textEntries.filter(
       (entry): entry is string => typeof entry === "string",
     );
@@ -84,7 +101,14 @@ export const addPdfFn = createServerFn({ method: "POST" })
       throw new Error("At least one image is required");
     }
 
-    return { name, parentId, texts, images, pdfData };
+    return {
+      name,
+      parentId,
+      texts,
+      images,
+      pdfData,
+      totalPages: parsedTotalPages,
+    };
   })
   .handler(async ({ data }) => {
     const session = await getSession();
@@ -95,7 +119,7 @@ export const addPdfFn = createServerFn({ method: "POST" })
     const id = generateId();
     const newPdf: Pdf = {
       id,
-      pageCount: 0,
+      pageCount: data.totalPages,
       scroll: { x: 0, y: 0 },
       zoom: 1,
     };
@@ -108,14 +132,16 @@ export const addPdfFn = createServerFn({ method: "POST" })
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    const pdfIndexingItems: PDFIndexItem[] = data.texts.map((text, i) => {
+    const pdfIndexingItems: PDFIndexItem[] = data.texts.map((rawText, i) => {
+      const text = sanitizePdfText(rawText);
       return {
         id: generateId(),
         pdfId: newPdf.id,
         type: "page" as const,
         startPage: i + 1,
         endPage: i + 1,
-        text,
+        title: null,
+        content: text,
       };
     });
 
@@ -145,12 +171,12 @@ export const addPdfFn = createServerFn({ method: "POST" })
       upsertText(
         pdfIndexingItems.map((item) => ({
           id: item.id,
-          text: item.text,
+          text: item.content,
           metadata: {
             userId: session.user.id,
             pdfId: item.pdfId,
             type: "page" as const,
-            text: item.text,
+            text: item.content,
             startPage: item.startPage,
             endPage: item.endPage,
           },

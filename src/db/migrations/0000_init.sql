@@ -114,7 +114,8 @@ CREATE TABLE "highlights" (
 CREATE TABLE "pdf_indexing" (
 	"id" text PRIMARY KEY NOT NULL,
 	"pdf_id" text NOT NULL,
-	"text" text NOT NULL,
+	"title" text,
+	"content" text NOT NULL,
 	"type" "pdf_indexing_type" NOT NULL,
 	"start_page" smallint,
 	"end_page" smallint

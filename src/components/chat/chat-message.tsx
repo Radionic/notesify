@@ -17,6 +17,7 @@ import {
 import type { MyUIMessage } from "@/routes/api/ai";
 import { CalculateTool } from "./tools/calculate-tool";
 import { GetPageTextTool } from "./tools/get-page-text-tool";
+import { GetTableOfContentsTool } from "./tools/get-table-of-contents-tool";
 import { GetViewingPdfMetadataTool } from "./tools/get-viewing-pdf-metadata-tool";
 import { SearchPagesTool } from "./tools/search-pages-tool";
 
@@ -44,6 +45,7 @@ export const ChatMessage = ({
 
     return match(toolName)
       .with("getPDFPageText", () => <GetPageTextTool tool={tool} />)
+      .with("getTableOfContents", () => <GetTableOfContentsTool tool={tool} />)
       .with("getViewingPdfMetadata", () => (
         <GetViewingPdfMetadataTool tool={tool} />
       ))

@@ -56,9 +56,9 @@ GlobalWorkerOptions.workerSrc = new URL(
   import.meta.url,
 ).toString();
 
-export const extractPdfPageImagesAndTexts = async (
+export const extractPdfPageData = async (
   pdfData: Blob,
-): Promise<{ texts: string[]; images: File[] }> => {
+): Promise<{ texts: string[]; images: File[]; totalPages: number }> => {
   const buffer = await pdfData.arrayBuffer();
   const loadingTask = getDocument(buffer);
   const pdfDocument: PDFDocumentProxy = await loadingTask.promise;
@@ -92,10 +92,12 @@ export const extractPdfPageImagesAndTexts = async (
         0.8,
       );
     });
-    images.push(new File([blob], `p-${pageNumber}.jpg`, { type: "image/jpeg" }));
+    images.push(
+      new File([blob], `p-${pageNumber}.jpg`, { type: "image/jpeg" }),
+    );
   }
 
-  return { texts, images };
+  return { texts, images, totalPages: pdfDocument.numPages };
 };
 
 /**

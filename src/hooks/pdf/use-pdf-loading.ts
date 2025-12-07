@@ -1,4 +1,3 @@
-import { useServerFn } from "@tanstack/react-start";
 import { getDefaultStore } from "jotai";
 import { AnnotationMode, GlobalWorkerOptions, getDocument } from "pdfjs-dist";
 import {
@@ -15,7 +14,6 @@ import {
   viewerAtomFamily,
 } from "@/atoms/pdf/pdf-viewer";
 import type { Pdf } from "@/db/schema";
-import { updatePdfFn } from "@/server/pdf";
 
 GlobalWorkerOptions.workerSrc = new URL(
   "pdfjs-dist/build/pdf.worker.min.mjs",
@@ -23,8 +21,6 @@ GlobalWorkerOptions.workerSrc = new URL(
 ).toString();
 
 export const useLoadPdf = () => {
-  const updatePdf = useServerFn(updatePdfFn);
-
   const loadPdf = async ({
     pdf,
     pdfData,
@@ -93,10 +89,6 @@ export const useLoadPdf = () => {
     // 1. show no pages after opening the PDF
     // 2. show error "offsetParent is not set" when zooming
     console.log("PDF viewer initialized");
-
-    await updatePdf({
-      data: { id: pdf.id, pageCount: pdfDocument.numPages },
-    });
   };
 
   return loadPdf;

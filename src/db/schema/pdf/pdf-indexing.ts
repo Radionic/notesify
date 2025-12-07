@@ -16,7 +16,8 @@ export const pdfIndexingTable = pgTable("pdf_indexing", {
   pdfId: text("pdf_id")
     .notNull()
     .references(() => pdfsTable.id, { onDelete: "cascade" }),
-  text: text("text").notNull(),
+  title: text("title"),
+  content: text("content").notNull(),
   type: typeEnum().notNull(),
   startPage: smallint("start_page"), // null for document level
   endPage: smallint("end_page"), // null for document level

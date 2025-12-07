@@ -1,14 +1,14 @@
 // @ts-ignore
 import { env } from "cloudflare:workers";
 
-type OpenAIEmbeddingResponse = {
+type EmbeddingResponse = {
   data: {
     embedding: number[];
     index: number;
   }[];
 };
 
-export const getEmbeddings = async (texts: string[]): Promise<number[][]> => {
+const getEmbeddings = async (texts: string[]): Promise<number[][]> => {
   if (texts.length === 0) return [];
 
   const apiKey = process.env.OPENAI_API_KEY;
@@ -36,7 +36,7 @@ export const getEmbeddings = async (texts: string[]): Promise<number[][]> => {
     throw new Error(`Failed to get embeddings: ${response.status} ${body}`);
   }
 
-  const json = (await response.json()) as OpenAIEmbeddingResponse;
+  const json = (await response.json()) as EmbeddingResponse;
   return json.data.map((item) => item.embedding);
 };
 
@@ -95,6 +95,58 @@ type QueryTextResult = {
   }[];
 };
 
+type RerankingResponse = {
+  scores: number[];
+};
+
+const rerankMatches = async (
+  query: string,
+  matches: QueryTextResult["matches"],
+) => {
+  if (!matches.length) {
+    return [];
+  }
+
+  const response = await fetch(
+    `${process.env.RERANK_API_BASE_URL}/v1/inference/${process.env.RERANK_MODEL_ID}` as string,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `bearer ${process.env.RERANK_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        queries: [query],
+        documents: matches.map((match) => match.metadata?.text),
+      }),
+    },
+  );
+  if (!response.ok) {
+    return matches.map((match) => ({
+      ...match,
+      queryScore: match.score,
+      rerankScore: null,
+    }));
+  }
+
+  const json = (await response.json()) as RerankingResponse;
+  if (!Array.isArray(json.scores) || json.scores.length !== matches.length) {
+    return matches.map((match) => ({
+      ...match,
+      queryScore: match.score,
+      rerankScore: null,
+    }));
+  }
+
+  return matches
+    .map((match, index) => ({
+      ...match,
+      queryScore: match.score,
+      rerankScore: json.scores[index],
+    }))
+    .sort((a, b) => b.rerankScore - a.rerankScore);
+};
+
 export const queryText = async (
   text: string,
   options?: {
@@ -113,7 +165,8 @@ export const queryText = async (
     truncateVector(embedding),
     options,
   )) as QueryTextResult;
-  return result.matches;
+  const rerankedResult = await rerankMatches(text, result.matches);
+  return rerankedResult;
 };
 
 export const deleteEmbeddingsByIds = async (ids: string[]) => {

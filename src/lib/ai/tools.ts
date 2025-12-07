@@ -68,14 +68,17 @@ export const tools = ({ userId }: { userId: string }) => ({
     }),
     execute: async ({ pdfId, query }) => {
       const result = await queryText(query, {
-        topK: 5,
+        topK: 20,
         filter: { pdfId, userId },
         returnMetadata: "all",
         // https://developers.cloudflare.com/vectorize/best-practices/query-vectors/#control-over-scoring-precision-and-query-accuracy
         returnValues: true,
       });
       return result
-        .filter(({ score }) => score >= 0.5)
+        .filter(
+          ({ queryScore, rerankScore }) => (rerankScore || queryScore) >= 0.3,
+        )
+        .slice(0, 10)
         .map(({ metadata }) => ({
           page: metadata?.startPage,
           text: metadata?.text,

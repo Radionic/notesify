@@ -1,5 +1,8 @@
 import { convertToModelMessages, type ModelMessage, type UIMessage } from "ai";
+import { and, eq, getTableColumns, inArray } from "drizzle-orm";
 import type { Context } from "@/atoms/chat/contexts";
+import { db } from "@/db";
+import { filesTable, pdfsTable } from "@/db/schema";
 import { getTextFromMessage } from "./get-text-from-message";
 
 const buildTextContent = (content: string, contexts?: Context[]) => {
@@ -27,6 +30,42 @@ const buildImageContent = (contexts?: Context[]) => {
         image: c.content || "",
       })) || []
   );
+};
+
+export const buildSystemMessage = async ({
+  userId,
+  openedPdfIds,
+  pdfId,
+  viewingPage,
+}: {
+  userId: string;
+  openedPdfIds: string[];
+  pdfId: string;
+  viewingPage: number;
+}) => {
+  if (openedPdfIds.length === 0) {
+    return "No PDFs opened";
+  }
+
+  const openedPdfs = await db
+    .select({
+      ...getTableColumns(pdfsTable),
+      file: filesTable,
+    })
+    .from(pdfsTable)
+    .innerJoin(filesTable, eq(filesTable.id, pdfsTable.id))
+    .where(
+      and(inArray(pdfsTable.id, openedPdfIds), eq(filesTable.userId, userId)),
+    );
+
+  const openedPdfsContext = openedPdfs
+    .map(
+      (pdf) =>
+        `{ name: "${pdf.file.name}", id: "${pdf.id}", totalPages: ${pdf.pageCount} }`,
+    )
+    .join(", ");
+  const viewingPdfName = openedPdfs.find((pdf) => pdf.id === pdfId)?.file.name;
+  return `You are a helpful PDF assistant. The user is viewing page ${viewingPage} of ${viewingPdfName}. Details: ${openedPdfsContext}. Respond in Markdown format. Avoid reporting internal details to user, such as pdf id and tools.`;
 };
 
 export const buildMessages = (

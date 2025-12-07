@@ -1,3 +1,4 @@
+import type { DynamicToolUIPart } from "ai";
 import { useAtomValue } from "jotai";
 import { Check, CircleAlert } from "lucide-react";
 import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
@@ -13,7 +14,7 @@ export const PageTool = ({
   pages,
   actionText,
 }: {
-  tool: any;
+  tool: DynamicToolUIPart;
   className?: string;
   pages: number[];
   actionText: {
@@ -25,8 +26,8 @@ export const PageTool = ({
   const { navigatePdf } = useNavigatePdf();
   const activePdfId = useAtomValue(activePdfIdAtom);
 
-  const { pdfId } = tool.args || {};
-  const running = tool.state !== "result";
+  const { pdfId } = (tool.input as any) || {};
+  const running = tool.state !== "output-available";
   const { data: pdfFile } = useFile({
     id: pdfId,
     enabled: !!pdfId && !running,
@@ -103,7 +104,7 @@ export const PageTool = ({
   return (
     <div
       className={cn(
-        "flex items-center gap-2 border border-neutral-300 rounded-md px-2 py-1 mt-1",
+        "flex items-center gap-2 border border-neutral-300 rounded-md px-2 py-1 mt-1 w-fit text-xs",
         className,
       )}
     >

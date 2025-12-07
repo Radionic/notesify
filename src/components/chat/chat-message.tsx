@@ -1,6 +1,7 @@
 import type { DynamicToolUIPart } from "ai";
 import { dotPulse, ring2 } from "ldrs";
 import { CopyIcon, RefreshCcwIcon } from "lucide-react";
+import { match } from "ts-pattern";
 import {
   Message,
   MessageAction,
@@ -41,19 +42,14 @@ export const ChatMessage = ({
     const toolName = tool.type.split("-")[1];
     if (!toolName) return null;
 
-    if (toolName === "getPDFPageText") {
-      return <GetPageTextTool tool={tool} />;
-    }
-    if (toolName === "getViewingPdfMetadata") {
-      return <GetViewingPdfMetadataTool tool={tool} />;
-    }
-    if (toolName === "calculate") {
-      return <CalculateTool tool={tool} />;
-    }
-    if (toolName === "searchPages") {
-      return <SearchPagesTool tool={tool} />;
-    }
-    return null;
+    return match(toolName)
+      .with("getPDFPageText", () => <GetPageTextTool tool={tool} />)
+      .with("getViewingPdfMetadata", () => (
+        <GetViewingPdfMetadataTool tool={tool} />
+      ))
+      .with("calculate", () => <CalculateTool tool={tool} />)
+      .with("searchPages", () => <SearchPagesTool tool={tool} />)
+      .otherwise(() => null);
   };
 
   return (

@@ -112,8 +112,8 @@ export const addPdfFn = createServerFn({ method: "POST" })
         id: generateId(),
         pdfId: newPdf.id,
         type: "page" as const,
-        startPage: i,
-        endPage: i,
+        startPage: i + 1,
+        endPage: i + 1,
         text,
       };
     });

@@ -16,7 +16,7 @@ import {
   messagesTable,
   modelsTable,
 } from "@/db/schema";
-import { buildMessages } from "@/lib/ai/build-message";
+import { buildMessages, buildSystemMessage } from "@/lib/ai/build-message";
 import { getTextFromMessage } from "@/lib/ai/get-text-from-message";
 import { aiProvider } from "@/lib/ai/provider";
 import { tools } from "@/lib/ai/tools";
@@ -116,20 +116,21 @@ export const Route = createFileRoute("/api/ai/")({
           metadata: lastMessage.metadata,
         } as Message);
 
+        const systemMessage = await buildSystemMessage({
+          userId: session.user.id,
+          openedPdfIds,
+          pdfId,
+          viewingPage,
+        });
         const messagesWithContext = buildMessages(messages, contexts);
 
         const stream = createUIMessageStream<MyUIMessage>({
           execute: async ({ writer }) => {
             const result = streamText({
               model: aiProvider.chatModel(modelId),
-              system:
-                "You are a helpful assistant. Respond in Markdown format.",
+              system: systemMessage,
               messages: messagesWithContext,
-              tools: tools({
-                openedPdfIds,
-                pdfId,
-                viewingPage,
-              }),
+              tools,
               stopWhen: stepCountIs(10),
             });
 

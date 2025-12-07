@@ -1,4 +1,6 @@
+import type { DynamicToolUIPart } from "ai";
 import { useAtomValue } from "jotai";
+import { useEffect, useState } from "react";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
 import {
   Conversation,
@@ -20,6 +22,51 @@ export const ChatMessageList = () => {
     useChatAI({
       chatId,
     });
+  const [showLoading, setShowLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading || messages?.length === 0) {
+      setShowLoading(false);
+      return;
+    }
+
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage.role !== "assistant") {
+      setShowLoading(false);
+      return;
+    }
+
+    if (lastMessage.parts?.length === 0) {
+      setShowLoading(true);
+      return;
+    }
+
+    const parts = lastMessage.parts ?? [];
+    const lastPart = parts[parts.length - 1] as DynamicToolUIPart | undefined;
+    const isToolPart = lastPart?.type.startsWith("tool-");
+    const toolState = lastPart?.state;
+    const isToolFinished =
+      isToolPart &&
+      (toolState === "output-available" || toolState === "output-error");
+
+    // Only apply the 5-second rule when the last part is a finished tool
+    // and the chat is still loading. For non-tool parts, we only show
+    // loading in the initial "no parts yet" phase.
+    const shouldWaitForFiveSeconds = isToolFinished && isLoading;
+
+    if (!shouldWaitForFiveSeconds) {
+      setShowLoading(false);
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      setShowLoading(true);
+    }, 5000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [messages, isLoading]);
 
   if (messages?.length === 0) {
     if (isLoadingInitMessages) {
@@ -55,7 +102,7 @@ export const ChatMessageList = () => {
               key={message.id}
               message={message}
               showHeader={showHeader}
-              isLoading={isLast && isLoading}
+              isLoading={isLast && showLoading}
               isLast={isLast}
               reload={regenerate}
             />

@@ -13,12 +13,12 @@ import {
 import { addPdfFn } from "@/server/pdf";
 import { getFileDataFn } from "@/server/storage";
 
-export const useFile = ({ id, enabled }: { id: string; enabled?: boolean }) => {
+export const useFile = ({ id }: { id?: string }) => {
   const getFile = useServerFn(getFileFn);
   return useQuery({
     queryKey: ["file", id],
-    queryFn: () => getFile({ data: { id } }),
-    enabled: enabled && !!id,
+    queryFn: () => (id ? getFile({ data: { id } }) : null),
+    enabled: !!id,
   });
 };
 

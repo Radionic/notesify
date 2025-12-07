@@ -8,6 +8,10 @@ import { cn } from "@/lib/utils";
 import { useFile } from "@/queries/file-system/use-file-system";
 import { useNavigatePdf } from "@/queries/pdf/use-pdf";
 
+type PageToolInput = {
+  pdfId?: string;
+};
+
 export const PageTool = ({
   tool,
   className,
@@ -26,12 +30,9 @@ export const PageTool = ({
   const { navigatePdf } = useNavigatePdf();
   const activePdfId = useAtomValue(activePdfIdAtom);
 
-  const { pdfId } = (tool.input as any) || {};
+  const { pdfId } = (tool.input as PageToolInput) || {};
   const running = tool.state !== "output-available";
-  const { data: pdfFile } = useFile({
-    id: pdfId,
-    enabled: !!pdfId && !running,
-  });
+  const { data: pdfFile } = useFile({ id: pdfId });
   const pdfName = pdfFile?.name;
 
   const renderContent = () => {
@@ -78,21 +79,23 @@ export const PageTool = ({
           pages={pages}
           variant="blue"
           className="cursor-pointer truncate"
-          onClick={(startPage) =>
+          onClick={(startPage) => {
+            if (!pdfId) return;
             navigatePdf({
               pdfId,
               page: startPage,
-            })
-          }
+            });
+          }}
         />
         of
         <Badge
           variant="blue"
           className="cursor-pointer"
           onClick={() => {
-            if (pdfId !== activePdfId) {
-              navigatePdf({ pdfId });
+            if (!pdfId || pdfId === activePdfId) {
+              return;
             }
+            navigatePdf({ pdfId });
           }}
         >
           {pdfName}
@@ -102,12 +105,7 @@ export const PageTool = ({
   };
 
   return (
-    <div
-      className={cn(
-        "flex items-center gap-2 border border-neutral-300 rounded-md px-2 py-1 mt-1 w-fit text-xs",
-        className,
-      )}
-    >
+    <div className={cn("flex items-center gap-2 w-fit text-xs", className)}>
       {renderContent()}
     </div>
   );

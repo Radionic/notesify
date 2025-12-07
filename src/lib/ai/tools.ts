@@ -11,8 +11,7 @@ import { upsertText } from "./vectorize";
 
 export const tools = ({ userId }: { userId: string }) => ({
   getTableOfContents: tool({
-    description:
-      "Get the overview (table of contents) of a PDF as logical sections.",
+    description: "Get the overview (table of contents) of a PDF.",
     inputSchema: z.object({
       pdfId: z
         .string()
@@ -160,15 +159,15 @@ export const tools = ({ userId }: { userId: string }) => ({
         .describe(
           "The end page number. Return all pages starting from startPage, if null.",
         ),
-      previewCharsPerPage: z
-        .number()
-        .max(2000)
-        .optional()
-        .describe(
-          "Maximum number of characters to read from each page for preview. Return all characters if undefined.",
-        ),
+      // previewCharsPerPage: z
+      //   .number()
+      //   .max(2000)
+      //   .optional()
+      //   .describe(
+      //     "Maximum number of characters to read from each page for preview. Return all characters if undefined.",
+      //   ),
     }),
-    execute: async ({ pdfId, startPage, endPage, previewCharsPerPage }) => {
+    execute: async ({ pdfId, startPage, endPage }) => {
       const conditions = [
         eq(pdfIndexingTable.pdfId, pdfId),
         eq(pdfIndexingTable.type, "page"),
@@ -188,13 +187,12 @@ export const tools = ({ userId }: { userId: string }) => ({
         return "No text found";
       }
 
-      const text = items
-        .map((item) =>
-          previewCharsPerPage != null
-            ? item.content.slice(0, previewCharsPerPage)
-            : item.content,
-        )
-        .join("\n\n");
+      const text = items.map((item) => item.content).join("\n\n");
+      // .map((item) =>
+      //   previewCharsPerPage != null
+      //     ? item.content.slice(0, previewCharsPerPage)
+      //     : item.content,
+      // )
       return text;
     },
   }),

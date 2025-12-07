@@ -8,7 +8,11 @@ import { PagesDialog } from "../../dialog/pages-dialog";
 export const PageButton = ({ pdfId }: { pdfId: string }) => {
   const [open, setOpen] = useState(false);
   const currentPage = useAtomValue(currentPageAtomFamily(pdfId));
-  const { data: pdf } = usePdf({ pdfId });
+  const { data: pdf, isLoading } = usePdf({ pdfId });
+
+  if (isLoading || !currentPage) {
+    return null;
+  }
 
   return (
     <>

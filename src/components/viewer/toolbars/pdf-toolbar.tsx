@@ -16,11 +16,12 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
 import { useFile } from "@/queries/file-system/use-file-system";
 
 export const PdfToolbar = ({ pdfId }: { pdfId: string }) => {
-  const { data: pdfFile } = useFile({ id: pdfId });
+  const { data: pdfFile, isLoading } = useFile({ id: pdfId });
   const [activeAnnotator, setActiveAnnotator] = useAtom(
     activeAnnotatorAtomFamily(pdfId),
   );
@@ -33,7 +34,13 @@ export const PdfToolbar = ({ pdfId }: { pdfId: string }) => {
         onClick={() => setBrowserOpen(true)}
         className="cursor-pointer px-2"
       >
-        <span className="truncate">{pdfFile?.name || "Unknown PDF"}</span>
+        <span className="truncate">
+          {isLoading ? (
+            <Spinner className="text-muted-foreground" />
+          ) : (
+            pdfFile?.name || "Unknown PDF"
+          )}
+        </span>
         <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
       </Button>
 

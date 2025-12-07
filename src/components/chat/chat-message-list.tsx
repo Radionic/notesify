@@ -13,7 +13,7 @@ import { ChatMessage } from "./chat-message";
 import { ImageContextsPreview } from "./contexts/image-context-preview";
 import { TextContextsPreview } from "./contexts/text-content-preview";
 
-export const ChatMessageList = ({ className }: { className?: string }) => {
+export const ChatMessageList = () => {
   const chatId = useAtomValue(activeChatIdAtom);
 
   const { messages, error, isLoading, isLoadingInitMessages, regenerate } =
@@ -34,8 +34,8 @@ export const ChatMessageList = ({ className }: { className?: string }) => {
   }
 
   return (
-    <Conversation className={className}>
-      <ConversationContent>
+    <Conversation className="grow">
+      <ConversationContent className="gap-2">
         {messages.map((message, i) => {
           const contexts = message.metadata?.contexts;
           const showHeader =

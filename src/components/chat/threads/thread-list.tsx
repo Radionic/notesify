@@ -1,5 +1,6 @@
 import { format, isToday, isYesterday, startOfDay } from "date-fns";
 import { useMemo } from "react";
+import { Spinner } from "@/components/ui/spinner";
 import type { Chat } from "@/db/schema/chat/chats";
 import { ThreadGroup } from "./thread-group";
 
@@ -16,7 +17,13 @@ const formatDateHeader = (dateStr: string): string => {
   return format(date, "MMMM d, yyyy");
 };
 
-export const ThreadList = ({ chatrooms }: { chatrooms?: Chat[] }) => {
+export const ThreadList = ({
+  chatrooms,
+  isLoading,
+}: {
+  chatrooms?: Chat[];
+  isLoading?: boolean;
+}) => {
   // Group chats by date
   const { groupedChats, sortedDates } = useMemo(() => {
     if (!chatrooms) {
@@ -45,8 +52,15 @@ export const ThreadList = ({ chatrooms }: { chatrooms?: Chat[] }) => {
 
   if (!chatrooms || chatrooms.length === 0) {
     return (
-      <div className="text-center text-muted-foreground p-4">
-        No chats found.
+      <div className="flex justify-center text-muted-foreground p-4">
+        {isLoading ? (
+          <div className="flex items-center gap-2">
+            <Spinner />
+            Loading...
+          </div>
+        ) : (
+          "No chats found."
+        )}
       </div>
     );
   }

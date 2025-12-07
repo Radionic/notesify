@@ -27,7 +27,7 @@ export const Chat = () => {
   ) : (
     <div className="flex flex-col justify-between gap-1 h-full w-full bg-panel">
       <ChatHeader />
-      <ChatMessageList className="grow p-2" />
+      <ChatMessageList />
       <div className="space-y-2 flex-none p-2">
         <TextContextsPreview contexts={contexts} removable />
         <ImageContextsPreview contexts={contexts} removable />

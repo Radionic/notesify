@@ -8,13 +8,13 @@ import { ThreadSearch } from "./thread-search";
 
 export const ThreadFinder = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const { data: chatrooms } = useChats({ searchTerm });
+  const { data: chatrooms, isLoading } = useChats({ searchTerm });
 
   return (
     <div className="h-dvh p-2 space-y-2 overflow-y-auto">
       <ThreadHeader />
       <ThreadSearch searchTerm={searchTerm} onSearch={setSearchTerm} />
-      <ThreadList chatrooms={chatrooms} />
+      <ThreadList chatrooms={chatrooms} isLoading={isLoading} />
     </div>
   );
 };

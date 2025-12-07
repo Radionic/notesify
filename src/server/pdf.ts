@@ -11,6 +11,7 @@ import {
   pdfsTable,
   type ScrollPosition,
 } from "@/db/schema";
+import { upsertText } from "@/lib/ai/vectorize";
 import { getSession } from "@/lib/auth";
 import { generateId } from "@/lib/id";
 import { uploadFilesToStorage } from "@/lib/storage";
@@ -140,6 +141,21 @@ export const addPdfFn = createServerFn({ method: "POST" })
           })),
         ],
       }),
+      // TODO: index pdf in background/when needed?
+      upsertText(
+        pdfIndexingItems.map((item) => ({
+          id: item.id,
+          text: item.text,
+          metadata: {
+            userId: session.user.id,
+            pdfId: item.pdfId,
+            type: "page" as const,
+            text: item.text,
+            startPage: item.startPage,
+            endPage: item.endPage,
+          },
+        })),
+      ),
     ]);
 
     return { newPdf, newFile };

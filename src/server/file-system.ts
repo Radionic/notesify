@@ -1,8 +1,9 @@
 import { createServerFn } from "@tanstack/react-start";
-import { and, asc, desc, eq, ilike, isNull, sql } from "drizzle-orm";
+import { and, asc, desc, eq, ilike, inArray, isNull, sql } from "drizzle-orm";
 import z from "zod";
 import { db } from "@/db";
-import { type FileNode, filesTable } from "@/db/schema";
+import { type FileNode, filesTable, pdfIndexingTable } from "@/db/schema";
+import { deleteEmbeddingsByIds } from "@/lib/ai/vectorize";
 import { getSession } from "@/lib/auth";
 import { generateId } from "@/lib/id";
 import { removeFileFromStorage, removeFolderFromStorage } from "@/lib/storage";
@@ -257,6 +258,12 @@ export const removeFileFn = createServerFn()
 
     if (file.type === "folder") {
       const pdfIds = await getPdfIdsInFolder(session.user.id, data.id);
+
+      const indexItems = await db.query.pdfIndexingTable.findMany({
+        where: inArray(pdfIndexingTable.pdfId, pdfIds),
+      });
+      operations.push(deleteEmbeddingsByIds(indexItems.map((item) => item.id)));
+
       pdfIds.forEach((pdfId) => {
         operations.push(
           removeFileFromStorage({
@@ -272,6 +279,11 @@ export const removeFileFn = createServerFn()
         );
       });
     } else if (file.type === "pdf") {
+      const indexItems = await db.query.pdfIndexingTable.findMany({
+        where: eq(pdfIndexingTable.pdfId, data.id),
+      });
+      operations.push(deleteEmbeddingsByIds(indexItems.map((item) => item.id)));
+
       operations.push(
         removeFileFromStorage({
           type: "pdfs",

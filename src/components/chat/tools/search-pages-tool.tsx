@@ -1,10 +1,6 @@
 import type { DynamicToolUIPart } from "ai";
 import { PageTool } from "./page-tool";
 
-type SearchPagesOutput = {
-  pages: number[];
-};
-
 export const SearchPagesTool = ({
   tool,
   className,
@@ -14,7 +10,7 @@ export const SearchPagesTool = ({
 }) => {
   const pages =
     tool.state === "output-available" && tool.output !== null
-      ? (tool.output as SearchPagesOutput)?.pages
+      ? (tool.output as any)?.map((o: any) => o.page)
       : [];
   return (
     <PageTool
@@ -22,7 +18,7 @@ export const SearchPagesTool = ({
       className={className}
       actionText={{
         loading: "Searching pages",
-        completed: "Found",
+        completed: "Searched",
         failed: "No relevant pages found",
       }}
       pages={pages}

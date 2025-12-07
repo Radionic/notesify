@@ -4,8 +4,9 @@ import { evaluate } from "mathjs";
 import { z } from "zod";
 import { db } from "@/db";
 import { pdfIndexingTable } from "@/db/schema";
+import { queryText } from "./vectorize";
 
-export const tools = {
+export const tools = ({ userId }: { userId: string }) => ({
   getPDFPageText: tool({
     description: "Get the text of specified PDF pages.",
     inputSchema: z.object({
@@ -55,6 +56,32 @@ export const tools = {
       return text;
     },
   }),
+  searchPages: tool({
+    description: "Search relevant PDF pages for the given query",
+    inputSchema: z.object({
+      pdfId: z.string().describe("The PDF ID"),
+      query: z
+        .string()
+        .describe(
+          "The query to search for. Must be detailed and specific, and in question format.",
+        ),
+    }),
+    execute: async ({ pdfId, query }) => {
+      const result = await queryText(query, {
+        topK: 5,
+        filter: { pdfId, userId },
+        returnMetadata: "all",
+        // https://developers.cloudflare.com/vectorize/best-practices/query-vectors/#control-over-scoring-precision-and-query-accuracy
+        returnValues: true,
+      });
+      return result
+        .filter(({ score }) => score >= 0.5)
+        .map(({ metadata }) => ({
+          page: metadata?.startPage,
+          text: metadata?.text,
+        }));
+    },
+  }),
   calculate: tool({
     description: "Calculate a Math expression, using evaluate by MathJS.",
     inputSchema: z.object({
@@ -64,18 +91,4 @@ export const tools = {
       return await evaluate(expression);
     },
   }),
-  // searchPages: tool({
-  //   description: "Search relevant PDF pages for the given query",
-  //   inputSchema: z.object({
-  //     pdfId: z.string().describe("The PDF ID"),
-  //     query: z
-  //       .string()
-  //       .describe("The query to search for, in a short sentence"),
-  //   }),
-  //   execute: async ({ pdfId, query }) => {
-  //     const result = await searchPages({ model, pdfId, query });
-  //     console.log("searchPages result", result);
-  //     return result;
-  //   },
-  // }),
-};
+});

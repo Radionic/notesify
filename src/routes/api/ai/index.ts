@@ -130,7 +130,7 @@ export const Route = createFileRoute("/api/ai/")({
               model: aiProvider.chatModel(modelId),
               system: systemMessage,
               messages: messagesWithContext,
-              tools,
+              tools: tools({ userId }),
               stopWhen: stepCountIs(10),
             });
 

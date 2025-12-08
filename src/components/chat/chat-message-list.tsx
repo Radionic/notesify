@@ -1,5 +1,6 @@
 import type { DynamicToolUIPart } from "ai";
 import { useAtomValue } from "jotai";
+import { dotPulse } from "ldrs";
 import { useEffect, useState } from "react";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
 import {
@@ -14,6 +15,8 @@ import { ChatGuide } from "./chat-guide";
 import { ChatMessage } from "./chat-message";
 import { ImageContextsPreview } from "./contexts/image-context-preview";
 import { TextContextsPreview } from "./contexts/text-content-preview";
+
+dotPulse.register();
 
 export const ChatMessageList = () => {
   const chatId = useAtomValue(activeChatIdAtom);
@@ -102,12 +105,14 @@ export const ChatMessageList = () => {
               key={message.id}
               message={message}
               showHeader={showHeader}
-              isLoading={isLast && showLoading}
+              isLoading={isLast && isLoading}
               isLast={isLast}
               reload={regenerate}
             />
           );
         })}
+
+        {showLoading && <l-dot-pulse size="24" speed="1.25" color="#525252" />}
 
         {error && (
           <Badge variant="red" className="w-fit p-2">

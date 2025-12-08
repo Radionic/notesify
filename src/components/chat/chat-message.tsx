@@ -1,5 +1,4 @@
 import type { DynamicToolUIPart } from "ai";
-import { dotPulse, ring2 } from "ldrs";
 import { CopyIcon, RefreshCcwIcon } from "lucide-react";
 import { match } from "ts-pattern";
 import {
@@ -22,8 +21,6 @@ import { GetViewingPdfMetadataTool } from "./tools/get-viewing-pdf-metadata-tool
 import { SearchKeywordsTool } from "./tools/search-keywords-tool";
 import { SearchPagesTool } from "./tools/search-pages-tool";
 
-dotPulse.register();
-ring2.register();
 
 export const ChatMessage = ({
   message,
@@ -91,7 +88,6 @@ export const ChatMessage = ({
           }
           return null;
         })}
-        {isLoading && <l-dot-pulse size="24" speed="1.25" color="#525252" />}
       </MessageContent>
       {message.role === "assistant" &&
         !isLoading &&

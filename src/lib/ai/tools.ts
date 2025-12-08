@@ -87,6 +87,21 @@ export const tools = ({ userId }: { userId: string }) => ({
   //       ),
   //   }),
   //   execute: async ({ pdfId, query }) => {
+  //     // TODO: upsert text if not indexed yet, also wait some time before querying?
+  //     await upsertText(
+  //       pdfIndexingItems.map((item) => ({
+  //         id: item.id,
+  //         text: item.content.slice(0, 8000),
+  //         metadata: {
+  //           userId: session.user.id,
+  //           pdfId: item.pdfId,
+  //           type: "page" as const,
+  //           text: item.content.slice(0, 8000),
+  //           startPage: item.startPage,
+  //           endPage: item.endPage,
+  //         },
+  //       })),
+  //     );
   //     const result = await queryText(query, {
   //       topK: 20,
   //       filter: { pdfId, userId },

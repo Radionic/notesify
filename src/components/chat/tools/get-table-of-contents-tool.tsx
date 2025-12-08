@@ -75,12 +75,12 @@ export const GetTableOfContentsTool = ({
         ) : (
           <Spinner className="h-3 w-3 shrink-0" />
         )}
-        <span>
+        <span className="text-left">
           {triggerLabel}{" "}
           {!isDone &&
             !isErrored &&
             showSlowHint &&
-            "(It may take up to a minute the first time for this PDF.)"}
+            "(It may take up to a few minutes the first time for this PDF)"}
         </span>
       </CollapsibleTrigger>
 

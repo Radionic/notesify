@@ -1,6 +1,6 @@
 import type { DynamicToolUIPart } from "ai";
 import { useAtomValue } from "jotai";
-import { Check, CircleAlert } from "lucide-react";
+import { CircleAlert } from "lucide-react";
 import { activePdfIdAtom } from "@/atoms/pdf/pdf-viewer";
 import { Badge } from "@/components/badge";
 import { PageBadges } from "@/components/chat/tools/page-badges";
@@ -73,11 +73,10 @@ export const PageTool = ({
 
     return (
       <>
-        <Check color="green" className="w-4 h-4" />
         {actionText.completed}
         <PageBadges
           pages={pages}
-          variant="blue"
+          variant="gray"
           className="cursor-pointer truncate"
           onClick={(startPage) => {
             if (!pdfId) return;
@@ -89,7 +88,7 @@ export const PageTool = ({
         />
         of
         <Badge
-          variant="blue"
+          variant="gray"
           className="cursor-pointer"
           onClick={() => {
             if (!pdfId || pdfId === activePdfId) {

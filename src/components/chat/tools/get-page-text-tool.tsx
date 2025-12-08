@@ -11,8 +11,7 @@ import { cn } from "@/lib/utils";
 import { PageTool } from "./page-tool";
 
 type GetPageTextInput = {
-  startPage: number;
-  endPage: number;
+  pages: number[];
 };
 
 export const GetPageTextTool = ({
@@ -29,13 +28,8 @@ export const GetPageTextTool = ({
   const input = tool.input as GetPageTextInput | undefined;
   if (!input) return null;
 
-  const { startPage, endPage } = input;
-  if (startPage == null || endPage == null) return null;
-
-  const pages = Array.from(
-    { length: endPage - startPage + 1 },
-    (_, i) => startPage + i,
-  );
+  const { pages } = input;
+  if (!pages || pages.length === 0) return null;
 
   const hasPages = isDone && pages.length > 0;
   const pageCountLabel =

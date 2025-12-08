@@ -1,5 +1,5 @@
 import { tool } from "ai";
-import { and, asc, eq, gte, lte } from "drizzle-orm";
+import { and, asc, eq, inArray } from "drizzle-orm";
 import { evaluate } from "mathjs";
 import { z } from "zod";
 import { db } from "@/db";
@@ -21,13 +21,10 @@ export const tools = ({ userId }: { userId: string }) => ({
     description: "Get the text of specified PDF pages.",
     inputSchema: z.object({
       pdfId: z.string(),
-      startPage: z.number().describe("The start page number (min: 1)."),
-      endPage: z
-        .number()
-        .nullable()
-        .describe(
-          "The end page number. Return all pages starting from startPage, if null.",
-        ),
+      pages: z
+        .array(z.number())
+        .min(1)
+        .describe("The 1-based page numbers to read."),
       // previewCharsPerPage: z
       //   .number()
       //   .max(2000)
@@ -36,33 +33,32 @@ export const tools = ({ userId }: { userId: string }) => ({
       //     "Maximum number of characters to read from each page for preview. Return all characters if undefined.",
       //   ),
     }),
-    execute: async ({ pdfId, startPage, endPage }) => {
-      const conditions = [
-        eq(pdfIndexingTable.pdfId, pdfId),
-        eq(pdfIndexingTable.type, "page"),
-        gte(pdfIndexingTable.startPage, startPage),
-      ];
-
-      if (endPage !== null) {
-        conditions.push(lte(pdfIndexingTable.endPage, endPage));
-      }
-
+    execute: async ({ pdfId, pages }) => {
       const items = await db.query.pdfIndexingTable.findMany({
-        where: and(...conditions),
+        columns: {
+          content: true,
+          startPage: true,
+        },
+        where: and(
+          eq(pdfIndexingTable.pdfId, pdfId),
+          eq(pdfIndexingTable.type, "page"),
+          inArray(pdfIndexingTable.startPage, pages),
+        ),
         orderBy: [asc(pdfIndexingTable.startPage)],
       });
 
-      if (items.length === 0) {
-        return "No text found";
-      }
-
-      const text = items.map((item) => item.content).join("\n\n");
+      const text = items
+        ?.map(
+          (item) =>
+            `<page_${item.startPage}>\n${item.content}\n</page_${item.startPage}>`,
+        )
+        .join("\n\n");
       // .map((item) =>
       //   previewCharsPerPage != null
       //     ? item.content.slice(0, previewCharsPerPage)
       //     : item.content,
       // )
-      return text;
+      return text || "No text found";
     },
   }),
   searchKeywords: tool({

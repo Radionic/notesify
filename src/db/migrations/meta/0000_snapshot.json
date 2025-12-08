@@ -1,5 +1,5 @@
 {
-  "id": "e138fe44-563d-4aed-8f76-74f9a6c4c93b",
+  "id": "a7b45219-4436-404e-b359-fb779789e072",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -1050,7 +1050,40 @@
           "notNull": false
         }
       },
-      "indexes": {},
+      "indexes": {
+        "pdf_indexing_title_trgm_idx": {
+          "name": "pdf_indexing_title_trgm_idx",
+          "columns": [
+            {
+              "expression": "title",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "gin_trgm_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
+          "with": {}
+        },
+        "pdf_indexing_content_trgm_idx": {
+          "name": "pdf_indexing_content_trgm_idx",
+          "columns": [
+            {
+              "expression": "content",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "gin_trgm_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
+          "with": {}
+        }
+      },
       "foreignKeys": {
         "pdf_indexing_pdf_id_pdfs_id_fk": {
           "name": "pdf_indexing_pdf_id_pdfs_id_fk",

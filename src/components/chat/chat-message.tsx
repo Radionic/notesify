@@ -19,6 +19,7 @@ import { CalculateTool } from "./tools/calculate-tool";
 import { GetPageTextTool } from "./tools/get-page-text-tool";
 import { GetTableOfContentsTool } from "./tools/get-table-of-contents-tool";
 import { GetViewingPdfMetadataTool } from "./tools/get-viewing-pdf-metadata-tool";
+import { SearchKeywordsTool } from "./tools/search-keywords-tool";
 import { SearchPagesTool } from "./tools/search-pages-tool";
 
 dotPulse.register();
@@ -51,6 +52,7 @@ export const ChatMessage = ({
       ))
       .with("calculate", () => <CalculateTool tool={tool} />)
       .with("searchPages", () => <SearchPagesTool tool={tool} />)
+      .with("searchKeywords", () => <SearchKeywordsTool tool={tool} />)
       .otherwise(() => null);
   };
 

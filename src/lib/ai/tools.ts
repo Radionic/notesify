@@ -4,15 +4,14 @@ import { evaluate } from "mathjs";
 import { z } from "zod";
 import { db } from "@/db";
 import { pdfIndexingTable } from "@/db/schema";
+import { searchKeywords } from "./search-keywords";
 import { getOrExtractToC } from "./toc";
 
 export const tools = ({ userId }: { userId: string }) => ({
   getTableOfContents: tool({
     description: "Get the overview (table of contents) of a PDF.",
     inputSchema: z.object({
-      pdfId: z
-        .string()
-        .describe("The PDF ID to generate the table of contents for."),
+      pdfId: z.string(),
     }),
     execute: async ({ pdfId }) => {
       return await getOrExtractToC({ pdfId, userId });
@@ -21,7 +20,7 @@ export const tools = ({ userId }: { userId: string }) => ({
   getPDFPageText: tool({
     description: "Get the text of specified PDF pages.",
     inputSchema: z.object({
-      pdfId: z.string().describe("The PDF ID."),
+      pdfId: z.string(),
       startPage: z.number().describe("The start page number (min: 1)."),
       endPage: z
         .number()
@@ -64,6 +63,21 @@ export const tools = ({ userId }: { userId: string }) => ({
       //     : item.content,
       // )
       return text;
+    },
+  }),
+  searchKeywords: tool({
+    description:
+      "Get the nearby text of the keywords via exact match (case-insensitive).",
+    inputSchema: z.object({
+      pdfId: z.string(),
+      keywords: z
+        .array(z.string())
+        .min(1)
+        .max(5)
+        .describe("1-5 keywords to search for."),
+    }),
+    execute: async ({ pdfId, keywords }) => {
+      return await searchKeywords({ pdfId, keywords });
     },
   }),
   // searchPages: tool({

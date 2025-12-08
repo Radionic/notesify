@@ -165,6 +165,8 @@ CREATE INDEX "files_name_trgm_idx" ON "files" USING gin ("name" gin_trgm_ops);--
 CREATE INDEX "notes_pdf_id_idx" ON "notes" USING btree ("pdf_id");--> statement-breakpoint
 CREATE INDEX "annotations_pdf_id_idx" ON "annotations" USING btree ("pdf_id");--> statement-breakpoint
 CREATE INDEX "highlights_pdf_id_idx" ON "highlights" USING btree ("pdf_id");--> statement-breakpoint
+CREATE INDEX "pdf_indexing_title_trgm_idx" ON "pdf_indexing" USING gin ("title" gin_trgm_ops);--> statement-breakpoint
+CREATE INDEX "pdf_indexing_content_trgm_idx" ON "pdf_indexing" USING gin ("content" gin_trgm_ops);--> statement-breakpoint
 CREATE INDEX "recordings_duration_idx" ON "recordings" USING btree ("duration");--> statement-breakpoint
 CREATE INDEX "recordings_created_at_idx" ON "recordings" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "recordings_user_id_idx" ON "recordings" USING btree ("user_id");

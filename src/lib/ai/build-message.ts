@@ -50,7 +50,7 @@ export const buildSystemMessage = async ({
   const openedPdfs = await db
     .select({
       ...getTableColumns(pdfsTable),
-      file: filesTable,
+      name: filesTable.name,
     })
     .from(pdfsTable)
     .innerJoin(filesTable, eq(filesTable.id, pdfsTable.id))
@@ -58,14 +58,15 @@ export const buildSystemMessage = async ({
       and(inArray(pdfsTable.id, openedPdfIds), eq(filesTable.userId, userId)),
     );
 
-  const openedPdfsContext = openedPdfs
-    .map(
-      (pdf) =>
-        `{ name: "${pdf.file.name}", id: "${pdf.id}", totalPages: ${pdf.pageCount} }`,
-    )
-    .join(", ");
-  const viewingPdfName = openedPdfs.find((pdf) => pdf.id === pdfId)?.file.name;
-  return `You are a helpful PDF assistant. The user is viewing page ${viewingPage} of ${viewingPdfName}. Details: ${openedPdfsContext}. Respond in Markdown format. Avoid reporting internal details to user, such as pdf id and tools.`;
+  // Only 1 opened pdf for now
+  // const openedPdfsContext = openedPdfs
+  //   .map(
+  //     (pdf) =>
+  //       `{ name: "${pdf.name}", id: "${pdf.id}", totalPages: ${pdf.pageCount} }`,
+  //   )
+  //   .join(", ");
+  const viewingPdf = openedPdfs.find((pdf) => pdf.id === pdfId);
+  return `You are a helpful PDF assistant. The user is viewing page ${viewingPage} of ${viewingPdf?.name} (id: {${viewingPdf?.id}}, total pages: ${viewingPdf?.pageCount}). Respond in Markdown format. For mathematical expressions, all MUST be expressed in KaTeX and wrapped by double dollar signs.`;
 };
 
 export const buildMessages = (

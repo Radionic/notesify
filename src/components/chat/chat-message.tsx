@@ -1,5 +1,6 @@
 import type { DynamicToolUIPart } from "ai";
 import { CopyIcon, RefreshCcwIcon } from "lucide-react";
+import remarkMath from "remark-math";
 import { match } from "ts-pattern";
 import {
   Message,
@@ -20,7 +21,6 @@ import { GetTableOfContentsTool } from "./tools/get-table-of-contents-tool";
 import { GetViewingPdfMetadataTool } from "./tools/get-viewing-pdf-metadata-tool";
 import { SearchKeywordsTool } from "./tools/search-keywords-tool";
 import { SearchPagesTool } from "./tools/search-pages-tool";
-
 
 export const ChatMessage = ({
   message,
@@ -62,7 +62,10 @@ export const ChatMessage = ({
         {message.parts?.map((part, index) => {
           if (part.type === "text") {
             return (
-              <MessageResponse key={`${message.id}-${index}`}>
+              <MessageResponse
+                key={`${message.id}-${index}`}
+                remarkPlugins={[[remarkMath, { singleDollarTextMath: true }]]}
+              >
                 {part.text}
               </MessageResponse>
             );

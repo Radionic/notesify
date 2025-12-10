@@ -3,6 +3,7 @@ import { db } from "@/db";
 import { pdfIndexingTable } from "@/db/schema";
 
 const SNIPPET_CHARS = 200;
+const MERGE_DISTANCE = 200; // Merge keywords if they are within this distance
 
 export type SearchKeywordsResultItem = {
   page: number;
@@ -39,33 +40,62 @@ export const searchKeywords = async ({
 
   const results = items
     .map(({ page, content }) => {
-      const lowerContent = content.toLowerCase();
-      const sentences: string[] = [];
+      if (!page) return null;
 
+      const lowerContent = content.toLowerCase();
+
+      // Find all keyword occurrences with their positions
+      const occurrences: { idx: number; length: number }[] = [];
       for (const kw of lowerKeywords) {
         let fromIndex = 0;
-
         while (true) {
           const idx = lowerContent.indexOf(kw, fromIndex);
           if (idx === -1) break;
-
-          const half = Math.max(0, Math.floor((SNIPPET_CHARS - kw.length) / 2));
-          let start = Math.max(0, idx - half);
-          let end = Math.min(content.length, idx + kw.length + half);
-
-          if (end - start > SNIPPET_CHARS) {
-            end = start + SNIPPET_CHARS;
-          }
-          if (end === content.length && end - start < SNIPPET_CHARS) {
-            start = Math.max(0, end - SNIPPET_CHARS);
-          }
-
-          const snippet = content.slice(start, end).trim();
-          if (snippet && !sentences.includes(snippet)) {
-            sentences.push(snippet);
-          }
-
+          occurrences.push({ idx, length: kw.length });
           fromIndex = idx + kw.length;
+        }
+      }
+
+      if (occurrences.length === 0) return null;
+
+      // Sort by position
+      occurrences.sort((a, b) => a.idx - b.idx);
+
+      // Group nearby occurrences
+      const groups: { idx: number; length: number }[][] = [];
+      let currentGroup: { idx: number; length: number }[] = [occurrences[0]];
+
+      for (let i = 1; i < occurrences.length; i++) {
+        const prev = currentGroup[currentGroup.length - 1];
+        const curr = occurrences[i];
+        const distance = curr.idx - (prev.idx + prev.length);
+
+        if (distance <= MERGE_DISTANCE) {
+          currentGroup.push(curr);
+        } else {
+          groups.push(currentGroup);
+          currentGroup = [curr];
+        }
+      }
+      groups.push(currentGroup);
+
+      // Create snippets from groups
+      const half = SNIPPET_CHARS / 2;
+      const sentences: string[] = [];
+
+      for (const group of groups) {
+        const firstOcc = group[0];
+        const lastOcc = group[group.length - 1];
+
+        const start = Math.max(0, firstOcc.idx - half);
+        const end = Math.min(
+          content.length,
+          lastOcc.idx + lastOcc.length + half,
+        );
+
+        const snippet = content.slice(start, end).trim();
+        if (snippet && !sentences.includes(snippet)) {
+          sentences.push(snippet);
         }
       }
 
@@ -73,14 +103,7 @@ export const searchKeywords = async ({
 
       return { page, sentences };
     })
-    .filter(
-      (
-        item,
-      ): item is {
-        page: number;
-        sentences: string[];
-      } => item !== null,
-    );
+    .filter((item) => item !== null);
 
   return results;
 };

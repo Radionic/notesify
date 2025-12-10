@@ -18,13 +18,13 @@ export const tools = ({ userId }: { userId: string }) => ({
     },
   }),
   getPDFPageText: tool({
-    description: "Get the text of specified PDF pages.",
+    description: "Get full text of specified PDF pages.",
     inputSchema: z.object({
       pdfId: z.string(),
       pages: z
         .array(z.number())
         .min(1)
-        .describe("The 1-based page numbers to read."),
+        .describe("List of page numbers to read."),
       // previewCharsPerPage: z
       //   .number()
       //   .max(2000)
@@ -63,7 +63,7 @@ export const tools = ({ userId }: { userId: string }) => ({
   }),
   searchKeywords: tool({
     description:
-      "Get the nearby text of the keywords via exact match (case-insensitive).",
+      "Search keywords in PDF via exact match (case-insensitive). Return snippets of nearby text of the keywords.",
     inputSchema: z.object({
       pdfId: z.string(),
       keywords: z

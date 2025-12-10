@@ -16,6 +16,7 @@ import {
 } from "@/components/ai-elements/reasoning";
 import type { MyUIMessage } from "@/routes/api/ai";
 import { CalculateTool } from "./tools/calculate-tool";
+import { ExtractVisualInfoTool } from "./tools/extract-visual-info-tool";
 import { GetPageTextTool } from "./tools/get-page-text-tool";
 import { GetTableOfContentsTool } from "./tools/get-table-of-contents-tool";
 import { GetViewingPdfMetadataTool } from "./tools/get-viewing-pdf-metadata-tool";
@@ -50,6 +51,9 @@ export const ChatMessage = ({
       .with("calculate", () => <CalculateTool tool={tool} />)
       .with("searchPages", () => <SearchPagesTool tool={tool} />)
       .with("searchKeywords", () => <SearchKeywordsTool tool={tool} />)
+      .with("extractVisualInfoFromPDFPage", () => (
+        <ExtractVisualInfoTool tool={tool} />
+      ))
       .otherwise(() => null);
   };
 

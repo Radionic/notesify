@@ -4,6 +4,7 @@ import { evaluate } from "mathjs";
 import { z } from "zod";
 import { db } from "@/db";
 import { pdfIndexingTable } from "@/db/schema";
+import { extractVisualInfo } from "./ocr";
 import { searchKeywords } from "./search-keywords";
 import { getOrExtractToC } from "./toc";
 
@@ -59,6 +60,19 @@ export const tools = ({ userId }: { userId: string }) => ({
       //     : item.content,
       // )
       return text || "No text found";
+    },
+  }),
+  extractVisualInfoFromPDFPage: tool({
+    description:
+      "Extract visual info from a PDF page based on an instruction. Use this for extracting tables in Markdown, equations in KaTeX, describing/explaining images/figures/charts, or any visual content analysis.",
+    inputSchema: z.object({
+      pdfId: z.string(),
+      page: z.number().describe("The 1-based page number to analyze."),
+      instruction: z.string().describe("The instruction prompt for extraction"),
+    }),
+    execute: async ({ pdfId, page, instruction }) => {
+      const result = await extractVisualInfo(pdfId, userId, page, instruction);
+      return result || "No information extracted";
     },
   }),
   searchKeywords: tool({

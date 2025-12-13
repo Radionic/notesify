@@ -42,19 +42,24 @@ export const ChatMessage = ({
     const toolName = tool.type.split("-")[1];
     if (!toolName) return null;
 
-    return match(toolName)
-      .with("getPDFPageText", () => <GetPageTextTool tool={tool} />)
-      .with("getTableOfContents", () => <GetTableOfContentsTool tool={tool} />)
-      .with("getViewingPdfMetadata", () => (
-        <GetViewingPdfMetadataTool tool={tool} />
-      ))
-      .with("calculate", () => <CalculateTool tool={tool} />)
-      .with("searchPages", () => <SearchPagesTool tool={tool} />)
-      .with("searchKeywords", () => <SearchKeywordsTool tool={tool} />)
-      .with("extractVisualInfoFromPDFPage", () => (
-        <ExtractVisualInfoTool tool={tool} />
-      ))
-      .otherwise(() => null);
+    return (
+      match(toolName)
+        .with("getPDFPageText", () => <GetPageTextTool tool={tool} />)
+        .with("getTableOfContents", () => (
+          <GetTableOfContentsTool tool={tool} />
+        ))
+        .with("getViewingPdfMetadata", () => (
+          <GetViewingPdfMetadataTool tool={tool} />
+        ))
+        .with("calculate", () => <CalculateTool tool={tool} />)
+        .with("searchPages", () => <SearchPagesTool tool={tool} />)
+        .with("searchKeywords", () => <SearchKeywordsTool tool={tool} />)
+        .with("extractVisualInfoFromPDFPage", () => (
+          <ExtractVisualInfoTool tool={tool} />
+        ))
+        // .with("highlightTextInPDF", () => <HighlightTextTool tool={tool} />)
+        .otherwise(() => null)
+    );
   };
 
   return (

@@ -68,6 +68,7 @@
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.7",
     "embla-carousel-react": "^8.6.0",
+    "fastest-levenshtein": "^1.0.16",
     "input-otp": "^1.4.2",
     "jotai": "^2.16.0",
     "katex": "^0.16.27",

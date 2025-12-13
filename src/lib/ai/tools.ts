@@ -6,6 +6,7 @@ import { db } from "@/db";
 import { pdfIndexingTable, pdfsTable } from "@/db/schema";
 import { extractVisualInfo } from "./ocr";
 import { searchKeywords } from "./search-keywords";
+import { highlightTextinPdf } from "./text-searching";
 import { getOrExtractToC } from "./toc";
 
 export const tools = ({ userId }: { userId: string }) => ({
@@ -100,6 +101,24 @@ export const tools = ({ userId }: { userId: string }) => ({
       return await searchKeywords({ pdfId, keywords });
     },
   }),
+  // Temporarily disabled until this feature is stable
+  // highlightTextInPDF: tool({
+  //   description:
+  //     "Highlight text in a PDF page for user's reference. DO NOT explicitly ask user to provide pdfId, pdfPage, and originalPdfText, you should conclude them yourself by conversation context or other tools. This will return bounding boxes when the text is found.",
+  //   inputSchema: z.object({
+  //     pdfId: z.string(),
+  //     pdfPage: z.number(),
+  //     originalPdfText: z
+  //       .string()
+  //       .describe(
+  //         "The complete sentence or paragraph to highlight in the page. No need to break by new lines or spaces.",
+  //       ),
+  //   }),
+
+  //   execute: async ({ pdfId, pdfPage, originalPdfText }) => {
+  //     return await highlightTextinPdf({ pdfId, pdfPage, originalPdfText });
+  //   },
+  // }),
   // searchPages: tool({
   //   description: "Search relevant PDF pages for the given query",
   //   inputSchema: z.object({

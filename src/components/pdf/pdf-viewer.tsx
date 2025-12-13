@@ -99,7 +99,7 @@ export const PdfViewer = ({
       )}
       ref={containerRef}
       key={pdfId}
-      onClick={() => setActivePdfId(pdfId)}
+      onPointerDownCapture={() => setActivePdfId(pdfId)}
     >
       <div className="pdfViewer" />
       <div
@@ -131,6 +131,7 @@ export const PdfViewer = ({
         )}
       </Layers>
 
+      {/* <TextSearchHighlightTool pdfId={pdfId} /> */}
       <ContextBoundingBox pdfId={pdfId} />
 
       <PreviewImageDialog />

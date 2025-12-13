@@ -16,6 +16,7 @@ import { useLoadPdf, useUnloadPdf } from "@/hooks/pdf/use-pdf-loading";
 import { useFileData } from "@/queries/file-system/use-file-system";
 import { useZoom } from "../../hooks/pdf/use-zoom";
 import { ContextBoundingBox } from "../chat/contexts/context-bounding-box";
+import { Spinner } from "../ui/spinner";
 import { PreviewImageDialog } from "./dialog/preview-image-dialog";
 import { AnnotatorLayer } from "./layer/annotator-layer";
 import { HighlightLayer } from "./layer/highlight-layer";
@@ -41,7 +42,7 @@ export const PdfViewer = ({
   const loadedPdfIdRef = useRef<string | null>(null);
 
   const { data: pdf } = usePdf({ pdfId });
-  const { data: pdfData } = useFileData({
+  const { data: pdfData, isLoading: isLoadingPdfData } = useFileData({
     id: pdfId,
     type: "pdfs",
   });
@@ -103,11 +104,13 @@ export const PdfViewer = ({
       <div className="pdfViewer" />
       <div
         className={
-          inited
+          inited && !isLoadingPdfData
             ? "pointer-events-none hidden"
-            : "absolute top-0 left-0 h-full w-full bg-neutral-100 dark:bg-panel overflow-hidden"
+            : "absolute top-0 left-0 h-full w-full flex items-center justify-center text-muted-foreground bg-neutral-100 dark:bg-panel overflow-hidden"
         }
-      />
+      >
+        <Spinner className="size-6" />
+      </div>
       <TextMenu pdfId={pdfId} container={containerRef.current} />
       <HighlightMenu pdfId={pdfId} />
       <Layers pdfId={pdfId}>

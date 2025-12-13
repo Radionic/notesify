@@ -7,12 +7,14 @@ import {
   filesTable,
   type PDFIndexItem,
   type Pdf,
+  pdfBboxesTable,
   pdfIndexingTable,
   pdfsTable,
   type ScrollPosition,
 } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import { generateId } from "@/lib/id";
+import { sanitizePdfText } from "@/lib/pdf/sanitize-text";
 import { uploadFilesToStorage } from "@/lib/storage";
 
 const getPdfSchema = z.object({
@@ -44,16 +46,27 @@ export const getPdfFn = createServerFn()
     return pdf ?? null;
   });
 
-// Drops all control characters below " " (U+0020), except standard whitespace \n, \r, \t.
-const sanitizePdfText = (text: string): string =>
-  Array.from(text)
-    .filter((ch) => ch >= " " || ch === "\n" || ch === "\r" || ch === "\t")
-    .join("");
+const pdfTextBboxSchema = z.object({
+  top: z.number(),
+  left: z.number(),
+  right: z.number(),
+  bottom: z.number(),
+  start: z.number().int().nonnegative(),
+  end: z.number().int().nonnegative(),
+});
+
+const pdfPageBboxesSchema = z.array(
+  z.object({
+    page: z.number().int().positive(),
+    bboxes: z.array(pdfTextBboxSchema),
+  }),
+);
 
 type AddPdfInput = {
   name: string;
   parentId: string | null;
   texts: string[];
+  bboxes: z.infer<typeof pdfPageBboxesSchema>;
   images: File[];
   pdfData: File;
   totalPages: number;
@@ -67,6 +80,7 @@ export const addPdfFn = createServerFn({ method: "POST" })
     const imageEntries = formData.getAll("images");
     const pdfData = formData.get("pdfData");
     const totalPages = formData.get("totalPages");
+    const bboxesRaw = formData.get("bboxes");
 
     if (!(pdfData instanceof File)) {
       throw new Error("PDF file is required");
@@ -93,6 +107,17 @@ export const addPdfFn = createServerFn({ method: "POST" })
       (entry): entry is string => typeof entry === "string",
     );
 
+    if (typeof bboxesRaw !== "string") {
+      throw new Error("Invalid bboxes");
+    }
+    let parsedBboxes: unknown;
+    try {
+      parsedBboxes = JSON.parse(bboxesRaw);
+    } catch {
+      throw new Error("Invalid bboxes");
+    }
+    const bboxes = pdfPageBboxesSchema.parse(parsedBboxes);
+
     const images: File[] = imageEntries.filter(
       (entry): entry is File => entry instanceof File,
     );
@@ -104,6 +129,7 @@ export const addPdfFn = createServerFn({ method: "POST" })
       name,
       parentId,
       texts,
+      bboxes,
       images,
       pdfData,
       totalPages: parsedTotalPages,
@@ -131,24 +157,45 @@ export const addPdfFn = createServerFn({ method: "POST" })
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    const pdfIndexingItems: PDFIndexItem[] = data.texts.map((rawText, i) => {
+    const bboxesByPage = new Map<number, z.infer<typeof pdfTextBboxSchema>[]>(
+      data.bboxes.map((page) => [page.page, page.bboxes]),
+    );
+    const pdfIndexingItems: PDFIndexItem[] = [];
+    const pdfBboxesItems: {
+      id: string;
+      pdfIndexingId: string;
+      pageNumber: number;
+      bboxes: z.infer<typeof pdfTextBboxSchema>[];
+    }[] = [];
+
+    for (const [i, rawText] of data.texts.entries()) {
+      const pageNumber = i + 1;
       const text = sanitizePdfText(rawText);
-      return {
+      const indexItem: PDFIndexItem = {
         id: generateId(),
         pdfId: newPdf.id,
         type: "page" as const,
-        startPage: i + 1,
-        endPage: i + 1,
+        startPage: pageNumber,
+        endPage: pageNumber,
         title: null,
         content: text,
       };
-    });
+
+      pdfIndexingItems.push(indexItem);
+      pdfBboxesItems.push({
+        id: generateId(),
+        pdfIndexingId: indexItem.id,
+        pageNumber,
+        bboxes: bboxesByPage.get(pageNumber) ?? [],
+      });
+    }
 
     await Promise.all([
       (async () => {
         await db.insert(filesTable).values(newFile);
         await db.insert(pdfsTable).values(newPdf);
         await db.insert(pdfIndexingTable).values(pdfIndexingItems);
+        await db.insert(pdfBboxesTable).values(pdfBboxesItems);
       })(),
       uploadFilesToStorage({
         userId: session.user.id,

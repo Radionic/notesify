@@ -2,7 +2,7 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE TYPE "public"."model_provider" AS ENUM('Alibaba', 'Anthropic', 'DeepSeek', 'Google', 'Moonshot', 'OpenAI', 'xAI');--> statement-breakpoint
 CREATE TYPE "public"."model_type" AS ENUM('llm', 'vlm', 'embedding', 'ocr');--> statement-breakpoint
-CREATE TYPE "public"."pdf_indexing_type" AS ENUM('document', 'page', 'section');--> statement-breakpoint
+CREATE TYPE "public"."pdf_indexing_type" AS ENUM('document', 'page', 'ocr_page', 'section');--> statement-breakpoint
 CREATE TABLE "account" (
 	"id" text PRIMARY KEY NOT NULL,
 	"account_id" text NOT NULL,
@@ -111,6 +111,13 @@ CREATE TABLE "highlights" (
 	"pdf_id" text NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "pdf_bboxes" (
+	"id" text PRIMARY KEY NOT NULL,
+	"pdf_indexing_id" text NOT NULL,
+	"page_number" smallint NOT NULL,
+	"bboxes" jsonb NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "pdf_indexing" (
 	"id" text PRIMARY KEY NOT NULL,
 	"pdf_id" text NOT NULL,
@@ -146,6 +153,7 @@ ALTER TABLE "notes" ADD CONSTRAINT "notes_id_files_id_fk" FOREIGN KEY ("id") REF
 ALTER TABLE "notes" ADD CONSTRAINT "notes_pdf_id_pdfs_id_fk" FOREIGN KEY ("pdf_id") REFERENCES "public"."pdfs"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "annotations" ADD CONSTRAINT "annotations_pdf_id_pdfs_id_fk" FOREIGN KEY ("pdf_id") REFERENCES "public"."pdfs"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "highlights" ADD CONSTRAINT "highlights_pdf_id_pdfs_id_fk" FOREIGN KEY ("pdf_id") REFERENCES "public"."pdfs"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "pdf_bboxes" ADD CONSTRAINT "pdf_bboxes_pdf_indexing_id_pdf_indexing_id_fk" FOREIGN KEY ("pdf_indexing_id") REFERENCES "public"."pdf_indexing"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "pdf_indexing" ADD CONSTRAINT "pdf_indexing_pdf_id_pdfs_id_fk" FOREIGN KEY ("pdf_id") REFERENCES "public"."pdfs"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "pdfs" ADD CONSTRAINT "pdfs_id_files_id_fk" FOREIGN KEY ("id") REFERENCES "public"."files"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "recordings" ADD CONSTRAINT "recordings_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -155,6 +163,7 @@ CREATE INDEX "verification_identifier_idx" ON "verification" USING btree ("ident
 CREATE INDEX "chats_updated_at_idx" ON "chats" USING btree ("updated_at");--> statement-breakpoint
 CREATE INDEX "chats_created_at_idx" ON "chats" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "chats_user_id_idx" ON "chats" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "chats_title_trgm_idx" ON "chats" USING gin ("title" gin_trgm_ops);--> statement-breakpoint
 CREATE INDEX "messages_created_at_idx" ON "messages" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "files_parent_id_idx" ON "files" USING btree ("parent_id");--> statement-breakpoint
 CREATE INDEX "files_user_id_idx" ON "files" USING btree ("user_id");--> statement-breakpoint
@@ -165,6 +174,7 @@ CREATE INDEX "files_name_trgm_idx" ON "files" USING gin ("name" gin_trgm_ops);--
 CREATE INDEX "notes_pdf_id_idx" ON "notes" USING btree ("pdf_id");--> statement-breakpoint
 CREATE INDEX "annotations_pdf_id_idx" ON "annotations" USING btree ("pdf_id");--> statement-breakpoint
 CREATE INDEX "highlights_pdf_id_idx" ON "highlights" USING btree ("pdf_id");--> statement-breakpoint
+CREATE INDEX "pdf_bboxes_pdf_indexing_id_idx" ON "pdf_bboxes" USING btree ("pdf_indexing_id");--> statement-breakpoint
 CREATE INDEX "pdf_indexing_title_trgm_idx" ON "pdf_indexing" USING gin ("title" gin_trgm_ops);--> statement-breakpoint
 CREATE INDEX "pdf_indexing_content_trgm_idx" ON "pdf_indexing" USING gin ("content" gin_trgm_ops);--> statement-breakpoint
 CREATE INDEX "recordings_duration_idx" ON "recordings" USING btree ("duration");--> statement-breakpoint

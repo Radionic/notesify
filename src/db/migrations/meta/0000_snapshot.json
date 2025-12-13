@@ -1,5 +1,5 @@
 {
-  "id": "a7b45219-4436-404e-b359-fb779789e072",
+  "id": "62a9965e-1849-4b7e-8e6a-b1e6d4ad1b4f",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -440,6 +440,22 @@
           "isUnique": false,
           "concurrently": false,
           "method": "btree",
+          "with": {}
+        },
+        "chats_title_trgm_idx": {
+          "name": "chats_title_trgm_idx",
+          "columns": [
+            {
+              "expression": "title",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "gin_trgm_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "gin",
           "with": {}
         }
       },
@@ -1002,6 +1018,73 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
+    "public.pdf_bboxes": {
+      "name": "pdf_bboxes",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "pdf_indexing_id": {
+          "name": "pdf_indexing_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "page_number": {
+          "name": "page_number",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bboxes": {
+          "name": "bboxes",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "pdf_bboxes_pdf_indexing_id_idx": {
+          "name": "pdf_bboxes_pdf_indexing_id_idx",
+          "columns": [
+            {
+              "expression": "pdf_indexing_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "pdf_bboxes_pdf_indexing_id_pdf_indexing_id_fk": {
+          "name": "pdf_bboxes_pdf_indexing_id_pdf_indexing_id_fk",
+          "tableFrom": "pdf_bboxes",
+          "tableTo": "pdf_indexing",
+          "columnsFrom": [
+            "pdf_indexing_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
     "public.pdf_indexing": {
       "name": "pdf_indexing",
       "schema": "",
@@ -1293,6 +1376,7 @@
       "values": [
         "document",
         "page",
+        "ocr_page",
         "section"
       ]
     }

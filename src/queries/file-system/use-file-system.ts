@@ -86,7 +86,8 @@ export const useAddPdf = () => {
     }) => {
       // TODO: Extract texts and images in backend instead?
       // Cloudflare Workers seems not supporting this yet
-      const { texts, images, totalPages } = await extractPdfPageData(pdfData);
+      const { texts, images, totalPages, bboxes } =
+        await extractPdfPageData(pdfData);
 
       const formData = new FormData();
       formData.append("name", name);
@@ -95,6 +96,7 @@ export const useAddPdf = () => {
       if (parentId !== null) {
         formData.append("parentId", parentId);
       }
+      formData.append("bboxes", JSON.stringify(bboxes));
       texts.forEach((text) => {
         formData.append("texts", text);
       });

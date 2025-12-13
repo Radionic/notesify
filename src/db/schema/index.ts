@@ -6,6 +6,7 @@ export * from "./model";
 export * from "./notes/notes";
 export * from "./pdf/annotations";
 export * from "./pdf/highlights";
+export * from "./pdf/pdf-bboxes";
 export * from "./pdf/pdf-indexing";
 export * from "./pdf/pdfs";
 export * from "./recording/recordings";

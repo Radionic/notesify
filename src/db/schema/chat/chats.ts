@@ -16,6 +16,7 @@ export const chatsTable = pgTable(
     index("chats_updated_at_idx").on(table.updatedAt),
     index("chats_created_at_idx").on(table.createdAt),
     index("chats_user_id_idx").on(table.userId),
+    index("chats_title_trgm_idx").using("gin", table.title.op("gin_trgm_ops")),
   ],
 );
 

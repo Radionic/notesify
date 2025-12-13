@@ -1,5 +1,5 @@
 {
-  "id": "62a9965e-1849-4b7e-8e6a-b1e6d4ad1b4f",
+  "id": "08b3a49f-0c65-434b-8b32-cf187861e90a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -523,6 +523,21 @@
         }
       },
       "indexes": {
+        "messages_chat_id_idx": {
+          "name": "messages_chat_id_idx",
+          "columns": [
+            {
+              "expression": "chat_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
         "messages_created_at_idx": {
           "name": "messages_created_at_idx",
           "columns": [

@@ -18,7 +18,7 @@ export const ThreadSearch = ({ searchTerm, onSearch }: ThreadSearchProps) => {
         value={searchTerm}
         onChange={(e) => onSearch(e.target.value)}
         className="peer pe-9 ps-9"
-        placeholder="Search..."
+        placeholder="Search by chat title..."
       />
     </div>
   );

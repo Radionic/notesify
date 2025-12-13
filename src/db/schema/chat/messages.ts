@@ -1,6 +1,6 @@
-import type { UIMessage } from "ai";
 import { index, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 import { chatsTable } from "@/db/schema/chat/chats";
+import type { MyUIMessage } from "@/routes/api/ai";
 
 export const messagesTable = pgTable(
   "messages",
@@ -12,11 +12,14 @@ export const messagesTable = pgTable(
     role: text("role", {
       enum: ["system", "user", "assistant", "tool", "data"],
     }).notNull(),
-    parts: jsonb("parts").$type<UIMessage["parts"]>(),
-    metadata: jsonb("metadata").$type<UIMessage["metadata"]>(),
+    parts: jsonb("parts").$type<MyUIMessage["parts"]>(),
+    metadata: jsonb("metadata").$type<MyUIMessage["metadata"]>(),
     createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
   },
-  (table) => [index("messages_created_at_idx").on(table.createdAt)],
+  (table) => [
+    index("messages_chat_id_idx").on(table.chatId),
+    index("messages_created_at_idx").on(table.createdAt),
+  ],
 );
 
 export type Message = typeof messagesTable.$inferSelect;

@@ -1,4 +1,7 @@
 import { generateText } from "ai";
+import { eq } from "drizzle-orm";
+import { db } from "@/db";
+import { pdfsTable } from "@/db/schema";
 import { aiProvider } from "@/lib/ai/provider";
 import { getFileFromStorage } from "@/lib/storage";
 
@@ -13,7 +16,16 @@ const loadPageImage = async (
     filename: `p-${page}.jpg`,
     subfolders: [pdfId],
   });
-  if (!body) throw Error(`Page image not found: ${page}`);
+  if (!body) {
+    const pdf = await db.query.pdfsTable.findFirst({
+      columns: { id: true },
+      where: eq(pdfsTable.id, pdfId),
+    });
+    if (!pdf) {
+      throw Error(`PDF not found: ${pdfId}, check if pdf id is correct`);
+    }
+    throw Error(`Page not found: ${page} of ${pdfId}`);
+  }
 
   const arrayBuffer = await new Response(body).arrayBuffer();
   return Buffer.from(arrayBuffer).toString("base64");

@@ -3,7 +3,7 @@ import { and, asc, eq, inArray } from "drizzle-orm";
 import { evaluate } from "mathjs";
 import { z } from "zod";
 import { db } from "@/db";
-import { pdfIndexingTable } from "@/db/schema";
+import { pdfIndexingTable, pdfsTable } from "@/db/schema";
 import { extractVisualInfo } from "./ocr";
 import { searchKeywords } from "./search-keywords";
 import { getOrExtractToC } from "./toc";
@@ -47,9 +47,19 @@ export const tools = ({ userId }: { userId: string }) => ({
         ),
         orderBy: [asc(pdfIndexingTable.startPage)],
       });
+      if (items.length === 0) {
+        const pdf = await db.query.pdfsTable.findFirst({
+          columns: { id: true },
+          where: eq(pdfsTable.id, pdfId),
+        });
+        if (!pdf) {
+          throw Error(`PDF not found: ${pdfId}, check if pdf id is correct`);
+        }
+        return "No text found";
+      }
 
       const text = items
-        ?.map(
+        .map(
           (item) =>
             `<page_${item.startPage}>\n${item.content}\n</page_${item.startPage}>`,
         )
@@ -59,7 +69,7 @@ export const tools = ({ userId }: { userId: string }) => ({
       //     ? item.content.slice(0, previewCharsPerPage)
       //     : item.content,
       // )
-      return text || "No text found";
+      return text;
     },
   }),
   extractVisualInfoFromPDFPage: tool({

@@ -66,7 +66,7 @@ export const buildSystemMessage = async ({
   //   )
   //   .join(", ");
   const viewingPdf = openedPdfs.find((pdf) => pdf.id === pdfId);
-  return `You are a helpful PDF assistant. The user is viewing page ${viewingPage} of ${viewingPdf?.name} (id: {${viewingPdf?.id}}, total pages: ${viewingPdf?.pageCount}). Respond in Markdown format. For mathematical expressions, all MUST be expressed in KaTeX and wrapped by double dollar signs.`;
+  return `You are a helpful PDF assistant. The user is viewing page ${viewingPage} of ${viewingPdf?.name} (id: ${viewingPdf?.id}, total pages: ${viewingPdf?.pageCount}). Respond in Markdown format. For mathematical expressions, all MUST be expressed in KaTeX and wrapped by double dollar signs.`;
 };
 
 export const buildMessages = (

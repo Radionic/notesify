@@ -1,6 +1,6 @@
 import { and, asc, eq, ilike, or } from "drizzle-orm";
 import { db } from "@/db";
-import { pdfIndexingTable } from "@/db/schema";
+import { pdfIndexingTable, pdfsTable } from "@/db/schema";
 
 const SNIPPET_CHARS = 200;
 const MERGE_DISTANCE = 200; // Merge keywords if they are within this distance
@@ -16,7 +16,7 @@ export const searchKeywords = async ({
 }: {
   pdfId: string;
   keywords: string[];
-}): Promise<SearchKeywordsResultItem[]> => {
+}): Promise<SearchKeywordsResultItem[] | string> => {
   const items = await db
     .select({
       content: pdfIndexingTable.content,
@@ -35,6 +35,17 @@ export const searchKeywords = async ({
       ),
     )
     .orderBy(asc(pdfIndexingTable.startPage));
+
+  if (items.length === 0) {
+    const pdf = await db.query.pdfsTable.findFirst({
+      columns: { id: true },
+      where: eq(pdfsTable.id, pdfId),
+    });
+    if (!pdf) {
+      throw Error("pdf not found, check if pdf id is correct");
+    }
+    return "No results found";
+  }
 
   const lowerKeywords = keywords.map((k) => k.toLowerCase());
 

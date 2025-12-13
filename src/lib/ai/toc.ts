@@ -29,7 +29,11 @@ export const extractToC = async ({
     where: eq(pdfsTable.id, pdfId),
   });
 
-  const totalPages = pdf?.pageCount;
+  if (!pdf) {
+    throw Error("pdf not found, check if pdf id is correct");
+  }
+
+  const totalPages = pdf.pageCount;
   if (!totalPages || totalPages <= 0) {
     throw Error("totalPages not found");
   }

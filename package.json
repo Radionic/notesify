@@ -17,7 +17,9 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@ai-sdk/google": "^2.0.46",
     "@ai-sdk/react": "^2.0.109",
+    "@ai-sdk/xai": "^2.0.40",
     "@dnd-kit/core": "^6.3.1",
     "@hookform/resolvers": "^5.2.2",
     "@lobehub/icons": "^2.45.0",
@@ -70,6 +72,7 @@
     "fastest-levenshtein": "^1.0.16",
     "input-otp": "^1.4.2",
     "jotai": "^2.16.0",
+    "jsonrepair": "^3.13.1",
     "katex": "^0.16.27",
     "ldrs": "^1.1.9",
     "lucide-react": "^0.559.0",

@@ -39,7 +39,7 @@ export const GetTableOfContentsTool = ({
 
     const timeoutId = setTimeout(() => {
       setShowSlowHint(true);
-    }, 20000);
+    }, 30000);
 
     return () => {
       clearTimeout(timeoutId);
@@ -56,7 +56,7 @@ export const GetTableOfContentsTool = ({
     <Collapsible
       open={isErrored ? false : open}
       onOpenChange={isErrored ? undefined : setOpen}
-      className={cn("not-prose my-2 w-full max-w-md", className)}
+      className={cn("not-prose my-2 w-full", className)}
     >
       <CollapsibleTrigger
         className={cn(
@@ -80,7 +80,7 @@ export const GetTableOfContentsTool = ({
           {!isDone &&
             !isErrored &&
             showSlowHint &&
-            "(It may take up to a few minutes the first time for this PDF)"}
+            "(It may take up to a minute the first time for this PDF)"}
         </span>
       </CollapsibleTrigger>
 

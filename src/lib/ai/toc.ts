@@ -1,27 +1,22 @@
 import { NoObjectGeneratedError } from "ai";
 import { and, asc, eq } from "drizzle-orm";
+import { jsonrepair } from "jsonrepair";
 import { z } from "zod";
 import { db } from "@/db";
 import { pdfIndexingTable, pdfsTable } from "@/db/schema";
 import { generateId } from "@/lib/id";
-import { getFileFromStorage } from "@/lib/storage";
+import { getFileFromStorage } from "../storage";
 import { trackedGenerateObject } from "./tracked-generation";
 import { upsertText } from "./vectorize";
 
 export const extractToC = async ({
   pdfId,
   userId,
-  pagesPerBatch = 25,
 }: {
   pdfId: string;
   userId: string;
-  pagesPerBatch?: number;
 }) => {
   // Generate table of contents
-  if (!process.env.PDF_TOC_MODEL_ID) {
-    throw Error("PDF_TOC_MODEL_ID not set");
-  }
-
   const pdf = await db.query.pdfsTable.findFirst({
     columns: {
       pageCount: true,
@@ -33,14 +28,154 @@ export const extractToC = async ({
     throw Error("pdf not found, check if pdf id is correct");
   }
 
-  const totalPages = pdf.pageCount;
-  if (!totalPages || totalPages <= 0) {
-    throw Error("totalPages not found");
+  // return await extractToCByImages({
+  //   pdfId,
+  //   userId,
+  //   pageCount: pdf.pageCount,
+  // });
+
+  return await extractToCByTexts({
+    pdfId,
+    userId,
+    pageCount: pdf.pageCount,
+    maxTotalChars: 128000,
+  });
+};
+
+export const extractToCByTexts = async ({
+  pdfId,
+  userId,
+  pageCount,
+  maxTotalChars,
+  minCharsPerPage = 100,
+}: {
+  pdfId: string;
+  userId: string;
+  pageCount: number;
+  maxTotalChars?: number;
+  minCharsPerPage?: number;
+}) => {
+  if (!process.env.PDF_TOC_MODEL_ID) {
+    throw Error("PDF_TOC_MODEL_ID not set");
+  }
+
+  const items = await db.query.pdfIndexingTable.findMany({
+    columns: {
+      content: true,
+      startPage: true,
+    },
+    where: and(
+      eq(pdfIndexingTable.pdfId, pdfId),
+      eq(pdfIndexingTable.type, "page"),
+    ),
+    orderBy: [asc(pdfIndexingTable.startPage)],
+  });
+  const pages = items.filter((item) => item.startPage != null);
+  const totalChars = pages.reduce((sum, item) => sum + item.content.length, 0);
+  if (pages.length === 0 || totalChars === 0) {
+    return [];
+  }
+
+  const allocatedCharsPerPage =
+    maxTotalChars == null || totalChars <= maxTotalChars
+      ? null
+      : pages.map((page) => {
+          const len = page.content.length;
+          const proportion = len / totalChars;
+          const alloc = Math.round(maxTotalChars * proportion);
+          return Math.min(len, Math.max(minCharsPerPage, alloc));
+        });
+
+  console.log({
+    allocated: allocatedCharsPerPage
+      ? allocatedCharsPerPage.map((c, i) => c / pages[i].content.length)
+      : null,
+    totalChars,
+  });
+
+  const text = pages
+    .map((item, index) => {
+      const alloc = allocatedCharsPerPage?.[index];
+      const trimmed =
+        alloc == null ? item.content : item.content.slice(0, alloc);
+      return `<page_${item.startPage}>\n${trimmed}\n</page_${item.startPage}>`;
+    })
+    .join("\n\n");
+
+  try {
+    const schema = z.array(
+      z.object({
+        startPage: z.number().int().min(1),
+        endPage: z.number().int().max(pageCount),
+        title: z.string(),
+        summary: z
+          .string()
+          .describe("Detailed section summary in 1 paragraph."),
+      }),
+    );
+
+    const instruction =
+      `You are given the page texts of a PDF (${pageCount} pages total) in reading order. ` +
+      `Each page is wrapped in <page_N>\n...\n</page_N>. ` +
+      "Your task is to extract the main sections and generate a table of contents with section summaries. " +
+      "Make sure every page is covered. " +
+      "Return in this JSON format: [{ startPage: number, endPage: number, title: string, summary: string }, ...]." +
+      "DO NOT explain anything, ONLY return the JSON.";
+
+    const { object } = await trackedGenerateObject({
+      model: process.env.PDF_TOC_MODEL_ID,
+      userId,
+      pdfId,
+      usageType: "pdf_toc",
+      schema,
+      messages: [
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `${instruction}\n\n${text}`,
+            },
+          ],
+        },
+      ],
+      experimental_repairText: async ({ text }) => {
+        return jsonrepair(text);
+      },
+    });
+
+    return object.map(({ summary, ...rest }) => ({
+      ...rest,
+      content: summary,
+    }));
+  } catch (error) {
+    if (NoObjectGeneratedError.isInstance(error)) {
+      console.log("NoObjectGeneratedError");
+      console.log("Cause:", error.cause);
+      console.log("Text:", error.text);
+    }
+    throw error;
+  }
+};
+
+export const extractToCByImages = async ({
+  pdfId,
+  userId,
+  pageCount,
+  pagesPerBatch = 25,
+}: {
+  pdfId: string;
+  userId: string;
+  pageCount: number;
+  pagesPerBatch?: number;
+}) => {
+  if (!process.env.PDF_TOC_MODEL_ID) {
+    throw Error("PDF_TOC_MODEL_ID not set");
   }
 
   const imageContents = (
     await Promise.all(
-      Array.from({ length: totalPages }, async (_, index) => {
+      Array.from({ length: pageCount }, async (_, index) => {
         const pageNumber = index + 1;
         const filename = `p-${pageNumber}.jpg`;
 
@@ -70,7 +205,7 @@ export const extractToC = async ({
       endPage: z
         .number()
         .int()
-        .max(totalPages)
+        .max(pageCount)
         .describe(
           "The end page must be less than or equal to the total number of pages.",
         ),
@@ -89,10 +224,10 @@ export const extractToC = async ({
 
     for (
       let startPage = 1;
-      startPage <= totalPages;
+      startPage <= pageCount;
       startPage += pagesPerBatch
     ) {
-      const endPage = Math.min(startPage + pagesPerBatch - 1, totalPages);
+      const endPage = Math.min(startPage + pagesPerBatch - 1, pageCount);
       const batchImages = imageContents.slice(startPage - 1, endPage);
 
       const previousSectionsText =
@@ -106,7 +241,7 @@ export const extractToC = async ({
               .join("\n")}`;
 
       const instruction =
-        `You are given the page images of a PDF. The PDF has ${totalPages} pages. Each image is a page of the PDF in reading order. ` +
+        `You are given the page images of a PDF. The PDF has ${pageCount} pages. Each image is a page of the PDF in reading order. ` +
         `You are now processing pages ${startPage} to ${endPage} (inclusive). ` +
         "Your task is to identify the logical sections and then generate a clear table of contents for this PDF in its original language. " +
         "If there are crucial figures/images/tables, breifly describe them in the summary. " +

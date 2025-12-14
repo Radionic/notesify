@@ -2,6 +2,8 @@ CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE TYPE "public"."model_provider" AS ENUM('Alibaba', 'Anthropic', 'DeepSeek', 'Google', 'Moonshot', 'OpenAI', 'xAI');--> statement-breakpoint
 CREATE TYPE "public"."model_type" AS ENUM('llm', 'vlm', 'embedding', 'ocr');--> statement-breakpoint
+CREATE TYPE "public"."model_finish_reason" AS ENUM('stop', 'length', 'content-filter', 'tool-calls', 'error', 'other', 'unknown');--> statement-breakpoint
+CREATE TYPE "public"."model_usage_type" AS ENUM('chat', 'chat_title', 'pdf_toc', 'pdf_ocr_page', 'pdf_ocr_visual_info');--> statement-breakpoint
 CREATE TYPE "public"."pdf_indexing_type" AS ENUM('document', 'page', 'ocr_page', 'section');--> statement-breakpoint
 CREATE TABLE "account" (
 	"id" text PRIMARY KEY NOT NULL,
@@ -85,6 +87,24 @@ CREATE TABLE "models" (
 	"type" "model_type" NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "model_usages" (
+	"id" text PRIMARY KEY NOT NULL,
+	"user_id" text NOT NULL,
+	"model_id" text NOT NULL,
+	"pdf_id" text,
+	"chat_id" text,
+	"message_id" text,
+	"type" "model_usage_type" NOT NULL,
+	"prompt_tokens" integer,
+	"cached_input_tokens" integer,
+	"completion_tokens" integer,
+	"reasoning_tokens" integer,
+	"total_tokens" integer,
+	"cost" numeric(10, 8),
+	"finish_reason" "model_finish_reason",
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "notes" (
 	"id" text PRIMARY KEY NOT NULL,
 	"pdf_id" text,
@@ -149,6 +169,11 @@ ALTER TABLE "chats" ADD CONSTRAINT "chats_user_id_user_id_fk" FOREIGN KEY ("user
 ALTER TABLE "messages" ADD CONSTRAINT "messages_chat_id_chats_id_fk" FOREIGN KEY ("chat_id") REFERENCES "public"."chats"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "files" ADD CONSTRAINT "files_parent_id_files_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."files"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "files" ADD CONSTRAINT "files_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "model_usages" ADD CONSTRAINT "model_usages_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "model_usages" ADD CONSTRAINT "model_usages_model_id_models_id_fk" FOREIGN KEY ("model_id") REFERENCES "public"."models"("id") ON DELETE restrict ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "model_usages" ADD CONSTRAINT "model_usages_pdf_id_pdfs_id_fk" FOREIGN KEY ("pdf_id") REFERENCES "public"."pdfs"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "model_usages" ADD CONSTRAINT "model_usages_chat_id_chats_id_fk" FOREIGN KEY ("chat_id") REFERENCES "public"."chats"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "model_usages" ADD CONSTRAINT "model_usages_message_id_messages_id_fk" FOREIGN KEY ("message_id") REFERENCES "public"."messages"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "notes" ADD CONSTRAINT "notes_id_files_id_fk" FOREIGN KEY ("id") REFERENCES "public"."files"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "notes" ADD CONSTRAINT "notes_pdf_id_pdfs_id_fk" FOREIGN KEY ("pdf_id") REFERENCES "public"."pdfs"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "annotations" ADD CONSTRAINT "annotations_pdf_id_pdfs_id_fk" FOREIGN KEY ("pdf_id") REFERENCES "public"."pdfs"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -172,6 +197,12 @@ CREATE INDEX "files_type_idx" ON "files" USING btree ("type");--> statement-brea
 CREATE INDEX "files_created_at_idx" ON "files" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "files_updated_at_idx" ON "files" USING btree ("updated_at");--> statement-breakpoint
 CREATE INDEX "files_name_trgm_idx" ON "files" USING gin ("name" gin_trgm_ops);--> statement-breakpoint
+CREATE INDEX "model_usages_user_id_idx" ON "model_usages" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "model_usages_model_id_idx" ON "model_usages" USING btree ("model_id");--> statement-breakpoint
+CREATE INDEX "model_usages_pdf_id_idx" ON "model_usages" USING btree ("pdf_id");--> statement-breakpoint
+CREATE INDEX "model_usages_chat_id_idx" ON "model_usages" USING btree ("chat_id");--> statement-breakpoint
+CREATE INDEX "model_usages_message_id_idx" ON "model_usages" USING btree ("message_id");--> statement-breakpoint
+CREATE INDEX "model_usages_created_at_idx" ON "model_usages" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "notes_pdf_id_idx" ON "notes" USING btree ("pdf_id");--> statement-breakpoint
 CREATE INDEX "annotations_pdf_id_idx" ON "annotations" USING btree ("pdf_id");--> statement-breakpoint
 CREATE INDEX "highlights_pdf_id_idx" ON "highlights" USING btree ("pdf_id");--> statement-breakpoint

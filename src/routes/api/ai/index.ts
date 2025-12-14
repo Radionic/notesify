@@ -2,24 +2,21 @@ import { createFileRoute } from "@tanstack/react-router";
 import {
   createUIMessageStream,
   createUIMessageStreamResponse,
-  generateText,
   stepCountIs,
-  streamText,
   type UIMessage,
 } from "ai";
 import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
-import {
-  chatsTable,
-  type Message,
-  messagesTable,
-  modelsTable,
-} from "@/db/schema";
+import { chatsTable, messagesTable, modelsTable } from "@/db/schema";
 import { buildMessages, buildSystemMessage } from "@/lib/ai/build-message";
 import { getTextFromMessage } from "@/lib/ai/get-text-from-message";
 import { aiProvider } from "@/lib/ai/provider";
 import { tools } from "@/lib/ai/tools";
+import {
+  trackedGenerateText,
+  trackedStreamText,
+} from "@/lib/ai/tracked-generation";
 import { getSession } from "@/lib/auth";
 import { generateId } from "@/lib/id";
 
@@ -82,6 +79,13 @@ export const Route = createFileRoute("/api/ai/")({
           throw new Error("Unauthorized");
         }
 
+        if (!chatId) {
+          throw new Error("chatId is required");
+        }
+        if (!modelId) {
+          throw new Error("modelId is required");
+        }
+
         const userId = session.user.id;
 
         const [[chat], model] = await Promise.all([
@@ -114,7 +118,7 @@ export const Route = createFileRoute("/api/ai/")({
           role: "user",
           parts: lastMessage.parts,
           metadata: lastMessage.metadata,
-        } as Message);
+        });
 
         const systemMessage = await buildSystemMessage({
           userId: session.user.id,
@@ -126,8 +130,23 @@ export const Route = createFileRoute("/api/ai/")({
 
         const stream = createUIMessageStream<MyUIMessage>({
           execute: async ({ writer }) => {
-            const result = streamText({
+            const assistantMessageId = generateId();
+            await db.insert(messagesTable).values({
+              id: assistantMessageId,
+              chatId,
+              role: "assistant",
+              parts: null,
+              metadata: null,
+            });
+
+            const result = trackedStreamText({
               model: aiProvider.chatModel(modelId),
+              modelId,
+              userId,
+              pdfId,
+              chatId,
+              messageId: assistantMessageId,
+              usageType: "chat",
               system: systemMessage,
               messages: messagesWithContext,
               tools: tools({ userId }),
@@ -144,21 +163,26 @@ export const Route = createFileRoute("/api/ai/")({
                   }
                 },
                 onFinish: async ({ responseMessage }) => {
-                  await db.insert(messagesTable).values({
-                    id: generateId(),
-                    chatId,
-                    role: "assistant",
-                    parts: responseMessage.parts,
-                    metadata: responseMessage.metadata,
-                  } as Message);
+                  await db
+                    .update(messagesTable)
+                    .set({
+                      parts: responseMessage.parts,
+                      metadata: responseMessage.metadata,
+                    })
+                    .where(eq(messagesTable.id, assistantMessageId));
 
                   if (chat.isNew && process.env.TITLE_SUMMARIZATION_MODEL_ID) {
                     const text = `User: ${getTextFromMessage(lastMessage)}\nAI: ${getTextFromMessage(responseMessage)}`;
                     const prompt = `Write a short title for the following text. Don't include any additional text.\n${text.slice(0, 512)}`;
-                    const { text: title } = await generateText({
+                    const { text: title } = await trackedGenerateText({
                       model: aiProvider.chatModel(
                         process.env.TITLE_SUMMARIZATION_MODEL_ID,
                       ),
+                      modelId: process.env.TITLE_SUMMARIZATION_MODEL_ID,
+                      userId,
+                      pdfId,
+                      chatId,
+                      usageType: "chat_title",
                       prompt,
                       maxOutputTokens: 32,
                     });

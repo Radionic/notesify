@@ -1,9 +1,9 @@
-import { generateText } from "ai";
 import { eq } from "drizzle-orm";
 import { db } from "@/db";
 import { pdfsTable } from "@/db/schema";
 import { aiProvider } from "@/lib/ai/provider";
 import { getFileFromStorage } from "@/lib/storage";
+import { trackedGenerateText } from "./tracked-generation";
 
 const loadPageImage = async (
   pdfId: string,
@@ -43,8 +43,12 @@ export const extractVisualInfo = async (
 
   const base64 = await loadPageImage(pdfId, userId, page);
 
-  const { text } = await generateText({
+  const { text } = await trackedGenerateText({
     model: aiProvider.chatModel(process.env.PDF_OCR_MODEL_ID),
+    modelId: process.env.PDF_OCR_MODEL_ID,
+    userId,
+    pdfId,
+    usageType: "pdf_ocr_visual_info",
     messages: [
       {
         role: "user",

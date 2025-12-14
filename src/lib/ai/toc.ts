@@ -1,4 +1,4 @@
-import { generateObject, NoObjectGeneratedError } from "ai";
+import { NoObjectGeneratedError } from "ai";
 import { and, asc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
@@ -6,6 +6,7 @@ import { pdfIndexingTable, pdfsTable } from "@/db/schema";
 import { aiProvider } from "@/lib/ai/provider";
 import { generateId } from "@/lib/id";
 import { getFileFromStorage } from "@/lib/storage";
+import { trackedGenerateObject } from "./tracked-generation";
 import { upsertText } from "./vectorize";
 
 export const extractToC = async ({
@@ -117,8 +118,12 @@ export const extractToC = async ({
         "Otherwise, set replaceLastSection to false. " +
         "Return JSON in this format: { replaceLastSection: boolean, sections: [{ startPage: number, endPage: number, title: string, summary: string }, ...] }.";
 
-      const { object } = await generateObject({
+      const { object } = await trackedGenerateObject({
         model: aiProvider.chatModel(process.env.PDF_TOC_MODEL_ID),
+        modelId: process.env.PDF_TOC_MODEL_ID,
+        userId,
+        pdfId,
+        usageType: "pdf_toc",
         schema: batchSchema,
         messages: [
           {
@@ -133,8 +138,6 @@ export const extractToC = async ({
           },
         ],
       });
-
-      // console.log("object", object);
 
       const { replaceLastSection = false, sections } = object;
 

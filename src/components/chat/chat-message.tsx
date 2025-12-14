@@ -1,5 +1,6 @@
 import type { DynamicToolUIPart } from "ai";
 import { CopyIcon, RefreshCcwIcon } from "lucide-react";
+import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { match } from "ts-pattern";
 import {
@@ -73,7 +74,10 @@ export const ChatMessage = ({
             return (
               <MessageResponse
                 key={`${message.id}-${index}`}
-                remarkPlugins={[[remarkMath, { singleDollarTextMath: true }]]}
+                remarkPlugins={[
+                  [remarkGfm, {}],
+                  [remarkMath, { singleDollarTextMath: true }],
+                ]}
               >
                 {part.text}
               </MessageResponse>

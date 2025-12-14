@@ -33,12 +33,19 @@ import { getLlmModelsFn } from "@/server/model";
 import { Badge } from "../badge";
 import { TooltipButton } from "../tooltip/tooltip-button";
 
+const RECOMMENDED_MODEL_IDS = [
+  "xai/grok-4.1-fast-non-reasoning",
+  "xai/grok-4.1-fast-reasoning",
+  "deepseek/deepseek-v3.2",
+  "deepseek/deepseek-v3.2-thinking",
+];
+
 export const ModelSelector = () => {
   const [open, setOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useAtom(selectedModelAtom);
 
   const getLlmModels = useServerFn(getLlmModelsFn);
-  const { data: models = [], isLoading } = useQuery({
+  const { data: models = [], isLoading } = useQuery<Model[]>({
     queryKey: ["llm-models"],
     queryFn: () => getLlmModels({ data: {} }),
   });
@@ -56,10 +63,70 @@ export const ModelSelector = () => {
   };
 
   // Pin selected model to the top
-  const displayedModels =
-    selectedModel && models.length > 0
-      ? [selectedModel, ...models.filter((m) => m.id !== selectedModel.id)]
-      : models;
+  const providerNameSort = (a: Model, b: Model) => {
+    const providerCmp = a.provider.localeCompare(b.provider, undefined, {
+      sensitivity: "base",
+    });
+    if (providerCmp !== 0) return providerCmp;
+    return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+  };
+
+  const recommendedIds = new Set(RECOMMENDED_MODEL_IDS);
+  const sortedModels = [...models].sort(providerNameSort);
+
+  const modelsById = new Map(sortedModels.map((m) => [m.id, m] as const));
+  const recommendedModels = RECOMMENDED_MODEL_IDS.map((id) =>
+    modelsById.get(id),
+  ).filter((m): m is Model => m != null);
+
+  const remainingModels = sortedModels.filter((m) => !recommendedIds.has(m.id));
+
+  const selectedIsRecommended = Boolean(
+    selectedModel && recommendedIds.has(selectedModel.id),
+  );
+
+  const recommendedModelsDisplayed = selectedModel
+    ? selectedIsRecommended
+      ? [
+          selectedModel,
+          ...recommendedModels.filter((m) => m.id !== selectedModel.id),
+        ]
+      : recommendedModels
+    : recommendedModels;
+
+  const remainingModelsDisplayed = selectedModel
+    ? selectedIsRecommended
+      ? remainingModels
+      : [
+          selectedModel,
+          ...remainingModels.filter((m) => m.id !== selectedModel.id),
+        ]
+    : remainingModels;
+
+  const renderModelItem = (model: Model) => (
+    <CommandItem
+      key={model.id}
+      value={`${model.provider}-${model.name}`}
+      onSelect={() => {
+        // Always keep a model selected
+        setSelectedModel(model);
+        setOpen(false);
+      }}
+    >
+      <span className="flex items-center gap-2">
+        {getProviderIcon(model.provider)}
+        <span>{model.name}</span>
+      </span>
+      <span className="ml-auto flex items-center gap-2">
+        {model.type === "vlm" && <Badge className="text-[10px]">Vision</Badge>}
+        <Check
+          className={cn(
+            !selectedModel || selectedModel.id !== model.id ? "opacity-0" : "",
+          )}
+        />
+      </span>
+    </CommandItem>
+  );
 
   // Auto-select a default model once models load
   useEffect(() => {
@@ -81,43 +148,20 @@ export const ModelSelector = () => {
           )}
         </TooltipButton>
       </PopoverTrigger>
-      <PopoverContent className="p-0">
+      <PopoverContent className="p-0 w-80">
         <Command>
           <CommandInput placeholder="Search model" />
           <CommandList>
             <CommandEmpty>
               {isLoading ? "Loading models..." : "No models available"}
             </CommandEmpty>
-            <CommandGroup>
-              {displayedModels.map((model: Model) => (
-                <CommandItem
-                  key={model.id}
-                  value={model.name}
-                  onSelect={() => {
-                    // Always keep a model selected
-                    setSelectedModel(model);
-                    setOpen(false);
-                  }}
-                >
-                  <span className="flex items-center gap-2">
-                    {getProviderIcon(model.provider)}
-                    <span className="flex items-center gap-2">
-                      <span>{model.name}</span>
-                      {model.type === "vlm" && (
-                        <Badge className="text-[10px]">Vision</Badge>
-                      )}
-                    </span>
-                  </span>
-                  <Check
-                    className={cn(
-                      "ml-auto",
-                      !selectedModel || selectedModel.id !== model.id
-                        ? "opacity-0"
-                        : "",
-                    )}
-                  />
-                </CommandItem>
-              ))}
+            {recommendedModelsDisplayed.length > 0 && (
+              <CommandGroup heading="Recommended">
+                {recommendedModelsDisplayed.map(renderModelItem)}
+              </CommandGroup>
+            )}
+            <CommandGroup heading="All models">
+              {remainingModelsDisplayed.map(renderModelItem)}
             </CommandGroup>
           </CommandList>
         </Command>

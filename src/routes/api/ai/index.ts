@@ -8,8 +8,9 @@ import {
 import { eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "@/db";
-import { chatsTable, messagesTable, modelsTable } from "@/db/schema";
+import { chatsTable, messagesTable } from "@/db/schema";
 import { buildMessages, buildSystemMessage } from "@/lib/ai/build-message";
+import { getModelById } from "@/lib/ai/get-model";
 import { getTextFromMessage } from "@/lib/ai/get-text-from-message";
 import { tools } from "@/lib/ai/tools";
 import {
@@ -102,12 +103,7 @@ export const Route = createFileRoute("/api/ai/")({
             .returning({
               isNew: sql<boolean>`(xmax = 0)`,
             }),
-          db.query.modelsTable.findFirst({
-            columns: {
-              id: true,
-            },
-            where: eq(modelsTable.id, modelId),
-          }),
+          getModelById(modelId),
         ]);
 
         if (!model) {

@@ -7,6 +7,12 @@ export const modelTypeEnum = pgEnum("model_type", [
   "ocr",
 ]);
 
+export const modelScopeEnum = pgEnum("model_scope", [
+  "basic",
+  "advanced",
+  "internal",
+]);
+
 export const modelProviderEnum = pgEnum("model_provider", [
   "Alibaba",
   "Anthropic",
@@ -22,6 +28,7 @@ export const modelsTable = pgTable("models", {
   provider: modelProviderEnum("provider").notNull(),
   name: text("name").notNull(),
   type: modelTypeEnum("type").notNull(),
+  scope: modelScopeEnum("scope").notNull().default("basic"),
 });
 
 export type Model = typeof modelsTable.$inferSelect;

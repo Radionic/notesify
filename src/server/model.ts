@@ -1,5 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
-import { eq, or } from "drizzle-orm";
+import { and, eq, ne, or } from "drizzle-orm";
 import z from "zod";
 import { db } from "@/db";
 import { modelsTable } from "@/db/schema";
@@ -17,7 +17,12 @@ export const getLlmModelsFn = createServerFn()
         provider: modelsTable.provider,
       })
       .from(modelsTable)
-      .where(or(eq(modelsTable.type, "llm"), eq(modelsTable.type, "vlm")));
+      .where(
+        and(
+          or(eq(modelsTable.type, "llm"), eq(modelsTable.type, "vlm")),
+          ne(modelsTable.scope, "internal"),
+        ),
+      );
 
     return models;
   });

@@ -1,5 +1,5 @@
 {
-  "id": "f1e7b66e-0c27-493b-8190-372799c66e84",
+  "id": "3dc9bd96-3c93-4862-9103-b78df49cd69b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -779,6 +779,14 @@
           "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
+        },
+        "scope": {
+          "name": "scope",
+          "type": "model_scope",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'basic'"
         }
       },
       "indexes": {},
@@ -1642,6 +1650,15 @@
         "Moonshot",
         "OpenAI",
         "xAI"
+      ]
+    },
+    "public.model_scope": {
+      "name": "model_scope",
+      "schema": "public",
+      "values": [
+        "basic",
+        "advanced",
+        "internal"
       ]
     },
     "public.model_type": {

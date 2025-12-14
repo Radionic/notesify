@@ -1,6 +1,7 @@
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 CREATE TYPE "public"."model_provider" AS ENUM('Alibaba', 'Anthropic', 'DeepSeek', 'Google', 'Moonshot', 'OpenAI', 'xAI');--> statement-breakpoint
+CREATE TYPE "public"."model_scope" AS ENUM('basic', 'advanced', 'internal');--> statement-breakpoint
 CREATE TYPE "public"."model_type" AS ENUM('llm', 'vlm', 'embedding', 'ocr');--> statement-breakpoint
 CREATE TYPE "public"."model_finish_reason" AS ENUM('stop', 'length', 'content-filter', 'tool-calls', 'error', 'other', 'unknown');--> statement-breakpoint
 CREATE TYPE "public"."model_usage_type" AS ENUM('chat', 'chat_title', 'pdf_toc', 'pdf_ocr_page', 'pdf_ocr_visual_info');--> statement-breakpoint
@@ -84,7 +85,8 @@ CREATE TABLE "models" (
 	"id" text PRIMARY KEY NOT NULL,
 	"provider" "model_provider" NOT NULL,
 	"name" text NOT NULL,
-	"type" "model_type" NOT NULL
+	"type" "model_type" NOT NULL,
+	"scope" "model_scope" DEFAULT 'basic' NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "model_usages" (

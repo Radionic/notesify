@@ -33,11 +33,10 @@ const getResultsStats = (results: SearchKeywordsResultItem[]) => {
     (sum, result) => sum + (result.sentences?.length ?? 0),
     0,
   );
-
   return {
     totalMatches,
     hasResults: totalMatches > 0,
-  } as const;
+  };
 };
 
 const highlightSentence = (
@@ -82,9 +81,8 @@ export const SearchKeywordsTool = ({
   const keywords = input?.keywords ?? [];
   const keywordLabel = getKeywordLabel(keywords);
 
-  const results: SearchKeywordsResultItem[] = isDone
-    ? (tool.output as SearchKeywordsResultItem[])
-    : [];
+  const results: SearchKeywordsResultItem[] =
+    isDone && Array.isArray(tool.output) ? tool.output : [];
 
   const { totalMatches, hasResults } = getResultsStats(results);
 

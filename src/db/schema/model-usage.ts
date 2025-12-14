@@ -1,7 +1,6 @@
 import {
   index,
   integer,
-  numeric,
   pgEnum,
   pgTable,
   text,
@@ -58,7 +57,8 @@ export const modelUsagesTable = pgTable(
     completionTokens: integer("completion_tokens"),
     reasoningTokens: integer("reasoning_tokens"),
     totalTokens: integer("total_tokens"),
-    cost: numeric("cost", { precision: 10, scale: 8 }),
+    cost: text("cost"),
+    provider: text("provider"),
     finishReason: modelFinishReasonEnum("finish_reason"),
     createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
   },

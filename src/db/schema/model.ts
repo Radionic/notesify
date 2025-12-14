@@ -22,8 +22,6 @@ export const modelsTable = pgTable("models", {
   provider: modelProviderEnum("provider").notNull(),
   name: text("name").notNull(),
   type: modelTypeEnum("type").notNull(),
-  // apiKey: text("api_key"),
-  // baseUrl: text("base_url"),
 });
 
 export type Model = typeof modelsTable.$inferSelect;

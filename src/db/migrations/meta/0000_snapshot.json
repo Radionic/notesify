@@ -1,5 +1,5 @@
 {
-  "id": "b9d2e3d1-314c-4f8a-91d8-40dfd4a3bd92",
+  "id": "f1e7b66e-0c27-493b-8190-372799c66e84",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -868,7 +868,13 @@
         },
         "cost": {
           "name": "cost",
-          "type": "numeric(10, 8)",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "provider": {
+          "name": "provider",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },

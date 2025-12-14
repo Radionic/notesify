@@ -11,7 +11,6 @@ import { db } from "@/db";
 import { chatsTable, messagesTable, modelsTable } from "@/db/schema";
 import { buildMessages, buildSystemMessage } from "@/lib/ai/build-message";
 import { getTextFromMessage } from "@/lib/ai/get-text-from-message";
-import { aiProvider } from "@/lib/ai/provider";
 import { tools } from "@/lib/ai/tools";
 import {
   trackedGenerateText,
@@ -104,28 +103,32 @@ export const Route = createFileRoute("/api/ai/")({
               isNew: sql<boolean>`(xmax = 0)`,
             }),
           db.query.modelsTable.findFirst({
+            columns: {
+              id: true,
+            },
             where: eq(modelsTable.id, modelId),
           }),
         ]);
 
         if (!model) {
-          throw new Error("Invalid modelId.");
+          throw new Error(`Invalid modelId: ${modelId}`);
         }
 
-        await db.insert(messagesTable).values({
-          id: generateId(),
-          chatId,
-          role: "user",
-          parts: lastMessage.parts,
-          metadata: lastMessage.metadata,
-        });
-
-        const systemMessage = await buildSystemMessage({
-          userId: session.user.id,
-          openedPdfIds,
-          pdfId,
-          viewingPage,
-        });
+        const [systemMessage] = await Promise.all([
+          buildSystemMessage({
+            userId: session.user.id,
+            openedPdfIds,
+            pdfId,
+            viewingPage,
+          }),
+          db.insert(messagesTable).values({
+            id: generateId(),
+            chatId,
+            role: "user",
+            parts: lastMessage.parts,
+            metadata: lastMessage.metadata,
+          }),
+        ]);
         const messagesWithContext = buildMessages(messages, contexts);
 
         const stream = createUIMessageStream<MyUIMessage>({
@@ -140,8 +143,7 @@ export const Route = createFileRoute("/api/ai/")({
             });
 
             const result = trackedStreamText({
-              model: aiProvider.chatModel(modelId),
-              modelId,
+              model: modelId,
               userId,
               pdfId,
               chatId,
@@ -175,10 +177,7 @@ export const Route = createFileRoute("/api/ai/")({
                     const text = `User: ${getTextFromMessage(lastMessage)}\nAI: ${getTextFromMessage(responseMessage)}`;
                     const prompt = `Write a short title for the following text. Don't include any additional text.\n${text.slice(0, 512)}`;
                     const { text: title } = await trackedGenerateText({
-                      model: aiProvider.chatModel(
-                        process.env.TITLE_SUMMARIZATION_MODEL_ID,
-                      ),
-                      modelId: process.env.TITLE_SUMMARIZATION_MODEL_ID,
+                      model: process.env.TITLE_SUMMARIZATION_MODEL_ID,
                       userId,
                       pdfId,
                       chatId,

@@ -100,7 +100,8 @@ CREATE TABLE "model_usages" (
 	"completion_tokens" integer,
 	"reasoning_tokens" integer,
 	"total_tokens" integer,
-	"cost" numeric(10, 8),
+	"cost" text,
+	"provider" text,
 	"finish_reason" "model_finish_reason",
 	"created_at" timestamp DEFAULT now() NOT NULL
 );

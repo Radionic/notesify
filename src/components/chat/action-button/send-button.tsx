@@ -16,14 +16,14 @@ export const SendButton = ({
     <Button
       type="submit"
       className={cn(
-        "rounded-full w-8 h-8 transition-colors duration-500",
+        "h-8 w-8 rounded-full transition-colors",
         disabled
-          ? "text-neutral-500 bg-white cursor-not-allowed"
-          : "text-neutral-50 bg-blue-500 hover:bg-blue-500 hover:text-neutral-50",
+          ? "cursor-not-allowed bg-muted text-muted-foreground hover:bg-muted hover:text-muted-foreground"
+          : "cursor-pointer bg-blue-500 text-white hover:bg-blue-500/90",
         isLoading &&
           "text-neutral-50 bg-red-500 hover:bg-red-500 hover:text-neutral-50 cursor-pointer",
       )}
-      variant="outline"
+      variant="ghost"
       size="icon"
       onClick={onClick}
     >

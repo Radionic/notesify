@@ -67,7 +67,7 @@ export const PdfViewer = ({
     }).catch(() => {
       navigate({ to: "/library" });
     });
-  }, [pdf, pdfData]);
+  }, [pdf, pdfId, pdfData, loadPdf, navigate]);
 
   useEffect(() => {
     return () => {
@@ -75,7 +75,7 @@ export const PdfViewer = ({
         unloadPdf({ pdfId });
       }
     };
-  }, [pdfId, inited]);
+  }, [pdfId, inited, unloadPdf]);
 
   useEffect(() => {
     if (inited && viewer && page) {

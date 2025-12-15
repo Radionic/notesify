@@ -166,3 +166,11 @@ code {
     @apply bg-background text-foreground;
   }
 }
+
+/* Hide hover effects and colored bounding boxes on PDF annotations */
+.annotationLayer * {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  outline: none !important;
+}

@@ -3,10 +3,11 @@ import { useAtomValue } from "jotai";
 import { toast } from "sonner";
 import { z } from "zod";
 import { chatsOpenAtom } from "@/atoms/chat/chats";
-import { pdfViewerOpenAtom } from "@/atoms/pdf/pdf-viewer";
+import { pdfPreviewAtom, pdfViewerOpenAtom } from "@/atoms/pdf/pdf-viewer";
 import { audioRecorderOpenAtom } from "@/atoms/recording/audio-recorder";
 import { AudioRecorder } from "@/components/audio-recorder/audio-recorder";
 import { Chat } from "@/components/chat/chat";
+import { PdfPagePreview } from "@/components/pdf/pdf-page-preview";
 import { PdfViewer } from "@/components/pdf/pdf-viewer";
 import {
   ResizableHandle,
@@ -19,9 +20,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { protectRouteFn } from "@/server/auth";
 
 const viewerSearchSchema = z.object({
-  // id: z.union([z.string().array(), z.string()]),
   sid: z.string(),
-  // nid: z.string().optional(),
   page: z.number().optional(),
 });
 
@@ -31,6 +30,7 @@ const Viewer = () => {
   const chatsOpen = useAtomValue(chatsOpenAtom);
   const pdfViewerOpen = useAtomValue(pdfViewerOpenAtom);
   const audioRecorderOpen = useAtomValue(audioRecorderOpenAtom);
+  const pdfPreview = useAtomValue(pdfPreviewAtom);
   const isMobile = useIsMobile();
 
   if (!pdfId) {
@@ -63,6 +63,12 @@ const Viewer = () => {
               <AudioRecorder />
             </div>
           )}
+
+          {pdfPreview && !chatsOpen && !audioRecorderOpen && (
+            <div className="absolute inset-0 z-50 bg-background">
+              <PdfPagePreview />
+            </div>
+          )}
         </div>
       </div>
     );
@@ -78,7 +84,7 @@ const Viewer = () => {
       >
         {pdfViewerOpen && pdfId && (
           <>
-            <ResizablePanel minSize={40} className="relative" order={1}>
+            <ResizablePanel minSize={30} className="relative" order={1}>
               <div className="flex flex-col h-full">
                 <PdfToolbar pdfId={pdfId} />
                 <div className="flex-1 relative">
@@ -90,9 +96,18 @@ const Viewer = () => {
           </>
         )}
 
+        {pdfPreview && (
+          <>
+            <ResizablePanel minSize={20} defaultSize={30} order={2}>
+              <PdfPagePreview />
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+          </>
+        )}
+
         {chatsOpen && (
           <>
-            <ResizablePanel minSize={25} order={2}>
+            <ResizablePanel minSize={25} order={3}>
               <Chat />
             </ResizablePanel>
             <ResizableHandle withHandle />
@@ -100,7 +115,7 @@ const Viewer = () => {
         )}
 
         {audioRecorderOpen && (
-          <ResizablePanel minSize={25} order={3}>
+          <ResizablePanel minSize={25} order={4}>
             <AudioRecorder />
           </ResizablePanel>
         )}

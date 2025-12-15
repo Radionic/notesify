@@ -7,6 +7,7 @@ import {
   currentPageAtomFamily,
   documentAtomFamily,
   openedPdfIdsAtom,
+  pdfPreviewAtom,
   renderedPagesAtomFamily,
   viewerAtomFamily,
 } from "@/atoms/pdf/pdf-viewer";
@@ -64,6 +65,13 @@ export const useLoadPdf = () => {
       store.set(openedPdfIdsAtom, (currentIds) => [...currentIds, pdf.id]);
       store.set(documentAtomFamily(pdf.id), pdfDocument);
       store.set(viewerAtomFamily(pdf.id), pdfViewer);
+      linkService.setInternalLinkClickHandler(({ pageNumber, destArray }) => {
+        store.set(pdfPreviewAtom, {
+          pdfId: pdf.id,
+          pageNumber,
+          destArray,
+        });
+      });
 
       // Setup event listeners
       eventBus.on("pagesloaded", () => {

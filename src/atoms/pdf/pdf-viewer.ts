@@ -3,6 +3,7 @@ import { atomFamily } from "jotai/utils";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import type { PDFViewer } from "pdfjs-dist/types/web/pdf_rendering_queue";
 import type { Highlight } from "@/db/schema";
+import type { ExplicitDest } from "@/lib/pdf/link-service";
 import type { TextSelection } from "@/lib/types";
 
 export const pdfViewerOpenAtom = atom<boolean>(true);
@@ -19,6 +20,12 @@ export const renderedPagesAtomFamily = atomFamily((pdfId?: string) =>
 export const currentPageAtomFamily = atomFamily((pdfId?: string) =>
   atom<number>(),
 );
+export interface PdfPreviewState {
+  pdfId: string;
+  pageNumber: number;
+  destArray: ExplicitDest;
+}
+export const pdfPreviewAtom = atom<PdfPreviewState | null>(null);
 
 export const openedPdfIdsAtom = atom<string[]>([]);
 export const activePdfIdAtom = atom<string>();

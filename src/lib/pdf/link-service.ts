@@ -1,7 +1,7 @@
 import type { PDFDocumentProxy } from "pdfjs-dist";
 import { PDFLinkService } from "pdfjs-dist/web/pdf_viewer.mjs";
 
-type ExplicitDest = [
+export type ExplicitDest = [
   { num: number; gen: number } | number,
   { name: string },
   ...number[],

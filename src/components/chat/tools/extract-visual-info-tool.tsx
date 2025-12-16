@@ -1,6 +1,7 @@
 import type { DynamicToolUIPart } from "ai";
 import { ChevronRightIcon, CircleAlert } from "lucide-react";
 import { useState } from "react";
+import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import { Streamdown } from "streamdown";
 import {
@@ -70,7 +71,17 @@ export const ExtractVisualInfoTool = ({
 
         {isDone && typeof tool.output === "string" && (
           <Streamdown
-            remarkPlugins={[[remarkMath, { singleDollarTextMath: true }]]}
+            className={cn(
+              // Tables
+              "[&_table]:overflow-x-auto",
+              // Code blocks
+              "[&_pre]:overflow-x-auto",
+              className,
+            )}
+            remarkPlugins={[
+              [remarkGfm, {}],
+              [remarkMath, { singleDollarTextMath: true }],
+            ]}
           >
             {tool.output}
           </Streamdown>

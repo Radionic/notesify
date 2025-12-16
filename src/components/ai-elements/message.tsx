@@ -9,6 +9,8 @@ import {
 } from "lucide-react";
 import type { ComponentProps, HTMLAttributes, ReactElement } from "react";
 import { createContext, memo, useContext, useEffect, useState } from "react";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import { Streamdown } from "streamdown";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup, ButtonGroupText } from "@/components/ui/button-group";
@@ -44,7 +46,7 @@ export const MessageContent = ({
 }: MessageContentProps) => (
   <div
     className={cn(
-      "is-user:dark flex w-fit flex-col gap-2 overflow-hidden text-sm",
+      "is-user:dark flex w-fit max-w-full flex-col gap-2 overflow-hidden text-sm",
       "group-[.is-user]:ml-auto group-[.is-user]:rounded-lg group-[.is-user]:bg-secondary group-[.is-user]:px-3 group-[.is-user]:py-2 group-[.is-user]:text-foreground",
       "group-[.is-assistant]:text-foreground",
       className,
@@ -308,8 +310,16 @@ export const MessageResponse = memo(
     <Streamdown
       className={cn(
         "size-full [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
+        // Tables
+        "[&_table]:overflow-x-auto",
+        // Code blocks
+        "[&_pre]:overflow-x-auto",
         className,
       )}
+      remarkPlugins={[
+        [remarkGfm, {}],
+        [remarkMath, { singleDollarTextMath: true }],
+      ]}
       {...props}
     />
   ),

@@ -4,6 +4,8 @@ import { useControllableState } from "@radix-ui/react-use-controllable-state";
 import { ChevronRightIcon } from "lucide-react";
 import type { ComponentProps, ReactNode } from "react";
 import { createContext, memo, useContext, useEffect, useState } from "react";
+import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
 import { Streamdown } from "streamdown";
 import {
   Collapsible,
@@ -99,7 +101,7 @@ export const Reasoning = memo(
         value={{ isStreaming, isOpen, setIsOpen, duration }}
       >
         <Collapsible
-          className={cn("not-prose my-2 w-full max-w-md", className)}
+          className={cn("not-prose my-2 w-full", className)}
           onOpenChange={handleOpenChange}
           open={isOpen}
           {...props}
@@ -176,7 +178,23 @@ export const ReasoningContent = memo(
       )}
       {...props}
     >
-      <Streamdown {...props}>{children}</Streamdown>
+      <Streamdown
+        className={cn(
+          "w-full",
+          // Tables
+          "[&_table]:overflow-x-auto",
+          // Code blocks
+          "[&_pre]:overflow-x-auto",
+          className,
+        )}
+        remarkPlugins={[
+          [remarkGfm, {}],
+          [remarkMath, { singleDollarTextMath: true }],
+        ]}
+        {...props}
+      >
+        {children}
+      </Streamdown>
     </CollapsibleContent>
   ),
 );

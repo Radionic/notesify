@@ -1,5 +1,6 @@
-import { Link, useRouter } from "@tanstack/react-router";
+import { Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -12,7 +13,6 @@ import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 
 export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
-  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -46,7 +46,10 @@ export function SignupForm({ ...props }: React.ComponentProps<typeof Card>) {
         return;
       }
 
-      await router.navigate({ to: "/" });
+      toast.success("Verification email sent. Please check your inbox.", {
+        position: "bottom-right",
+        duration: 10000,
+      });
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {

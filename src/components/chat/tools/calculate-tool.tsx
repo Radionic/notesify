@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils";
 // import "@/styles/katex.css";
 
 type CalculateInput = {
-  expression: string;
+  expressions: string[];
 };
 
 export const CalculateTool = ({
@@ -25,37 +25,57 @@ export const CalculateTool = ({
   tool: DynamicToolUIPart;
   className?: string;
 }) => {
-  const { expression = "" } = (tool.input as CalculateInput | undefined) || {};
-  const [tex, setTex] = useState<string>("");
+  const [texs, setTexs] = useState<string[]>([]);
   const isDone = tool.state === "output-available";
   const isErrored = tool.state === "output-error";
   const [open, setOpen] = useState(false);
 
+  const expressions = (tool.input as CalculateInput)?.expressions || [];
+
   useEffect(() => {
     try {
-      const left = parse(expression).toTex();
-      if (isDone) {
-        const right = parse(String(tool.output)).toTex();
-        setTex(`${left} = ${right}`);
-      } else {
-        setTex(left);
-      }
+      if (!isDone) return;
+
+      const newTexs = expressions.map((expression, i) => {
+        try {
+          const left = parse(expression).toTex();
+          const outputs = Array.isArray(tool.output)
+            ? tool.output
+            : [tool.output];
+          const result = outputs[i];
+          if (result !== undefined) {
+            const right = parse(String(result)).toTex();
+            return `${left} = ${right}`;
+          }
+          return left;
+        } catch (e) {
+          console.error("Failed to parse expression", expression, e);
+          return "";
+        }
+      });
+
+      setTexs(newTexs);
     } catch (e) {
       console.error(e);
-      setTex("");
+      setTexs([]);
     }
-  }, [isDone, expression, tool.output]);
+  }, [isDone, expressions, tool.output]);
 
-  const shortExpression =
-    expression.length > 80
-      ? `${expression.slice(0, 77).trimEnd()}...`
-      : expression;
+  const count = expressions.length;
+  let labelText = "expression";
+
+  if (count === 1) {
+    const expr = expressions[0];
+    labelText = expr.length > 50 ? `${expr.slice(0, 47).trimEnd()}...` : expr;
+  } else if (count > 1) {
+    labelText = `${count} expressions`;
+  }
 
   const triggerLabel = isErrored
-    ? `Failed to calculate ${shortExpression || "expression"}`
+    ? `Failed to calculate ${labelText}`
     : !isDone
-      ? `Calculating ${shortExpression || "expression"}...`
-      : `Calculated ${shortExpression || "expression"}`;
+      ? `Calculating ${labelText}...`
+      : `Calculated ${labelText}`;
 
   return (
     <Collapsible
@@ -84,11 +104,11 @@ export const CalculateTool = ({
       </CollapsibleTrigger>
 
       <CollapsibleContent className="mt-2 rounded-md p-2 text-xs space-y-2">
-        {tex && (
-          <Badge className="bg-neutral-50 w-fit text-[11px]">
+        {texs.map((tex) => (
+          <Badge key={tex} className="bg-neutral-50 w-fit text-[11px] block">
             <InlineMath>{tex}</InlineMath>
           </Badge>
-        )}
+        ))}
       </CollapsibleContent>
     </Collapsible>
   );

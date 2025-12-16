@@ -164,12 +164,18 @@ export const tools = ({ userId }: { userId: string }) => ({
   //   },
   // }),
   calculate: tool({
-    description: "Calculate a Math expression, using evaluate by MathJS.",
+    description:
+      "Calculate Math expressions, using evaluate by MathJS. Supports standard math operations and derivatives (e.g. derivative('x^2', 'x')).",
     inputSchema: z.object({
-      expression: z.string().describe("The expression to calculate."),
+      expressions: z
+        .array(z.string())
+        .describe("The expressions to calculate."),
     }),
-    execute: async ({ expression }) => {
-      return await evaluate(expression);
+    execute: async ({ expressions }) => {
+      return expressions.map((expression) => {
+        const result = evaluate(expression);
+        return String(result);
+      });
     },
   }),
 });

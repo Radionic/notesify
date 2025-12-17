@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import type { Annotation } from "@/db/schema";
 import {
   createAnnotationsFn,
@@ -9,10 +8,9 @@ import {
 import { usePushHistory } from "./use-pdf-history";
 
 export const useAnnotations = ({ pdfId }: { pdfId: string }) => {
-  const getAnnotations = useServerFn(getAnnotationsFn);
   return useQuery({
     queryKey: ["annotations", "pdf", pdfId],
-    queryFn: () => getAnnotations({ data: { pdfId } }),
+    queryFn: () => getAnnotationsFn({ data: { pdfId } }),
   });
 };
 
@@ -34,7 +32,6 @@ export const useAnnotationsByPage = ({ pdfId }: { pdfId: string }) => {
 export const useCreateAnnotations = () => {
   const queryClient = useQueryClient();
   const { pushHistory } = usePushHistory();
-  const createAnnotations = useServerFn(createAnnotationsFn);
 
   return useMutation({
     mutationFn: async ({
@@ -43,7 +40,7 @@ export const useCreateAnnotations = () => {
       annotations: Annotation[];
       saveHistory?: boolean;
     }) => {
-      await createAnnotations({
+      await createAnnotationsFn({
         data: {
           annotations,
         },
@@ -69,7 +66,6 @@ export const useCreateAnnotations = () => {
 export const useDeleteAnnotations = () => {
   const queryClient = useQueryClient();
   const { pushHistory } = usePushHistory();
-  const deleteAnnotations = useServerFn(deleteAnnotationsFn);
 
   return useMutation({
     mutationFn: async ({
@@ -79,7 +75,7 @@ export const useDeleteAnnotations = () => {
       pdfId: string;
       saveHistory?: boolean;
     }) => {
-      await deleteAnnotations({
+      await deleteAnnotationsFn({
         data: {
           ids,
         },

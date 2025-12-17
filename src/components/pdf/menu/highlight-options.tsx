@@ -13,11 +13,14 @@ import {
 import { cn } from "@/lib/utils";
 
 type Props = {
+  value?: string;
   onChange?: (color: string) => void;
 };
-export const HighlightOptions = ({ onChange }: Props) => {
+export const HighlightOptions = ({ value, onChange }: Props) => {
   const colors = useAtomValue(highlightColorsAtom);
   const [selectedColor, setSelectedColor] = useAtom(selectedHighlightColorAtom);
+
+  const currentColor = value ?? selectedColor;
 
   // const [mode, setMode] = useState<"view" | "edit">("view");
   return (
@@ -25,7 +28,7 @@ export const HighlightOptions = ({ onChange }: Props) => {
       <PopoverTrigger asChild>
         <div
           className="w-4 h-4 rounded cursor-pointer shadow"
-          style={{ backgroundColor: selectedColor }}
+          style={{ backgroundColor: currentColor }}
           onPointerDown={(e) => {
             // Avoid text selection collapses
             e.preventDefault();
@@ -46,7 +49,7 @@ export const HighlightOptions = ({ onChange }: Props) => {
                 size="icon"
                 className={cn(
                   "h-4 w-4 rounded cursor-pointer shadow",
-                  selectedColor === color &&
+                  currentColor === color &&
                     "ring-1 ring-neutral-300 ring-offset-2",
                 )}
                 style={{ backgroundColor: color }}

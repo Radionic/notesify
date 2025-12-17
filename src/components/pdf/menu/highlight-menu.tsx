@@ -1,6 +1,5 @@
 import { useAtom, useSetAtom } from "jotai";
 import { Copy, Sparkles, Trash } from "lucide-react";
-import { toast } from "sonner";
 import { chatsOpenAtom } from "@/atoms/chat/chats";
 import { activeHighlightAtom } from "@/atoms/pdf/pdf-viewer";
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
@@ -33,7 +32,6 @@ export const HighlightMenu = ({ pdfId }: { pdfId: string }) => {
   const handleCopy = () => {
     if (!activeHighlight.text) return;
     copyHighlight(activeHighlight.text);
-    toast.success("Copied to clipboard");
     dismissMenu();
   };
 
@@ -88,7 +86,10 @@ export const HighlightMenu = ({ pdfId }: { pdfId: string }) => {
           <Separator orientation="vertical" className="h-6" />
 
           <TooltipButton tooltip="Highlight color">
-            <HighlightOptions onChange={handleColorChange} />
+            <HighlightOptions
+              value={activeHighlight.color}
+              onChange={handleColorChange}
+            />
           </TooltipButton>
 
           <TooltipButton tooltip="Copy" onPointerDown={handleCopy}>

@@ -14,6 +14,7 @@ import {
   ReasoningTrigger,
 } from "@/components/ai-elements/reasoning";
 import type { MyUIMessage } from "@/routes/api/ai";
+import { PDFBlockquote } from "./pdf-blockquote";
 import { CalculateTool } from "./tools/calculate-tool";
 import { ExtractVisualInfoTool } from "./tools/extract-visual-info-tool";
 import { GetPageTextTool } from "./tools/get-page-text-tool";
@@ -39,24 +40,19 @@ export const ChatMessage = ({
     const toolName = tool.type.split("-")[1];
     if (!toolName) return null;
 
-    return (
-      match(toolName)
-        .with("getPDFPageText", () => <GetPageTextTool tool={tool} />)
-        .with("getTableOfContents", () => (
-          <GetTableOfContentsTool tool={tool} />
-        ))
-        .with("getViewingPdfMetadata", () => (
-          <GetViewingPdfMetadataTool tool={tool} />
-        ))
-        .with("calculate", () => <CalculateTool tool={tool} />)
-        .with("searchPages", () => <SearchPagesTool tool={tool} />)
-        .with("searchKeywords", () => <SearchKeywordsTool tool={tool} />)
-        .with("extractVisualInfoFromPDFPage", () => (
-          <ExtractVisualInfoTool tool={tool} />
-        ))
-        // .with("highlightTextInPDF", () => <HighlightTextTool tool={tool} />)
-        .otherwise(() => null)
-    );
+    return match(toolName)
+      .with("getPDFPageText", () => <GetPageTextTool tool={tool} />)
+      .with("getTableOfContents", () => <GetTableOfContentsTool tool={tool} />)
+      .with("getViewingPdfMetadata", () => (
+        <GetViewingPdfMetadataTool tool={tool} />
+      ))
+      .with("calculate", () => <CalculateTool tool={tool} />)
+      .with("searchPages", () => <SearchPagesTool tool={tool} />)
+      .with("searchKeywords", () => <SearchKeywordsTool tool={tool} />)
+      .with("extractVisualInfoFromPDFPage", () => (
+        <ExtractVisualInfoTool tool={tool} />
+      ))
+      .otherwise(() => null);
   };
 
   return (
@@ -68,7 +64,12 @@ export const ChatMessage = ({
         {message.parts?.map((part, index) => {
           if (part.type === "text") {
             return (
-              <MessageResponse key={`${message.id}-${index}`}>
+              <MessageResponse
+                key={`${message.id}-${index}`}
+                components={{
+                  blockquote: (props) => <PDFBlockquote {...props} />,
+                }}
+              >
                 {part.text}
               </MessageResponse>
             );

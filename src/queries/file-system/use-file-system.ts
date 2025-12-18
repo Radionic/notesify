@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import type { FileNode, Pdf } from "@/db/schema";
-import { extractPdfPageData } from "@/lib/pdf/canvas";
+import { extractPdfPageData } from "@/lib/pdf/extract-pdf-data";
 import {
   addFolderFn,
   type BreadcrumbItem,

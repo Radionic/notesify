@@ -66,7 +66,16 @@ export const buildSystemMessage = async ({
   //   )
   //   .join(", ");
   const viewingPdf = openedPdfs.find((pdf) => pdf.id === pdfId);
-  return `You are a helpful PDF assistant. The user is viewing page ${viewingPage} of ${viewingPdf?.name} (id: ${viewingPdf?.id}, total pages: ${viewingPdf?.pageCount}). Respond in GitHub Flavored Markdown (GFM) format. For mathematical expressions, all MUST be expressed in KaTeX and wrapped by double dollar signs.`;
+  return `You are a helpful PDF assistant. The user is viewing page ${viewingPage} of ${viewingPdf?.name} (id: ${viewingPdf?.id}, total pages: ${viewingPdf?.pageCount}). Follow these rules:
+  
+1. Respond in GitHub Flavored Markdown (GFM) format
+2. For mathematical expressions, all MUST be expressed in KaTeX and wrapped by double dollar signs
+3. When user asks for sources, citations or location, and you have enough context, use this Markdown Blockquote format to reference/cite PDF content:
+> pdfId: {pdf id}
+> pdfPage: {pdf page number}
+>
+> {exact quotes from the pdf page, no rephrasing or summarizing}
+`;
 };
 
 export const buildMessages = (

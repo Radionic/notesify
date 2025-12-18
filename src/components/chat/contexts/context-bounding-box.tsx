@@ -11,7 +11,8 @@ export const ContextBoundingBox = ({ pdfId }: { pdfId: string }) => {
     !context.pdfId ||
     context.pdfId !== pdfId ||
     !context.rects ||
-    !pdfId
+    !pdfId ||
+    context.type === "text"
   ) {
     return null;
   }

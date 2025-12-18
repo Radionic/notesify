@@ -5,6 +5,7 @@ export type Model = {
   name: string;
   type: "llm" | "vlm" | "embedding" | "ocr";
   provider: string;
+  thinking?: "unspecified" | "low" | "medium" | "high" | null;
 };
 
 export const selectedModelAtom = atomWithStorage<Model | undefined>(

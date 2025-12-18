@@ -38,6 +38,20 @@ const RECOMMENDED_MODEL_IDS = [
   "deepseek/deepseek-v3.2-thinking",
 ];
 
+const thinkingSortOrder = (thinking: Model["thinking"]) => {
+  if (!thinking) return 0;
+  if (thinking === "unspecified") return 1;
+  if (thinking === "low") return 2;
+  if (thinking === "medium") return 3;
+  return 4;
+};
+
+const getModelDisplayName = (model: Model) => {
+  if (!model.thinking) return model.name;
+  if (model.thinking === "unspecified") return `${model.name} (Thinking)`;
+  return `${model.name} (${model.thinking.charAt(0).toUpperCase()}${model.thinking.slice(1)} Thinking)`;
+};
+
 const getProviderIcon = (provider: string) => {
   return match(provider.toLowerCase())
     .with("anthropic", () => <Anthropic className="h-4 w-4" />)
@@ -62,7 +76,13 @@ export const ModelSelector = () => {
       sensitivity: "base",
     });
     if (providerCmp !== 0) return providerCmp;
-    return a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+
+    const nameCmp = a.name.localeCompare(b.name, undefined, {
+      sensitivity: "base",
+    });
+    if (nameCmp !== 0) return nameCmp;
+
+    return thinkingSortOrder(a.thinking) - thinkingSortOrder(b.thinking);
   };
 
   const recommendedIds = new Set(RECOMMENDED_MODEL_IDS);
@@ -100,7 +120,7 @@ export const ModelSelector = () => {
   const renderModelItem = (model: Model) => (
     <CommandItem
       key={model.id}
-      value={`${model.provider}-${model.name}`}
+      value={`${model.provider}-${model.name}-${model.thinking}`}
       onSelect={() => {
         // Always keep a model selected
         setSelectedModel(model);
@@ -109,7 +129,7 @@ export const ModelSelector = () => {
     >
       <span className="flex items-center gap-2">
         {getProviderIcon(model.provider)}
-        <span>{model.name}</span>
+        <span>{getModelDisplayName(model)}</span>
       </span>
       <span className="ml-auto flex items-center gap-2">
         {model.type === "vlm" && <Badge className="text-[10px]">Vision</Badge>}
@@ -138,7 +158,9 @@ export const ModelSelector = () => {
         <TooltipButton tooltip="AI Model">
           <RiRobot2Line className="opacity-50 size-5!" />
           {selectedModel && (
-            <span className="text-muted-foreground">{selectedModel.name}</span>
+            <span className="text-muted-foreground">
+              {getModelDisplayName(selectedModel)}
+            </span>
           )}
         </TooltipButton>
       </PopoverTrigger>

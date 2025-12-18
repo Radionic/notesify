@@ -1,5 +1,5 @@
 {
-  "id": "1ea65160-809b-4696-a899-b18d3d698dfb",
+  "id": "3dbda467-b2b5-40e0-9ebc-14272719099a",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -799,6 +799,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "'basic'"
+        },
+        "thinking": {
+          "name": "thinking",
+          "type": "model_thinking",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
@@ -1671,6 +1678,16 @@
         "basic",
         "advanced",
         "internal"
+      ]
+    },
+    "public.model_thinking": {
+      "name": "model_thinking",
+      "schema": "public",
+      "values": [
+        "unspecified",
+        "low",
+        "medium",
+        "high"
       ]
     },
     "public.model_type": {

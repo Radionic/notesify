@@ -15,6 +15,7 @@ export const getLlmModelsFn = createServerFn()
         name: modelsTable.name,
         type: modelsTable.type,
         provider: modelsTable.provider,
+        thinking: modelsTable.thinking,
       })
       .from(modelsTable)
       .where(

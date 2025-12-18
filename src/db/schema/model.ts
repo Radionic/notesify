@@ -23,6 +23,13 @@ export const modelProviderEnum = pgEnum("model_provider", [
   "xAI",
 ]);
 
+export const modelThinkingEnum = pgEnum("model_thinking", [
+  "unspecified",
+  "low",
+  "medium",
+  "high",
+]);
+
 export const modelsTable = pgTable("models", {
   id: text("id").primaryKey(),
   modelId: text("model_id").notNull(),
@@ -31,6 +38,7 @@ export const modelsTable = pgTable("models", {
   name: text("name").notNull(),
   type: modelTypeEnum("type").notNull(),
   scope: modelScopeEnum("scope").notNull().default("basic"),
+  thinking: modelThinkingEnum("thinking"),
 });
 
 export type Model = typeof modelsTable.$inferSelect;

@@ -1,8 +1,9 @@
-import { generateObject, generateText, streamText } from "ai";
+import { generateObject, generateText, type JSONValue, streamText } from "ai";
 import type { infer as ZodInfer, ZodTypeAny } from "zod";
 import { db } from "@/db";
 import { type ModelUsageType, modelUsagesTable } from "@/db/schema";
 import { generateId } from "@/lib/id";
+import { getModelById } from "./get-model";
 
 type GatewayMetadata = {
   cost?: string;
@@ -11,6 +12,8 @@ type GatewayMetadata = {
   };
 };
 
+type ProviderOptions = Record<string, Record<string, JSONValue>>;
+
 export const trackedGenerateText = async (
   args: Parameters<typeof generateText>[0] & {
     userId: string;
@@ -18,16 +21,26 @@ export const trackedGenerateText = async (
     chatId?: string;
     messageId?: string;
     usageType: ModelUsageType;
+    internal?: boolean;
   },
 ): Promise<Awaited<ReturnType<typeof generateText>>> => {
-  const { userId, pdfId, chatId, messageId, usageType, ...aiArgs } = args;
+  const { userId, pdfId, chatId, messageId, usageType, internal, ...aiArgs } =
+    args;
 
   try {
-    const result = await generateText(aiArgs);
+    const model = await getModelById({
+      id: aiArgs.model.toString(),
+      internal,
+    });
+    const result = await generateText({
+      ...aiArgs,
+      model: model.modelId,
+      providerOptions: model.providerOptions as ProviderOptions,
+    });
     const gateway = result.providerMetadata?.gateway as GatewayMetadata;
     await db.insert(modelUsagesTable).values({
       id: generateId(),
-      modelId: aiArgs.model.toString(),
+      modelId: model.id,
       userId,
       chatId,
       messageId,
@@ -57,6 +70,7 @@ export function trackedGenerateObject<S extends ZodTypeAny>(
     chatId?: string;
     messageId?: string;
     usageType: ModelUsageType;
+    internal?: boolean;
   },
 ): Promise<
   Omit<Awaited<ReturnType<typeof generateObject>>, "object"> & {
@@ -71,18 +85,26 @@ export async function trackedGenerateObject(
     chatId?: string;
     messageId?: string;
     usageType: ModelUsageType;
+    internal?: boolean;
   },
 ): Promise<Awaited<ReturnType<typeof generateObject>>> {
-  const { userId, pdfId, chatId, messageId, usageType, ...aiArgs } = args;
+  const { userId, pdfId, chatId, messageId, usageType, internal, ...aiArgs } =
+    args;
 
   try {
-    const result = await generateObject(
-      aiArgs as Parameters<typeof generateObject>[0],
-    );
+    const model = await getModelById({
+      id: aiArgs.model.toString(),
+      internal,
+    });
+    const result = await generateObject({
+      ...aiArgs,
+      model: model.modelId,
+      providerOptions: model.providerOptions as ProviderOptions,
+    });
     const gateway = result.providerMetadata?.gateway as GatewayMetadata;
     await db.insert(modelUsagesTable).values({
       id: generateId(),
-      modelId: aiArgs.model.toString(),
+      modelId: model.id,
       userId,
       chatId,
       messageId,
@@ -104,27 +126,43 @@ export async function trackedGenerateObject(
   }
 }
 
-export const trackedStreamText = (
+export const trackedStreamText = async (
   args: Parameters<typeof streamText>[0] & {
     userId: string;
     pdfId?: string;
     chatId?: string;
     messageId?: string;
     usageType: ModelUsageType;
+    internal?: boolean;
   },
-): ReturnType<typeof streamText> => {
-  const { userId, pdfId, chatId, messageId, usageType, onFinish, ...aiArgs } =
-    args;
+): Promise<ReturnType<typeof streamText>> => {
+  const {
+    userId,
+    pdfId,
+    chatId,
+    messageId,
+    usageType,
+    internal,
+    onFinish,
+    ...aiArgs
+  } = args;
+
+  const model = await getModelById({
+    id: aiArgs.model.toString(),
+    internal,
+  });
 
   const result = streamText({
     ...aiArgs,
+    model: model.modelId,
+    providerOptions: model.providerOptions as ProviderOptions,
     onFinish: async (event) => {
       try {
         await onFinish?.(event);
         const gateway = event.providerMetadata?.gateway as GatewayMetadata;
         await db.insert(modelUsagesTable).values({
           id: generateId(),
-          modelId: aiArgs.model.toString(),
+          modelId: model.id,
           userId,
           chatId,
           messageId,
@@ -144,7 +182,7 @@ export const trackedStreamText = (
         throw error;
       }
     },
-  } as Parameters<typeof streamText>[0]);
+  });
 
   return result;
 };

@@ -1,4 +1,4 @@
-import { pgEnum, pgTable, text } from "drizzle-orm/pg-core";
+import { jsonb, pgEnum, pgTable, text } from "drizzle-orm/pg-core";
 
 export const modelTypeEnum = pgEnum("model_type", [
   "llm",
@@ -25,7 +25,9 @@ export const modelProviderEnum = pgEnum("model_provider", [
 
 export const modelsTable = pgTable("models", {
   id: text("id").primaryKey(),
+  modelId: text("model_id").notNull(),
   provider: modelProviderEnum("provider").notNull(),
+  providerOptions: jsonb("provider_options"),
   name: text("name").notNull(),
   type: modelTypeEnum("type").notNull(),
   scope: modelScopeEnum("scope").notNull().default("basic"),

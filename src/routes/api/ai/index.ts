@@ -10,7 +10,6 @@ import { z } from "zod";
 import { db } from "@/db";
 import { chatsTable, messagesTable } from "@/db/schema";
 import { buildMessages, buildSystemMessage } from "@/lib/ai/build-message";
-import { getModelById } from "@/lib/ai/get-model";
 import { getTextFromMessage } from "@/lib/ai/get-text-from-message";
 import { tools } from "@/lib/ai/tools";
 import {
@@ -88,42 +87,38 @@ export const Route = createFileRoute("/api/ai/")({
 
         const userId = session.user.id;
 
-        const [[chat], model] = await Promise.all([
-          db
-            .insert(chatsTable)
-            .values({
-              id: chatId,
-              title: undefined,
-              userId,
-            })
-            .onConflictDoUpdate({
-              target: chatsTable.id,
-              set: { updatedAt: new Date() },
-            })
-            .returning({
-              isNew: sql<boolean>`(xmax = 0)`,
-            }),
-          getModelById(modelId),
-        ]);
-
-        if (!model) {
-          throw new Error(`Invalid modelId: ${modelId}`);
-        }
-
-        const [systemMessage] = await Promise.all([
+        const [systemMessage, chat] = await Promise.all([
           buildSystemMessage({
             userId: session.user.id,
             openedPdfIds,
             pdfId,
             viewingPage,
           }),
-          db.insert(messagesTable).values({
-            id: generateId(),
-            chatId,
-            role: "user",
-            parts: lastMessage.parts,
-            metadata: lastMessage.metadata,
-          }),
+          (async () => {
+            const [chat] = await db
+              .insert(chatsTable)
+              .values({
+                id: chatId,
+                title: undefined,
+                userId,
+              })
+              .onConflictDoUpdate({
+                target: chatsTable.id,
+                set: { updatedAt: new Date() },
+              })
+              .returning({
+                isNew: sql<boolean>`(xmax = 0)`,
+              });
+
+            await db.insert(messagesTable).values({
+              id: generateId(),
+              chatId,
+              role: "user",
+              parts: lastMessage.parts,
+              metadata: lastMessage.metadata,
+            });
+            return chat;
+          })(),
         ]);
         const messagesWithContext = buildMessages(messages, contexts);
 
@@ -138,7 +133,7 @@ export const Route = createFileRoute("/api/ai/")({
               metadata: null,
             });
 
-            const result = trackedStreamText({
+            const result = await trackedStreamText({
               model: modelId,
               userId,
               pdfId,
@@ -174,6 +169,7 @@ export const Route = createFileRoute("/api/ai/")({
                     const prompt = `Write a short title for the following text. Don't include any additional text.\n${text.slice(0, 512)}`;
                     const { text: title } = await trackedGenerateText({
                       model: process.env.TITLE_SUMMARIZATION_MODEL_ID,
+                      internal: true,
                       userId,
                       pdfId,
                       chatId,

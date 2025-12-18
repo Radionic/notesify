@@ -5,7 +5,7 @@ CREATE TYPE "public"."model_scope" AS ENUM('basic', 'advanced', 'internal');--> 
 CREATE TYPE "public"."model_type" AS ENUM('llm', 'vlm', 'embedding', 'ocr');--> statement-breakpoint
 CREATE TYPE "public"."model_finish_reason" AS ENUM('stop', 'length', 'content-filter', 'tool-calls', 'error', 'other', 'unknown');--> statement-breakpoint
 CREATE TYPE "public"."model_usage_type" AS ENUM('chat', 'chat_title', 'pdf_toc', 'pdf_ocr_page', 'pdf_ocr_visual_info');--> statement-breakpoint
-CREATE TYPE "public"."pdf_indexing_type" AS ENUM('document', 'page', 'ocr_page', 'section');--> statement-breakpoint
+CREATE TYPE "public"."pdf_indexing_type" AS ENUM('document', 'page', 'section');--> statement-breakpoint
 CREATE TABLE "account" (
 	"id" text PRIMARY KEY NOT NULL,
 	"account_id" text NOT NULL,
@@ -83,7 +83,9 @@ CREATE TABLE "files" (
 --> statement-breakpoint
 CREATE TABLE "models" (
 	"id" text PRIMARY KEY NOT NULL,
+	"model_id" text NOT NULL,
 	"provider" "model_provider" NOT NULL,
+	"provider_options" jsonb,
 	"name" text NOT NULL,
 	"type" "model_type" NOT NULL,
 	"scope" "model_scope" DEFAULT 'basic' NOT NULL

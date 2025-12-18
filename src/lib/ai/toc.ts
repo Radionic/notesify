@@ -124,6 +124,7 @@ export const extractToCByTexts = async ({
 
     const { object } = await trackedGenerateObject({
       model: process.env.PDF_TOC_MODEL_ID,
+      internal: true,
       userId,
       pdfId,
       usageType: "pdf_toc",
@@ -254,6 +255,7 @@ export const extractToCByImages = async ({
 
       const { object } = await trackedGenerateObject({
         model: process.env.PDF_TOC_MODEL_ID,
+        internal: true,
         userId,
         pdfId,
         usageType: "pdf_toc",

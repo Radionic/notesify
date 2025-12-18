@@ -44,6 +44,7 @@ export const extractVisualInfo = async (
 
   const { text } = await trackedGenerateText({
     model: process.env.PDF_OCR_MODEL_ID,
+    internal: true,
     userId,
     pdfId,
     usageType: "pdf_ocr_visual_info",

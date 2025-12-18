@@ -1,10 +1,10 @@
 import {
-  Alibaba,
   Anthropic,
   DeepSeek,
   Google,
   Moonshot,
   OpenAI,
+  Qwen,
   XAI,
 } from "@lobehub/icons";
 import { useAtom } from "jotai";
@@ -26,25 +26,64 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
 import { useLlmModels } from "@/queries/model/use-llm-models";
 import { Badge } from "../badge";
 import { TooltipButton } from "../tooltip/tooltip-button";
 
 const RECOMMENDED_MODEL_IDS = [
+  "google/gemini-3-flash",
+  "openai/gpt-5.2",
   "xai/grok-4.1-fast-non-reasoning",
   "xai/grok-4.1-fast-reasoning",
   "deepseek/deepseek-v3.2",
   "deepseek/deepseek-v3.2-thinking",
 ];
 
-const thinkingSortOrder = (thinking: Model["thinking"]) => {
+const PROVIDER_ORDER = [
+  "google",
+  "openai",
+  "xai",
+  "anthropic",
+  "deepseek",
+  "alibaba",
+  "moonshot",
+];
+const providerOrderMap = new Map(PROVIDER_ORDER.map((p, i) => [p, i]));
+
+// Comparator utilities
+const compareByProvider = (a: Model, b: Model) => {
+  const pA = a.provider.toLowerCase();
+  const pB = b.provider.toLowerCase();
+  if (pA === pB) return 0;
+
+  const idxA = providerOrderMap.get(pA);
+  const idxB = providerOrderMap.get(pB);
+
+  // Both have explicit priority
+  if (idxA !== undefined && idxB !== undefined) return idxA - idxB;
+  // Only one has explicit priority
+  if (idxA !== undefined) return -1;
+  if (idxB !== undefined) return 1;
+  // Fallback to alphabetical
+  return pA.localeCompare(pB, undefined, { sensitivity: "base" });
+};
+
+const compareByName = (a: Model, b: Model) =>
+  a.name.localeCompare(b.name, undefined, { sensitivity: "base" });
+
+const getThinkingPriority = (thinking: Model["thinking"]) => {
   if (!thinking) return 0;
   if (thinking === "unspecified") return 1;
   if (thinking === "low") return 2;
   if (thinking === "medium") return 3;
   return 4;
 };
+
+const compareByThinking = (a: Model, b: Model) =>
+  getThinkingPriority(a.thinking) - getThinkingPriority(b.thinking);
+
+const sortModels = (a: Model, b: Model) =>
+  compareByProvider(a, b) || compareByName(a, b) || compareByThinking(a, b);
 
 const getModelDisplayName = (model: Model) => {
   if (!model.thinking) return model.name;
@@ -57,7 +96,7 @@ const getProviderIcon = (provider: string) => {
     .with("anthropic", () => <Anthropic className="h-4 w-4" />)
     .with("deepseek", () => <DeepSeek.Color className="h-4 w-4" />)
     .with("google", () => <Google.Color className="h-4 w-4" />)
-    .with("alibaba", () => <Alibaba.Color className="h-4 w-4" />)
+    .with("alibaba", () => <Qwen.Color className="h-4 w-4" />)
     .with("moonshot", () => <Moonshot className="h-4 w-4" />)
     .with("openai", () => <OpenAI className="h-4 w-4" />)
     .with("xai", () => <XAI className="h-4 w-4" />)
@@ -66,56 +105,18 @@ const getProviderIcon = (provider: string) => {
 
 export const ModelSelector = () => {
   const [open, setOpen] = useState(false);
+  const [showAll, setShowAll] = useState(false);
   const [selectedModel, setSelectedModel] = useAtom(selectedModelAtom);
-
   const { data: models = [], isLoading } = useLlmModels();
 
-  // Pin selected model to the top
-  const providerNameSort = (a: Model, b: Model) => {
-    const providerCmp = a.provider.localeCompare(b.provider, undefined, {
-      sensitivity: "base",
-    });
-    if (providerCmp !== 0) return providerCmp;
+  const sortedModels = [...models].sort(sortModels);
 
-    const nameCmp = a.name.localeCompare(b.name, undefined, {
-      sensitivity: "base",
-    });
-    if (nameCmp !== 0) return nameCmp;
-
-    return thinkingSortOrder(a.thinking) - thinkingSortOrder(b.thinking);
-  };
-
-  const recommendedIds = new Set(RECOMMENDED_MODEL_IDS);
-  const sortedModels = [...models].sort(providerNameSort);
-
-  const modelsById = new Map(sortedModels.map((m) => [m.id, m] as const));
+  const modelsById = new Map(models.map((m) => [m.id, m]));
   const recommendedModels = RECOMMENDED_MODEL_IDS.map((id) =>
     modelsById.get(id),
-  ).filter((m): m is Model => m != null);
+  ).filter((m) => !!m);
 
-  const remainingModels = sortedModels.filter((m) => !recommendedIds.has(m.id));
-
-  const selectedIsRecommended = Boolean(
-    selectedModel && recommendedIds.has(selectedModel.id),
-  );
-
-  const recommendedModelsDisplayed = selectedModel
-    ? selectedIsRecommended
-      ? [
-          selectedModel,
-          ...recommendedModels.filter((m) => m.id !== selectedModel.id),
-        ]
-      : recommendedModels
-    : recommendedModels;
-
-  const remainingModelsDisplayed = selectedModel
-    ? selectedIsRecommended
-      ? remainingModels
-      : [
-          selectedModel,
-          ...remainingModels.filter((m) => m.id !== selectedModel.id),
-        ]
-    : remainingModels;
+  const displayedModels = showAll ? sortedModels : recommendedModels;
 
   const renderModelItem = (model: Model) => (
     <CommandItem
@@ -133,11 +134,7 @@ export const ModelSelector = () => {
       </span>
       <span className="ml-auto flex items-center gap-2">
         {model.type === "vlm" && <Badge className="text-[10px]">Vision</Badge>}
-        <Check
-          className={cn(
-            !selectedModel || selectedModel.id !== model.id ? "opacity-0" : "",
-          )}
-        />
+        {selectedModel && selectedModel.id === model.id && <Check />}
       </span>
     </CommandItem>
   );
@@ -153,7 +150,15 @@ export const ModelSelector = () => {
   }, [isLoading, models, selectedModel, setSelectedModel]);
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
+    <Popover
+      open={open}
+      onOpenChange={(newOpen) => {
+        setOpen(newOpen);
+        if (!newOpen) {
+          setShowAll(false);
+        }
+      }}
+    >
       <PopoverTrigger className="w-full">
         <TooltipButton tooltip="AI Model">
           <RiRobot2Line className="opacity-50 size-5!" />
@@ -171,13 +176,18 @@ export const ModelSelector = () => {
             <CommandEmpty>
               {isLoading ? "Loading models..." : "No models available"}
             </CommandEmpty>
-            {recommendedModelsDisplayed.length > 0 && (
-              <CommandGroup heading="Recommended">
-                {recommendedModelsDisplayed.map(renderModelItem)}
-              </CommandGroup>
-            )}
-            <CommandGroup heading="All models">
-              {remainingModelsDisplayed.map(renderModelItem)}
+            <CommandGroup
+              heading={showAll ? "All Models" : "Recommended Models"}
+            >
+              {displayedModels.map(renderModelItem)}
+              {!showAll && (
+                <CommandItem
+                  onSelect={() => setShowAll(true)}
+                  className="justify-center text-muted-foreground font-medium"
+                >
+                  Show All Models
+                </CommandItem>
+              )}
             </CommandGroup>
           </CommandList>
         </Command>

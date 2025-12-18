@@ -25,18 +25,16 @@ import { SearchPagesTool } from "./tools/search-pages-tool";
 export const ChatMessage = ({
   message,
   isLoading,
-  showHeader,
+  header,
   reload,
   isLast,
 }: {
   message: MyUIMessage;
   isLoading?: boolean;
-  showHeader?: boolean;
+  header?: string;
   reload?: () => void;
   isLast?: boolean;
 }) => {
-  const modelId = message.metadata?.modelId;
-
   const renderTool = (tool: DynamicToolUIPart) => {
     const toolName = tool.type.split("-")[1];
     if (!toolName) return null;
@@ -63,8 +61,8 @@ export const ChatMessage = ({
 
   return (
     <Message from={message.role}>
-      {showHeader && message.role === "assistant" && (
-        <p className="text-xs text-muted-foreground mb-1 ml-1">{modelId}</p>
+      {header && message.role === "assistant" && (
+        <span className="text-xs text-muted-foreground">{header}</span>
       )}
       <MessageContent>
         {message.parts?.map((part, index) => {

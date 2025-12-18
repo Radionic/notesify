@@ -7,8 +7,6 @@ import {
   OpenAI,
   XAI,
 } from "@lobehub/icons";
-import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
 import { useAtom } from "jotai";
 import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -29,7 +27,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { getLlmModelsFn } from "@/server/model";
+import { useLlmModels } from "@/queries/model/use-llm-models";
 import { Badge } from "../badge";
 import { TooltipButton } from "../tooltip/tooltip-button";
 
@@ -40,27 +38,23 @@ const RECOMMENDED_MODEL_IDS = [
   "deepseek/deepseek-v3.2-thinking",
 ];
 
+const getProviderIcon = (provider: string) => {
+  return match(provider.toLowerCase())
+    .with("anthropic", () => <Anthropic className="h-4 w-4" />)
+    .with("deepseek", () => <DeepSeek.Color className="h-4 w-4" />)
+    .with("google", () => <Google.Color className="h-4 w-4" />)
+    .with("alibaba", () => <Alibaba.Color className="h-4 w-4" />)
+    .with("moonshot", () => <Moonshot className="h-4 w-4" />)
+    .with("openai", () => <OpenAI className="h-4 w-4" />)
+    .with("xai", () => <XAI className="h-4 w-4" />)
+    .otherwise(() => <RiRobot2Line className="h-4 w-4 opacity-60" />);
+};
+
 export const ModelSelector = () => {
   const [open, setOpen] = useState(false);
   const [selectedModel, setSelectedModel] = useAtom(selectedModelAtom);
 
-  const getLlmModels = useServerFn(getLlmModelsFn);
-  const { data: models = [], isLoading } = useQuery<Model[]>({
-    queryKey: ["llm-models"],
-    queryFn: () => getLlmModels({ data: {} }),
-  });
-
-  const getProviderIcon = (provider: string) => {
-    return match(provider.toLowerCase())
-      .with("anthropic", () => <Anthropic className="h-4 w-4" />)
-      .with("deepseek", () => <DeepSeek.Color className="h-4 w-4" />)
-      .with("google", () => <Google.Color className="h-4 w-4" />)
-      .with("alibaba", () => <Alibaba.Color className="h-4 w-4" />)
-      .with("moonshot", () => <Moonshot className="h-4 w-4" />)
-      .with("openai", () => <OpenAI className="h-4 w-4" />)
-      .with("xai", () => <XAI className="h-4 w-4" />)
-      .otherwise(() => <RiRobot2Line className="h-4 w-4 opacity-60" />);
-  };
+  const { data: models = [], isLoading } = useLlmModels();
 
   // Pin selected model to the top
   const providerNameSort = (a: Model, b: Model) => {

@@ -9,6 +9,7 @@ import {
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
+import { useLlmModels } from "@/queries/model/use-llm-models";
 import { Badge } from "../badge";
 import { Spinner } from "../ui/spinner";
 import { ChatGuide } from "./chat-guide";
@@ -21,6 +22,7 @@ dotPulse.register();
 export const ChatMessageList = () => {
   const chatId = useAtomValue(activeChatIdAtom);
 
+  const { data: models = [] } = useLlmModels();
   const { messages, error, isLoading, isLoadingInitMessages, regenerate } =
     useChatAI({
       chatId,
@@ -88,8 +90,14 @@ export const ChatMessageList = () => {
       <ConversationContent className="gap-2">
         {messages.map((message, i) => {
           const contexts = message.metadata?.contexts;
-          const showHeader =
-            message.role === "assistant" && messages[i - 1]?.role === "user";
+          const previousMessage = messages[i - 1];
+          const modelId =
+            previousMessage?.role === "user" && message.role === "assistant"
+              ? previousMessage.metadata?.modelId
+              : undefined;
+          const model = modelId
+            ? models.find((m) => m.id === modelId)
+            : undefined;
           const isLast = i === messages.length - 1;
           return message.role === "user" ? (
             <div key={message.id} className="flex flex-col gap-1 items-end">
@@ -104,7 +112,7 @@ export const ChatMessageList = () => {
             <ChatMessage
               key={message.id}
               message={message}
-              showHeader={showHeader}
+              header={model?.name}
               isLoading={isLast && isLoading}
               isLast={isLast}
               reload={regenerate}

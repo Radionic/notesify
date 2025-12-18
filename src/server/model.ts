@@ -4,7 +4,7 @@ import z from "zod";
 import { db } from "@/db";
 import { modelsTable } from "@/db/schema";
 
-const getLlmModelsSchema = z.object({});
+const getLlmModelsSchema = z.undefined();
 
 export const getLlmModelsFn = createServerFn()
   .inputValidator(getLlmModelsSchema)

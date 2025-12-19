@@ -1,7 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useAtom } from "jotai";
-import { notesOpenAtom } from "@/atoms/notes/notes";
 import type { Pdf, ScrollPosition } from "@/db/schema";
 import { getRouter } from "@/router";
 import { getPdfFn, updatePdfFn } from "@/server/pdf";
@@ -122,29 +120,16 @@ export const useDownloadPdf = () => {
 };
 
 export const useNavigatePdf = () => {
-  const [notesOpen, setNotesOpen] = useAtom(notesOpenAtom);
-
   const navigatePdf = async ({
     pdfId,
-    openNotes,
     page,
   }: {
     pdfId: string;
-    openNotes?: boolean;
     page?: number;
   }) => {
-    const open = notesOpen || !!openNotes;
-    // const notesId = open ? (await getNotesForPdf({ pdfId })).id : undefined;
-    setNotesOpen(open);
-
     getRouter().navigate({
       to: "/viewer",
-      search: (prev) => ({
-        ...prev,
-        // nid: notesId,
-        sid: pdfId,
-        page,
-      }),
+      search: { sid: pdfId, page },
     });
   };
 

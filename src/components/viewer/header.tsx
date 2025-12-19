@@ -2,7 +2,6 @@ import { Link } from "@tanstack/react-router";
 import { useAtom, useAtomValue } from "jotai";
 import { AudioLines, Sparkles } from "lucide-react";
 import { chatsOpenAtom } from "@/atoms/chat/chats";
-import { notesOpenAtom } from "@/atoms/notes/notes";
 import {
   audioRecorderOpenAtom,
   isRecordingAtom,
@@ -16,7 +15,6 @@ import { ThemeSwitch } from "../theme-switch";
 
 export const Header = () => {
   const [chatsOpen, setChatsOpen] = useAtom(chatsOpenAtom);
-  const [notesOpen, setNotesOpen] = useAtom(notesOpenAtom);
   const [audioRecorderOpen, setAudioRecorderOpen] = useAtom(
     audioRecorderOpenAtom,
   );
@@ -24,7 +22,7 @@ export const Header = () => {
   const isMobile = useIsMobile();
 
   const togglePanel = (
-    panel: "notes" | "pdf" | "chats" | "audio-recorder",
+    panel: "pdf" | "chats" | "audio-recorder",
     currentlyOpen: boolean,
   ) => {
     if (isMobile && !currentlyOpen) {

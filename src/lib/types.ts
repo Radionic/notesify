@@ -1,6 +1,3 @@
-import type { PDFDocumentProxy } from "pdfjs-dist";
-import type { PDFViewer } from "pdfjs-dist/types/web/pdf_rendering_queue";
-
 // export type BBox = {
 //   x: number;
 //   y: number;
@@ -14,24 +11,6 @@ import type { PDFViewer } from "pdfjs-dist/types/web/pdf_rendering_queue";
 //   bottom: number;
 //   left: number;
 // };
-
-export type PDFVIewerStore = {
-  document?: PDFDocumentProxy;
-  viewer?: PDFViewer;
-  pageCount?: number;
-  zoomScale: number;
-
-  activeTextSelection?: TextSelection;
-  activeHighlight?: Highlight;
-
-  chatsOpen?: boolean;
-  chatsSize: number;
-
-  notesOpen?: boolean;
-  notesSize: number;
-
-  threadFinderOpen?: boolean;
-};
 
 export type Position = {
   top?: number;
@@ -50,10 +29,6 @@ export type Rect = {
   right: number;
   bottom: number;
   left: number;
-};
-
-export type PagedRect = Rect & {
-  pageEl: HTMLElement;
 };
 
 export type TextSelection = {

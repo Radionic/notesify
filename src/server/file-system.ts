@@ -145,7 +145,6 @@ export const addFolderFn = createServerFn()
 const addFileSchema = z.object({
   name: z.string(),
   parentId: z.string().nullable(),
-  notesId: z.string().optional(),
   pdfId: z.string().optional(),
 });
 
@@ -157,19 +156,15 @@ export const addFileFn = createServerFn()
       throw new Error("Unauthorized");
     }
 
-    const { name, parentId, notesId, pdfId } = data;
-    if (!pdfId && !notesId) {
-      throw Error("No PDF or Notes provided");
-    }
-
-    if (pdfId && notesId) {
-      throw Error("Cannot add both PDF and Notes");
+    const { name, parentId, pdfId } = data;
+    if (!pdfId) {
+      throw Error("No PDF provided");
     }
 
     const newFile = {
-      id: pdfId || notesId,
+      id: pdfId,
       name,
-      type: pdfId ? "pdf" : "notes",
+      type: pdfId,
       parentId,
       userId: session.user.id,
       createdAt: new Date(),

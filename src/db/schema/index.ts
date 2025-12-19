@@ -4,7 +4,6 @@ export * from "./chat/messages";
 export * from "./files/files";
 export * from "./model";
 export * from "./model-usage";
-export * from "./notes/notes";
 export * from "./pdf/annotations";
 export * from "./pdf/highlights";
 export * from "./pdf/pdf-bboxes";

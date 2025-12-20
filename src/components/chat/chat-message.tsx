@@ -16,6 +16,8 @@ import {
 import type { MyUIMessage } from "@/routes/api/ai";
 import { PDFBlockquote } from "./pdf-blockquote";
 import { CalculateTool } from "./tools/calculate-tool";
+import { CreateFlashcardsTool } from "./tools/create-flashcards-tool";
+import { CreateMiniQuizTool } from "./tools/create-mini-quiz-tool";
 import { ExtractVisualInfoTool } from "./tools/extract-visual-info-tool";
 import { GetPageTextTool } from "./tools/get-page-text-tool";
 import { GetTableOfContentsTool } from "./tools/get-table-of-contents-tool";
@@ -47,6 +49,8 @@ export const ChatMessage = ({
         <GetViewingPdfMetadataTool tool={tool} />
       ))
       .with("calculate", () => <CalculateTool tool={tool} />)
+      .with("createFlashcards", () => <CreateFlashcardsTool tool={tool} />)
+      .with("createMiniQuiz", () => <CreateMiniQuizTool tool={tool} />)
       .with("searchPages", () => <SearchPagesTool tool={tool} />)
       .with("searchKeywords", () => <SearchKeywordsTool tool={tool} />)
       .with("extractVisualInfoFromPDFPage", () => (

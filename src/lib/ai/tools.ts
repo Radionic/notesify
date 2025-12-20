@@ -100,6 +100,51 @@ export const tools = ({ userId }: { userId: string }) => ({
       return await searchKeywords({ pdfId, keywords });
     },
   }),
+  createFlashcards: tool({
+    description:
+      "Create 1-10 interactive flashcards from provided questions and answers.",
+    inputSchema: z.object({
+      flashcards: z
+        .array(
+          z.object({
+            question: z.string(),
+            answer: z.string(),
+          }),
+        )
+        .min(1)
+        .max(10),
+    }),
+    execute: async () => {
+      return "Done, created interactive UI for the flashcards";
+    },
+  }),
+  createMiniQuiz: tool({
+    description:
+      "Create an interactive mini quiz (1-10 MC questions) with explanations for each answer.",
+    inputSchema: z.object({
+      quiz: z
+        .array(
+          z.object({
+            question: z.string(),
+            choices: z
+              .array(
+                z.object({
+                  text: z.string(),
+                  isCorrect: z.boolean(),
+                  explanation: z.string(),
+                }),
+              )
+              .min(2)
+              .max(4),
+          }),
+        )
+        .min(1)
+        .max(10),
+    }),
+    execute: async () => {
+      return "Done, created interactive UI for the mini quiz";
+    },
+  }),
   // searchPages: tool({
   //   description: "Search relevant PDF pages for the given query",
   //   inputSchema: z.object({

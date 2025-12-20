@@ -1,7 +1,7 @@
 import type { DynamicToolUIPart } from "ai";
 import { useAtomValue } from "jotai";
 import { dotPulse } from "ldrs";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { activeChatIdAtom } from "@/atoms/chat/chats";
 import {
   Conversation,
@@ -9,6 +9,7 @@ import {
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
+import { generateId } from "@/lib/id";
 import { useLlmModels } from "@/queries/model/use-llm-models";
 import { Badge } from "../badge";
 import { Spinner } from "../ui/spinner";
@@ -20,13 +21,15 @@ import { TextContextsPreview } from "./contexts/text-content-preview";
 dotPulse.register();
 
 export const ChatMessageList = () => {
-  const chatId = useAtomValue(activeChatIdAtom);
+  const activeChatId = useAtomValue(activeChatIdAtom);
+  const chatId = useMemo(
+    () => (activeChatId ? activeChatId : generateId()),
+    [activeChatId],
+  );
 
   const { data: models = [] } = useLlmModels();
   const { messages, error, isLoading, isLoadingInitMessages, regenerate } =
-    useChatAI({
-      chatId,
-    });
+    useChatAI({ chatId });
   const [showLoading, setShowLoading] = useState(false);
 
   useEffect(() => {
@@ -82,7 +85,7 @@ export const ChatMessageList = () => {
         </div>
       );
     }
-    return <ChatGuide />;
+    return <ChatGuide chatId={chatId} />;
   }
 
   return (

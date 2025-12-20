@@ -99,7 +99,7 @@ export const Route = createFileRoute("/api/ai/")({
               .insert(chatsTable)
               .values({
                 id: chatId,
-                title: undefined,
+                title: getTextFromMessage(lastMessage).slice(0, 64),
                 userId,
               })
               .onConflictDoUpdate({
@@ -142,8 +142,8 @@ export const Route = createFileRoute("/api/ai/")({
               usageType: "chat",
               system: systemMessage,
               messages: messagesWithContext,
-              tools: tools({ userId }),
-              stopWhen: stepCountIs(10),
+              tools: tools({ userId, messageId: assistantMessageId }),
+              stopWhen: stepCountIs(20),
             });
 
             writer.merge(

@@ -1,5 +1,6 @@
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
+CREATE TYPE "public"."learning_asset_type" AS ENUM('flashcards', 'mini_quiz');--> statement-breakpoint
 CREATE TYPE "public"."model_provider" AS ENUM('Alibaba', 'Anthropic', 'DeepSeek', 'Google', 'Moonshot', 'OpenAI', 'xAI');--> statement-breakpoint
 CREATE TYPE "public"."model_scope" AS ENUM('basic', 'advanced', 'internal');--> statement-breakpoint
 CREATE TYPE "public"."model_thinking" AS ENUM('unspecified', 'low', 'medium', 'high');--> statement-breakpoint
@@ -63,6 +64,14 @@ CREATE TABLE "chats" (
 	"user_id" text NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE "learning_assets" (
+	"id" text PRIMARY KEY NOT NULL,
+	"message_id" text NOT NULL,
+	"type" "learning_asset_type" NOT NULL,
+	"content" jsonb NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "messages" (
 	"id" text PRIMARY KEY NOT NULL,
 	"chat_id" text NOT NULL,
@@ -110,13 +119,6 @@ CREATE TABLE "model_usages" (
 	"provider" text,
 	"finish_reason" "model_finish_reason",
 	"created_at" timestamp DEFAULT now() NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE "notes" (
-	"id" text PRIMARY KEY NOT NULL,
-	"pdf_id" text,
-	"title" text NOT NULL,
-	"content" text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "annotations" (
@@ -173,6 +175,7 @@ CREATE TABLE "recordings" (
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "chats" ADD CONSTRAINT "chats_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "learning_assets" ADD CONSTRAINT "learning_assets_message_id_messages_id_fk" FOREIGN KEY ("message_id") REFERENCES "public"."messages"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "messages" ADD CONSTRAINT "messages_chat_id_chats_id_fk" FOREIGN KEY ("chat_id") REFERENCES "public"."chats"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "files" ADD CONSTRAINT "files_parent_id_files_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."files"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "files" ADD CONSTRAINT "files_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -181,8 +184,6 @@ ALTER TABLE "model_usages" ADD CONSTRAINT "model_usages_model_id_models_id_fk" F
 ALTER TABLE "model_usages" ADD CONSTRAINT "model_usages_pdf_id_pdfs_id_fk" FOREIGN KEY ("pdf_id") REFERENCES "public"."pdfs"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "model_usages" ADD CONSTRAINT "model_usages_chat_id_chats_id_fk" FOREIGN KEY ("chat_id") REFERENCES "public"."chats"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "model_usages" ADD CONSTRAINT "model_usages_message_id_messages_id_fk" FOREIGN KEY ("message_id") REFERENCES "public"."messages"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "notes" ADD CONSTRAINT "notes_id_files_id_fk" FOREIGN KEY ("id") REFERENCES "public"."files"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "notes" ADD CONSTRAINT "notes_pdf_id_pdfs_id_fk" FOREIGN KEY ("pdf_id") REFERENCES "public"."pdfs"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "annotations" ADD CONSTRAINT "annotations_pdf_id_pdfs_id_fk" FOREIGN KEY ("pdf_id") REFERENCES "public"."pdfs"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "highlights" ADD CONSTRAINT "highlights_pdf_id_pdfs_id_fk" FOREIGN KEY ("pdf_id") REFERENCES "public"."pdfs"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "pdf_bboxes" ADD CONSTRAINT "pdf_bboxes_pdf_indexing_id_pdf_indexing_id_fk" FOREIGN KEY ("pdf_indexing_id") REFERENCES "public"."pdf_indexing"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -196,6 +197,8 @@ CREATE INDEX "chats_updated_at_idx" ON "chats" USING btree ("updated_at");--> st
 CREATE INDEX "chats_created_at_idx" ON "chats" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "chats_user_id_idx" ON "chats" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "chats_title_trgm_idx" ON "chats" USING gin ("title" gin_trgm_ops);--> statement-breakpoint
+CREATE INDEX "learning_assets_message_id_idx" ON "learning_assets" USING btree ("message_id");--> statement-breakpoint
+CREATE INDEX "learning_assets_type_idx" ON "learning_assets" USING btree ("type");--> statement-breakpoint
 CREATE INDEX "messages_chat_id_idx" ON "messages" USING btree ("chat_id");--> statement-breakpoint
 CREATE INDEX "messages_created_at_idx" ON "messages" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "files_parent_id_idx" ON "files" USING btree ("parent_id");--> statement-breakpoint
@@ -210,7 +213,6 @@ CREATE INDEX "model_usages_pdf_id_idx" ON "model_usages" USING btree ("pdf_id");
 CREATE INDEX "model_usages_chat_id_idx" ON "model_usages" USING btree ("chat_id");--> statement-breakpoint
 CREATE INDEX "model_usages_message_id_idx" ON "model_usages" USING btree ("message_id");--> statement-breakpoint
 CREATE INDEX "model_usages_created_at_idx" ON "model_usages" USING btree ("created_at");--> statement-breakpoint
-CREATE INDEX "notes_pdf_id_idx" ON "notes" USING btree ("pdf_id");--> statement-breakpoint
 CREATE INDEX "annotations_pdf_id_idx" ON "annotations" USING btree ("pdf_id");--> statement-breakpoint
 CREATE INDEX "highlights_pdf_id_idx" ON "highlights" USING btree ("pdf_id");--> statement-breakpoint
 CREATE INDEX "pdf_bboxes_pdf_indexing_id_idx" ON "pdf_bboxes" USING btree ("pdf_indexing_id");--> statement-breakpoint

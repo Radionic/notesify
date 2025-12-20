@@ -3,12 +3,19 @@ import { and, asc, eq, inArray } from "drizzle-orm";
 import { evaluate } from "mathjs";
 import { z } from "zod";
 import { db } from "@/db";
-import { pdfIndexingTable, pdfsTable } from "@/db/schema";
+import { learningAssetsTable, pdfIndexingTable, pdfsTable } from "@/db/schema";
+import { generateId } from "@/lib/id";
 import { extractVisualInfo } from "./ocr";
 import { searchKeywords } from "./search-keywords";
 import { getOrExtractToC } from "./toc";
 
-export const tools = ({ userId }: { userId: string }) => ({
+export const tools = ({
+  userId,
+  messageId,
+}: {
+  userId: string;
+  messageId: string;
+}) => ({
   getTableOfContents: tool({
     description: "Get the overview (table of contents) of a PDF.",
     inputSchema: z.object({
@@ -114,7 +121,13 @@ export const tools = ({ userId }: { userId: string }) => ({
         .min(1)
         .max(10),
     }),
-    execute: async () => {
+    execute: async ({ flashcards }) => {
+      await db.insert(learningAssetsTable).values({
+        id: generateId(),
+        messageId,
+        type: "flashcards",
+        content: flashcards,
+      });
       return "Done, created interactive UI for the flashcards";
     },
   }),
@@ -141,7 +154,13 @@ export const tools = ({ userId }: { userId: string }) => ({
         .min(1)
         .max(10),
     }),
-    execute: async () => {
+    execute: async ({ quiz }) => {
+      await db.insert(learningAssetsTable).values({
+        id: generateId(),
+        messageId,
+        type: "mini_quiz",
+        content: quiz,
+      });
       return "Done, created interactive UI for the mini quiz";
     },
   }),

@@ -1,6 +1,6 @@
+export * from "./assets";
 export * from "./auth";
 export * from "./chat/chats";
-export * from "./chat/learning-assets";
 export * from "./chat/messages";
 export * from "./files/files";
 export * from "./model";

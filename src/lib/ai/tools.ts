@@ -3,7 +3,7 @@ import { and, asc, eq, inArray } from "drizzle-orm";
 import { evaluate } from "mathjs";
 import { z } from "zod";
 import { db } from "@/db";
-import { learningAssetsTable, pdfIndexingTable, pdfsTable } from "@/db/schema";
+import { assetsTable, pdfIndexingTable, pdfsTable } from "@/db/schema";
 import { generateId } from "@/lib/id";
 import { extractVisualInfo } from "./ocr";
 import { searchKeywords } from "./search-keywords";
@@ -126,7 +126,7 @@ export const tools = ({
         .max(10),
     }),
     execute: async ({ flashcards }) => {
-      await db.insert(learningAssetsTable).values({
+      await db.insert(assetsTable).values({
         id: generateId(),
         messageId,
         type: "flashcards",
@@ -159,7 +159,7 @@ export const tools = ({
         .max(10),
     }),
     execute: async ({ quiz }) => {
-      await db.insert(learningAssetsTable).values({
+      await db.insert(assetsTable).values({
         id: generateId(),
         messageId,
         type: "mini_quiz",

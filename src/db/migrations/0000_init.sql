@@ -1,13 +1,21 @@
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
-CREATE TYPE "public"."learning_asset_type" AS ENUM('flashcards', 'mini_quiz');--> statement-breakpoint
-CREATE TYPE "public"."model_provider" AS ENUM('Alibaba', 'Anthropic', 'DeepSeek', 'Google', 'Moonshot', 'OpenAI', 'xAI');--> statement-breakpoint
+CREATE TYPE "public"."asset_type" AS ENUM('flashcards', 'mini_quiz');--> statement-breakpoint
+CREATE TYPE "public"."model_provider" AS ENUM('Alibaba', 'Anthropic', 'DeepSeek', 'Google', 'Moonshot', 'OpenAI', 'xAI', 'Xiaomi');--> statement-breakpoint
 CREATE TYPE "public"."model_scope" AS ENUM('basic', 'advanced', 'internal');--> statement-breakpoint
 CREATE TYPE "public"."model_thinking" AS ENUM('unspecified', 'low', 'medium', 'high');--> statement-breakpoint
 CREATE TYPE "public"."model_type" AS ENUM('llm', 'vlm', 'embedding', 'ocr');--> statement-breakpoint
 CREATE TYPE "public"."model_finish_reason" AS ENUM('stop', 'length', 'content-filter', 'tool-calls', 'error', 'other', 'unknown');--> statement-breakpoint
 CREATE TYPE "public"."model_usage_type" AS ENUM('chat', 'chat_title', 'pdf_toc', 'pdf_ocr_page', 'pdf_ocr_visual_info');--> statement-breakpoint
 CREATE TYPE "public"."pdf_indexing_type" AS ENUM('document', 'page', 'section');--> statement-breakpoint
+CREATE TABLE "assets" (
+	"id" text PRIMARY KEY NOT NULL,
+	"message_id" text NOT NULL,
+	"type" "asset_type" NOT NULL,
+	"content" jsonb NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE "account" (
 	"id" text PRIMARY KEY NOT NULL,
 	"account_id" text NOT NULL,
@@ -62,14 +70,6 @@ CREATE TABLE "chats" (
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
 	"user_id" text NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE "learning_assets" (
-	"id" text PRIMARY KEY NOT NULL,
-	"message_id" text NOT NULL,
-	"type" "learning_asset_type" NOT NULL,
-	"content" jsonb NOT NULL,
-	"created_at" timestamp DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE "messages" (
@@ -172,10 +172,10 @@ CREATE TABLE "recordings" (
 	"user_id" text NOT NULL
 );
 --> statement-breakpoint
+ALTER TABLE "assets" ADD CONSTRAINT "assets_message_id_messages_id_fk" FOREIGN KEY ("message_id") REFERENCES "public"."messages"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "chats" ADD CONSTRAINT "chats_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "learning_assets" ADD CONSTRAINT "learning_assets_message_id_messages_id_fk" FOREIGN KEY ("message_id") REFERENCES "public"."messages"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "messages" ADD CONSTRAINT "messages_chat_id_chats_id_fk" FOREIGN KEY ("chat_id") REFERENCES "public"."chats"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "files" ADD CONSTRAINT "files_parent_id_files_id_fk" FOREIGN KEY ("parent_id") REFERENCES "public"."files"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "files" ADD CONSTRAINT "files_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
@@ -190,6 +190,8 @@ ALTER TABLE "pdf_bboxes" ADD CONSTRAINT "pdf_bboxes_pdf_indexing_id_pdf_indexing
 ALTER TABLE "pdf_indexing" ADD CONSTRAINT "pdf_indexing_pdf_id_pdfs_id_fk" FOREIGN KEY ("pdf_id") REFERENCES "public"."pdfs"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "pdfs" ADD CONSTRAINT "pdfs_id_files_id_fk" FOREIGN KEY ("id") REFERENCES "public"."files"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "recordings" ADD CONSTRAINT "recordings_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "assets_message_id_idx" ON "assets" USING btree ("message_id");--> statement-breakpoint
+CREATE INDEX "assets_type_idx" ON "assets" USING btree ("type");--> statement-breakpoint
 CREATE INDEX "account_userId_idx" ON "account" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "session_userId_idx" ON "session" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "verification_identifier_idx" ON "verification" USING btree ("identifier");--> statement-breakpoint
@@ -197,8 +199,6 @@ CREATE INDEX "chats_updated_at_idx" ON "chats" USING btree ("updated_at");--> st
 CREATE INDEX "chats_created_at_idx" ON "chats" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "chats_user_id_idx" ON "chats" USING btree ("user_id");--> statement-breakpoint
 CREATE INDEX "chats_title_trgm_idx" ON "chats" USING gin ("title" gin_trgm_ops);--> statement-breakpoint
-CREATE INDEX "learning_assets_message_id_idx" ON "learning_assets" USING btree ("message_id");--> statement-breakpoint
-CREATE INDEX "learning_assets_type_idx" ON "learning_assets" USING btree ("type");--> statement-breakpoint
 CREATE INDEX "messages_chat_id_idx" ON "messages" USING btree ("chat_id");--> statement-breakpoint
 CREATE INDEX "messages_created_at_idx" ON "messages" USING btree ("created_at");--> statement-breakpoint
 CREATE INDEX "files_parent_id_idx" ON "files" USING btree ("parent_id");--> statement-breakpoint

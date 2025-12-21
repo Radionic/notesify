@@ -11,9 +11,11 @@ import { getOrExtractToC } from "./toc";
 
 export const tools = ({
   userId,
+  chatId,
   messageId,
 }: {
   userId: string;
+  chatId: string;
   messageId: string;
 }) => ({
   getTableOfContents: tool({
@@ -22,7 +24,7 @@ export const tools = ({
       pdfId: z.string(),
     }),
     execute: async ({ pdfId }) => {
-      return await getOrExtractToC({ pdfId, userId });
+      return await getOrExtractToC({ pdfId, chatId, messageId, userId });
     },
   }),
   getPDFPageText: tool({
@@ -88,20 +90,23 @@ export const tools = ({
       instruction: z.string().describe("The instruction prompt for extraction"),
     }),
     execute: async ({ pdfId, page, instruction }) => {
-      const result = await extractVisualInfo(pdfId, userId, page, instruction);
+      const result = await extractVisualInfo({
+        pdfId,
+        chatId,
+        messageId,
+        userId,
+        page,
+        instruction,
+      });
       return result || "No information extracted";
     },
   }),
   searchKeywords: tool({
     description:
-      "Search keywords in PDF via exact match (case-insensitive). Return snippets of nearby text of the keywords.",
+      "Search 1-5 keywords in PDF via exact match (case-insensitive). Return snippets of nearby text of the keywords.",
     inputSchema: z.object({
       pdfId: z.string(),
-      keywords: z
-        .array(z.string())
-        .min(1)
-        .max(5)
-        .describe("1-5 keywords to search for."),
+      keywords: z.array(z.string()).min(1).max(5),
     }),
     execute: async ({ pdfId, keywords }) => {
       return await searchKeywords({ pdfId, keywords });

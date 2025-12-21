@@ -142,7 +142,7 @@ export const Route = createFileRoute("/api/ai/")({
               usageType: "chat",
               system: systemMessage,
               messages: messagesWithContext,
-              tools: tools({ userId, messageId: assistantMessageId }),
+              tools: tools({ userId, chatId, messageId: assistantMessageId }),
               stopWhen: stepCountIs(20),
             });
 

@@ -17,12 +17,12 @@ export const GetViewingPdfMetadataTool = ({
     <Badge className={cn("bg-neutral-50 w-fit text-xs px-3 py-2", className)}>
       {isDone && typeof tool.output === "string" ? (
         <>
-          <Check color="green" className="w-4 h-4 mr-1" />
+          <Check color="green" className="h-3 w-3 shrink-0 mr-1" />
           Read viewing PDF metadata
         </>
       ) : (
         <>
-          <Spinner className="w-4 h-4 mr-1" />
+          <Spinner className="h-3 w-3 shrink-0 mr-1" />
           Getting PDF metadata...
         </>
       )}

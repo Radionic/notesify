@@ -58,7 +58,7 @@ export const SearchPagesTool = ({
     <Collapsible
       open={isErrored ? false : open}
       onOpenChange={isErrored ? undefined : setOpen}
-      className={cn("not-prose my-2 w-full max-w-md", className)}
+      className={cn("not-prose my-1 w-full max-w-md", className)}
     >
       <CollapsibleTrigger
         className={cn(

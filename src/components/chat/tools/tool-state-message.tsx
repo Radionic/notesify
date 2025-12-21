@@ -14,7 +14,7 @@ export const ToolStateMessage = ({
   className,
 }: ToolStateMessageProps) => {
   return (
-    <div className={cn("not-prose my-2 w-full", className)}>
+    <div className={cn("not-prose my-1 w-full", className)}>
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
         {type === "loading" && <Spinner className="h-3 w-3 shrink-0" />}
         {type === "empty" && <Info className="h-3 w-3 shrink-0" />}

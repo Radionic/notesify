@@ -92,8 +92,8 @@ export const CreateMiniQuizTool = ({
   const hasAnswered = selectedChoiceIndex != null;
 
   return (
-    <Card className={cn("not-prose my-4 w-full max-w-2xl", className)}>
-      <CardHeader className="bg-muted/30 py-3 px-4">
+    <Card className={cn("not-prose my-1 w-full max-w-2xl", className)}>
+      <CardHeader className="pt-3 pb-0 px-4">
         <div className="flex items-center justify-between mb-1">
           <span className="text-xs font-medium text-muted-foreground tracking-wider">
             Question {index + 1} of {count}
@@ -132,8 +132,8 @@ export const CreateMiniQuizTool = ({
         </h3>
       </CardHeader>
 
-      <CardContent className="p-6">
-        <div className="grid gap-3">
+      <CardContent className="p-3">
+        <div className="grid gap-2">
           {current.choices.map((choice, i) => {
             const isSelected = selectedChoiceIndex === i;
             let variant: "outline" | "default" | "destructive" | "secondary" =
@@ -162,7 +162,7 @@ export const CreateMiniQuizTool = ({
                 type="button"
                 variant={variant}
                 className={cn(
-                  "w-full justify-start text-left h-auto py-3 px-4 whitespace-normal",
+                  "w-full justify-start text-left h-auto py-2 px-3 whitespace-normal",
                   hasAnswered &&
                     !isSelected &&
                     !choice.isCorrect &&
@@ -204,7 +204,7 @@ export const CreateMiniQuizTool = ({
         {selectedChoice && (
           <div
             className={cn(
-              "mt-6 rounded-lg p-4 text-sm animate-in fade-in slide-in-from-top-2",
+              "mt-2 rounded-lg p-4 text-sm animate-in fade-in slide-in-from-top-2",
               isCorrect
                 ? "bg-green-50 text-green-900 border border-green-100"
                 : "bg-red-50 text-red-900 border border-red-100",

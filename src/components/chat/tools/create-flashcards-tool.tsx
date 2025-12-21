@@ -76,8 +76,8 @@ export const CreateFlashcardsTool = ({
   if (!current) return null;
 
   return (
-    <Card className={cn("not-prose my-4 w-full max-w-2xl", className)}>
-      <CardHeader className="bg-muted/30 py-3 px-4">
+    <Card className={cn("not-prose my-1 w-full max-w-2xl", className)}>
+      <CardHeader className="pt-3 pb-0 px-4">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-muted-foreground tracking-wider">
             Flashcard {index + 1} of {count}

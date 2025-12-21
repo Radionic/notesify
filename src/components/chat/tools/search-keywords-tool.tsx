@@ -98,7 +98,7 @@ export const SearchKeywordsTool = ({
     <Collapsible
       open={isErrored ? false : open}
       onOpenChange={isErrored ? undefined : setOpen}
-      className={cn("not-prose my-2 w-full", className)}
+      className={cn("not-prose my-1 w-full", className)}
     >
       <CollapsibleTrigger
         className={cn(

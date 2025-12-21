@@ -61,4 +61,11 @@ export const Route = createFileRoute("/library/")({
       },
     });
   },
+  head: () => ({
+    meta: [
+      {
+        title: "Library | Notesify",
+      },
+    ],
+  }),
 });

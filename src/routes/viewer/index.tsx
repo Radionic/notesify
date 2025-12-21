@@ -135,4 +135,11 @@ export const Route = createFileRoute("/viewer/")({
       },
     });
   },
+  head: () => ({
+    meta: [
+      {
+        title: "Viewer | Notesify",
+      },
+    ],
+  }),
 });

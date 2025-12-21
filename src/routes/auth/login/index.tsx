@@ -4,6 +4,13 @@ import { Header } from "@/components/landing/header";
 
 export const Route = createFileRoute("/auth/login/")({
   component: RouteComponent,
+  head: () => ({
+    meta: [
+      {
+        title: "Login | Notesify",
+      },
+    ],
+  }),
 });
 
 function RouteComponent() {

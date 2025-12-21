@@ -146,4 +146,11 @@ const ModelsPage = () => {
 
 export const Route = createFileRoute("/models")({
   component: ModelsPage,
+  head: () => ({
+    meta: [
+      {
+        title: "Models | Notesify",
+      },
+    ],
+  }),
 });

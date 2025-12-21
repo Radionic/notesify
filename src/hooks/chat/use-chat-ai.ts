@@ -34,7 +34,7 @@ export const useChatAI = ({ chatId }: { chatId: string }) => {
   }, [initialMessages, messages, setMessages]);
 
   const lastMessage = messages[messages.length - 1];
-  const lastPart = lastMessage?.parts[lastMessage?.parts.length - 1];
+  const lastPart = lastMessage?.parts?.[lastMessage?.parts.length - 1];
   const isRunningTool =
     lastPart?.type === "dynamic-tool" && lastPart?.state === "input-streaming";
   const isLoading = status === "submitted" || status === "streaming";

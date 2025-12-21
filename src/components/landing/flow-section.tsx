@@ -18,7 +18,7 @@ interface FlowStep {
 
 const steps: FlowStep[] = [
   {
-    title: "Scan & Grasp",
+    title: "Summarize & Grasp",
     description:
       "Get the core ideas instantly with AI summaries. Build a mental map before diving into the details.",
     icon: BookOpen,
@@ -53,18 +53,18 @@ const steps: FlowStep[] = [
 
 export function FlowSection() {
   return (
-    <section className="py-20 px-4 max-w-6xl mx-auto space-y-12">
+    <section className="py-20 px-4 max-w-5xl mx-auto space-y-12">
       <div className="text-center max-w-3xl mx-auto space-y-6">
         <h2 className="font-ebg text-4xl md:text-5xl font-medium tracking-tight text-primary">
           From Reading to Learning
         </h2>
         <p className="text-muted-foreground text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
-          Notesify turns passive reading into active learning. It's the seamless
-          workflow you need to truly own your knowledge.
+          Notesify provides the seamless workflow you need to truly own your
+          knowledge.
         </p>
       </div>
 
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
         {steps.map((step, i) => (
           <Card
             key={step.title}

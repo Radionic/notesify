@@ -30,12 +30,21 @@ const loadPageImage = async (
   return Buffer.from(arrayBuffer).toString("base64");
 };
 
-export const extractVisualInfo = async (
-  pdfId: string,
-  userId: string,
-  page: number,
-  instruction: string,
-): Promise<string> => {
+export const extractVisualInfo = async ({
+  pdfId,
+  chatId,
+  messageId,
+  userId,
+  page,
+  instruction,
+}: {
+  pdfId: string;
+  chatId: string;
+  messageId: string;
+  userId: string;
+  page: number;
+  instruction: string;
+}): Promise<string> => {
   if (!process.env.PDF_OCR_MODEL_ID) {
     throw Error("PDF_OCR_MODEL_ID not set");
   }
@@ -46,6 +55,8 @@ export const extractVisualInfo = async (
     model: process.env.PDF_OCR_MODEL_ID,
     internal: true,
     userId,
+    chatId,
+    messageId,
     pdfId,
     usageType: "pdf_ocr_visual_info",
     messages: [

@@ -103,8 +103,8 @@ export function FeatureSection() {
           Accelerate Learning with Notesify
         </h2>
         <p className="text-muted-foreground text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
-          Turn static PDFs into interactive knowledge. Chat, annotate, and
-          master your reading list faster than ever.
+          Turn PDFs into active knowledge. Ask AI, scribble notes, and create
+          flashcards and quizzes to master your reading list faster than ever.
         </p>
       </div>
 

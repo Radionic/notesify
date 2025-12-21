@@ -113,8 +113,7 @@ export const tools = ({
     },
   }),
   createFlashcards: tool({
-    description:
-      "Create 1-10 interactive flashcards from provided questions and answers.",
+    description: "Call this tool to create 1-10 interactive flashcards.",
     inputSchema: z.object({
       flashcards: z
         .array(
@@ -133,12 +132,12 @@ export const tools = ({
         type: "flashcards",
         content: flashcards,
       });
-      return "Done, created interactive UI for the flashcards";
+      return "Created interactive UI for the flashcards. DON'T repeat the flashcard info in your response.";
     },
   }),
   createMiniQuiz: tool({
     description:
-      "Create an interactive mini quiz (1-10 MC questions) with explanations for each answer.",
+      "Call this tool to create an interactive mini quiz (1-10 MC questions).",
     inputSchema: z.object({
       quiz: z
         .array(
@@ -166,7 +165,7 @@ export const tools = ({
         type: "mini_quiz",
         content: quiz,
       });
-      return "Done, created interactive UI for the mini quiz";
+      return "Created interactive UI for the mini quiz. DON'T repeat the quiz info in your response.";
     },
   }),
   // searchPages: tool({

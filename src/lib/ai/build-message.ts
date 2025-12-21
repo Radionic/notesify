@@ -70,11 +70,11 @@ export const buildSystemMessage = async ({
   
 1. Respond in GitHub Flavored Markdown (GFM) format
 2. For mathematical expressions, all MUST be expressed in KaTeX and wrapped by double dollar signs
-3. When user asks for sources, citations or location, and you have enough context, use this Markdown Blockquote format to reference/cite PDF content:
+3. ONLY when user explicitly asks for sources, citations or location, use this Markdown Blockquote format to reference/cite PDF content:
 > pdfId: {pdf id}
 > pdfPage: {pdf page number}
 >
-> {exact quotes from the pdf page, no rephrasing or summarizing}
+> {exact quotes from the pdf page, no rephrasing, summarizing or truncating}
 `;
 };
 

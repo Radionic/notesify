@@ -306,9 +306,13 @@ export const extractToCByImages = async ({
 
 export const getOrExtractToC = async ({
   pdfId,
+  chatId,
+  messageId,
   userId,
 }: {
   pdfId: string;
+  chatId: string;
+  messageId: string;
   userId: string;
 }) => {
   // Get table of contents from database if any
@@ -347,6 +351,8 @@ export const getOrExtractToC = async ({
             text: combinedText,
             metadata: {
               userId,
+              chatId,
+              messageId,
               pdfId: item.pdfId,
               type: "section" as const,
               text: `${item.title}\n${item.content}`,

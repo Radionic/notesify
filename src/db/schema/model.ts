@@ -21,6 +21,7 @@ export const modelProviderEnum = pgEnum("model_provider", [
   "Moonshot",
   "OpenAI",
   "xAI",
+  "Xiaomi",
 ]);
 
 export const modelThinkingEnum = pgEnum("model_thinking", [

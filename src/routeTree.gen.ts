@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as ModelsRouteImport } from './routes/models'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ViewerIndexRouteImport } from './routes/viewer/index'
 import { Route as LibraryIndexRouteImport } from './routes/library/index'
@@ -17,6 +19,16 @@ import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as ApiAiIndexRouteImport } from './routes/api/ai/index'
 import { Route as ApiAuthSplatRouteImport } from './routes/api/auth/$'
 
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ModelsRoute = ModelsRouteImport.update({
+  id: '/models',
+  path: '/models',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -55,6 +67,8 @@ const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/models': typeof ModelsRoute
+  '/pricing': typeof PricingRoute
   '/library': typeof LibraryIndexRoute
   '/viewer': typeof ViewerIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -64,6 +78,8 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/models': typeof ModelsRoute
+  '/pricing': typeof PricingRoute
   '/library': typeof LibraryIndexRoute
   '/viewer': typeof ViewerIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -74,6 +90,8 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/models': typeof ModelsRoute
+  '/pricing': typeof PricingRoute
   '/library/': typeof LibraryIndexRoute
   '/viewer/': typeof ViewerIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
@@ -85,6 +103,8 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/models'
+    | '/pricing'
     | '/library'
     | '/viewer'
     | '/api/auth/$'
@@ -94,6 +114,8 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/models'
+    | '/pricing'
     | '/library'
     | '/viewer'
     | '/api/auth/$'
@@ -103,6 +125,8 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/models'
+    | '/pricing'
     | '/library/'
     | '/viewer/'
     | '/api/auth/$'
@@ -113,6 +137,8 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ModelsRoute: typeof ModelsRoute
+  PricingRoute: typeof PricingRoute
   LibraryIndexRoute: typeof LibraryIndexRoute
   ViewerIndexRoute: typeof ViewerIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
@@ -123,6 +149,20 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/models': {
+      id: '/models'
+      path: '/models'
+      fullPath: '/models'
+      preLoaderRoute: typeof ModelsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -177,6 +217,8 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ModelsRoute: ModelsRoute,
+  PricingRoute: PricingRoute,
   LibraryIndexRoute: LibraryIndexRoute,
   ViewerIndexRoute: ViewerIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,

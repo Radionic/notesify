@@ -17,7 +17,7 @@ export const Route = createRootRoute({
         name: "viewport",
         content: "width=device-width, initial-scale=1",
       },
-      { title: "Notesify" },
+      { title: "Notesify - The best AI note taking app" },
     ],
     links: [
       {

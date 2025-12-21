@@ -1,14 +1,11 @@
 import { atomWithStorage } from "jotai/utils";
+import type { Model } from "@/db/schema/model";
 
-export type Model = {
-  id: string;
-  name: string;
-  type: "llm" | "vlm" | "embedding" | "ocr";
-  provider: string;
-  thinking?: "unspecified" | "low" | "medium" | "high" | null;
-};
+export type { Model };
 
-export const selectedModelAtom = atomWithStorage<Model | undefined>(
+export type PublicModel = Omit<Model, "modelId" | "providerOptions">;
+
+export const selectedModelAtom = atomWithStorage<PublicModel | undefined>(
   "selected-model",
   undefined,
 );

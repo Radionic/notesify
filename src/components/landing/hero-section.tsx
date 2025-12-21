@@ -11,7 +11,7 @@ export function HeroSection() {
           Read, Write, and Organize Notes
         </h1>
         <p className="mt-4 text-muted-foreground text-xl sm:text-2xl">
-          The AI-powered note-taking workspace
+          The all-in-one AI note taking workspace
         </p>
 
         <Link to="/library" className="p-0">
@@ -33,7 +33,7 @@ export function HeroSection() {
       <img
         src="/demo.jpg"
         alt="Notesify Demo"
-        className="rounded-xl shadow-2xl w-full max-w-7xl"
+        className="rounded-xl shadow-2xl w-full max-w-5xl mx-auto"
       />
     </section>
   );

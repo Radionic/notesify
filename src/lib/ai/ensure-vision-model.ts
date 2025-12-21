@@ -1,7 +1,11 @@
 import { toast } from "sonner";
-import type { Model } from "@/atoms/setting/providers";
+import type { PublicModel } from "@/atoms/setting/providers";
 
-export const ensureVisionModel = ({ model }: { model?: Model }): boolean => {
+export const ensureVisionModel = ({
+  model,
+}: {
+  model?: PublicModel;
+}): boolean => {
   const isVisionModel = model?.type === "vlm";
   if (!isVisionModel) {
     toast.warning(

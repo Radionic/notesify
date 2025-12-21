@@ -8,6 +8,7 @@ export const ThemeSwitch = () => {
   return (
     <TooltipButton
       tooltip="Toggle Light/Dark Theme"
+      className="text-muted-foreground"
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
     >
       {theme === "light" ? (

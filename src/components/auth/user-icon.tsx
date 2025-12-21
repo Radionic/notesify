@@ -24,7 +24,12 @@ export const UserIcon = () => {
   if (!user) {
     return (
       <Link to="/auth/login">
-        <Button variant="outline" type="button" className="shadow-none mx-1">
+        <Button
+          variant="outline"
+          type="button"
+          size="sm"
+          className="shadow-none mx-1"
+        >
           Login
         </Button>
       </Link>
@@ -40,7 +45,7 @@ export const UserIcon = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" type="button" className="p-2 w-fit h-fit">
-          <User className="h-5 w-5" />
+          <User className="h-5 w-5 text-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">

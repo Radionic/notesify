@@ -1,8 +1,8 @@
 import { atom } from "jotai";
-import { atomFamily } from "jotai/utils";
+import { atomFamily } from "jotai-family";
 
-export const penSizes = [40, 60, 80, 100];
-export const penColors = [
+export const PEN_SIZES = [40, 60, 80, 100];
+export const PEN_COLORS = [
   "#000000", // Black
   "#FFC300", // Yellow
   "#32CD32", // Green
@@ -12,8 +12,8 @@ export const penColors = [
   "#FF4500", // Red
 ];
 
-export const highlighterSizes = [100, 200, 300, 400];
-export const highlighterColors = [
+export const HIGHLIGHTER_SIZES = [100, 200, 300, 400];
+export const HIGHLIGHTER_COLORS = [
   "#FFC30080", // Yellow with opacity
   "#32CD3280", // Green with opacity
   "#4169E180", // Blue with opacity
@@ -27,15 +27,15 @@ export const activeAnnotatorAtomFamily = atomFamily((pdfId: string) =>
 );
 
 export const selectedPenSizeAtomFamily = atomFamily((pdfId: string) =>
-  atom<number>(penSizes[1]),
+  atom<number>(PEN_SIZES[1]),
 );
 export const selectedPenColorAtomFamily = atomFamily((pdfId: string) =>
-  atom<string>(penColors[0]),
+  atom<string>(PEN_COLORS[0]),
 );
 
 export const selectedHighlighterSizeAtomFamily = atomFamily((pdfId: string) =>
-  atom<number>(highlighterSizes[1]),
+  atom<number>(HIGHLIGHTER_SIZES[1]),
 );
 export const selectedHighlighterColorAtomFamily = atomFamily((pdfId: string) =>
-  atom<string>(highlighterColors[0]),
+  atom<string>(HIGHLIGHTER_COLORS[0]),
 );

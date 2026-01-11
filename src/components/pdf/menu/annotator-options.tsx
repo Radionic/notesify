@@ -1,9 +1,9 @@
 import { useAtom } from "jotai";
 import {
-  highlighterColors,
-  highlighterSizes,
-  penColors,
-  penSizes,
+  HIGHLIGHTER_COLORS,
+  HIGHLIGHTER_SIZES,
+  PEN_COLORS,
+  PEN_SIZES,
   selectedHighlighterColorAtomFamily,
   selectedHighlighterSizeAtomFamily,
   selectedPenColorAtomFamily,
@@ -31,8 +31,8 @@ export const AnnotatorOptions = ({
       : selectedHighlighterColorAtomFamily(pdfId),
   );
 
-  const sizes = isPen ? penSizes : highlighterSizes;
-  const colors = isPen ? penColors : highlighterColors;
+  const sizes = isPen ? PEN_SIZES : HIGHLIGHTER_SIZES;
+  const colors = isPen ? PEN_COLORS : HIGHLIGHTER_COLORS;
 
   return (
     <div className="flex flex-row items-center gap-1 p-1">

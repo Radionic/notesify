@@ -139,7 +139,6 @@ export const ChatInput = () => {
           <SelectAreaContextButton />
         </div>
         <div className="flex flex-row items-center">
-          {/* <ResponseQualityButton /> */}
           <SendButton disabled={disableSending} isLoading={isLoading} />
         </div>
       </div>

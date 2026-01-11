@@ -1,5 +1,5 @@
 import { atom } from "jotai";
-import { atomFamily } from "jotai/utils";
+import { atomFamily } from "jotai-family";
 
 import type { Annotation } from "../../db/schema/pdf/annotations";
 import type { Highlight } from "../../db/schema/pdf/highlights";

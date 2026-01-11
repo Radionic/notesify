@@ -179,9 +179,6 @@ importers:
       jotai-family:
         specifier: ^1.0.1
         version: 1.0.1(jotai@2.16.1(@babel/core@7.28.5)(@babel/template@7.27.2)(@types/react@19.2.8)(react@19.2.3))
-      jsonrepair:
-        specifier: ^3.13.1
-        version: 3.13.1
       katex:
         specifier: ^0.16.27
         version: 0.16.27
@@ -4788,10 +4785,6 @@ packages:
   json5@2.2.3:
     resolution: {integrity: sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==}
     engines: {node: '>=6'}
-    hasBin: true
-
-  jsonrepair@3.13.1:
-    resolution: {integrity: sha512-WJeiE0jGfxYmtLwBTEk8+y/mYcaleyLXWaqp5bJu0/ZTSeG0KQq/wWQ8pmnkKenEdN6pdnn6QtcoSUkbqDHWNw==}
     hasBin: true
 
   katex@0.16.27:
@@ -10962,8 +10955,6 @@ snapshots:
       string-convert: 0.2.1
 
   json5@2.2.3: {}
-
-  jsonrepair@3.13.1: {}
 
   katex@0.16.27:
     dependencies:

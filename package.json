@@ -74,7 +74,6 @@
     "input-otp": "^1.4.2",
     "jotai": "^2.16.1",
     "jotai-family": "^1.0.1",
-    "jsonrepair": "^3.13.1",
     "katex": "^0.16.27",
     "ldrs": "^1.1.9",
     "lucide-react": "^0.562.0",

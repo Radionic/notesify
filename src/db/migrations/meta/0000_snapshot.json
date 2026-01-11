@@ -1,5 +1,5 @@
 {
-  "id": "ca712ef2-83ad-481a-97fc-732c5dccb295",
+  "id": "1ba2cec6-8b4e-4038-9a58-586ebe8f8b12",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -972,32 +972,32 @@
           "primaryKey": false,
           "notNull": true
         },
-        "prompt_tokens": {
-          "name": "prompt_tokens",
+        "input_uncached_tokens": {
+          "name": "input_uncached_tokens",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
-        "cached_input_tokens": {
-          "name": "cached_input_tokens",
+        "input_cached_read_tokens": {
+          "name": "input_cached_read_tokens",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
-        "completion_tokens": {
-          "name": "completion_tokens",
+        "input_cached_write_tokens": {
+          "name": "input_cached_write_tokens",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
-        "reasoning_tokens": {
-          "name": "reasoning_tokens",
+        "output_text_tokens": {
+          "name": "output_text_tokens",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
-        "total_tokens": {
-          "name": "total_tokens",
+        "output_reasoning_tokens": {
+          "name": "output_reasoning_tokens",
           "type": "integer",
           "primaryKey": false,
           "notNull": false

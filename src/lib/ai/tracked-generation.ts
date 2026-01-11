@@ -1,5 +1,4 @@
-import { generateObject, generateText, type JSONValue, streamText } from "ai";
-import type { infer as ZodInfer, ZodTypeAny } from "zod";
+import { generateText, type JSONValue, streamText } from "ai";
 import { db } from "@/db";
 import { type ModelUsageType, modelUsagesTable } from "@/db/schema";
 import { generateId } from "@/lib/id";
@@ -64,11 +63,14 @@ export const trackedGenerateText = async (
       messageId,
       pdfId,
       type: usageType,
-      promptTokens: result.totalUsage?.inputTokens,
-      cachedInputTokens: result.totalUsage?.cachedInputTokens,
-      completionTokens: result.totalUsage?.outputTokens,
-      reasoningTokens: result.totalUsage?.reasoningTokens,
-      totalTokens: result.totalUsage?.totalTokens,
+      inputUncachedTokens: result.totalUsage?.inputTokenDetails.noCacheTokens,
+      inputCachedReadTokens:
+        result.totalUsage?.inputTokenDetails.cacheReadTokens,
+      inputCachedWriteTokens:
+        result.totalUsage?.inputTokenDetails.cacheWriteTokens,
+      outputTextTokens: result.totalUsage?.outputTokenDetails.textTokens,
+      outputReasoningTokens:
+        result.totalUsage?.outputTokenDetails.reasoningTokens,
       finishReason: result.finishReason,
       cost: gateway?.cost,
       provider: gateway?.routing?.finalProvider,
@@ -79,71 +81,6 @@ export const trackedGenerateText = async (
     throw error;
   }
 };
-
-export function trackedGenerateObject<S extends ZodTypeAny>(
-  args: Parameters<typeof generateObject>[0] & {
-    schema: S;
-    userId: string;
-    pdfId?: string;
-    chatId?: string;
-    messageId?: string;
-    usageType: ModelUsageType;
-    internal?: boolean;
-  },
-): Promise<
-  Omit<Awaited<ReturnType<typeof generateObject>>, "object"> & {
-    object: ZodInfer<S>;
-  }
->;
-
-export async function trackedGenerateObject(
-  args: Parameters<typeof generateObject>[0] & {
-    userId: string;
-    pdfId?: string;
-    chatId?: string;
-    messageId?: string;
-    usageType: ModelUsageType;
-    internal?: boolean;
-  },
-): Promise<Awaited<ReturnType<typeof generateObject>>> {
-  const { userId, pdfId, chatId, messageId, usageType, internal, ...aiArgs } =
-    args;
-
-  try {
-    const model = await getModelById({
-      id: aiArgs.model.toString(),
-      internal,
-    });
-    const result = await generateObject({
-      ...aiArgs,
-      model: model.modelId,
-      maxOutputTokens: model.maxOutputTokens ?? undefined,
-      providerOptions: model.providerOptions as ProviderOptions,
-    });
-    const gateway = result.providerMetadata?.gateway as GatewayMetadata;
-    await db.insert(modelUsagesTable).values({
-      id: generateId(),
-      modelId: model.id,
-      userId,
-      chatId,
-      messageId,
-      pdfId,
-      type: usageType,
-      promptTokens: result.usage?.inputTokens,
-      cachedInputTokens: result.usage?.cachedInputTokens,
-      completionTokens: result.usage?.outputTokens,
-      reasoningTokens: result.usage?.reasoningTokens,
-      totalTokens: result.usage?.totalTokens,
-      finishReason: result.finishReason,
-      cost: gateway?.cost,
-      provider: gateway?.routing?.finalProvider,
-    });
-    return result;
-  } catch (error) {
-    console.error("Error generating object:", error);
-    throw error;
-  }
-}
 
 export const trackedStreamText = async (
   args: Parameters<typeof streamText>[0] & {
@@ -196,11 +133,15 @@ export const trackedStreamText = async (
           messageId,
           pdfId,
           type: usageType,
-          promptTokens: event.totalUsage?.inputTokens,
-          cachedInputTokens: event.totalUsage?.cachedInputTokens,
-          completionTokens: event.totalUsage?.outputTokens,
-          reasoningTokens: event.totalUsage?.reasoningTokens,
-          totalTokens: event.totalUsage?.totalTokens,
+          inputUncachedTokens:
+            event.totalUsage?.inputTokenDetails.noCacheTokens,
+          inputCachedReadTokens:
+            event.totalUsage?.inputTokenDetails.cacheReadTokens,
+          inputCachedWriteTokens:
+            event.totalUsage?.inputTokenDetails.cacheWriteTokens,
+          outputTextTokens: event.totalUsage?.outputTokenDetails.textTokens,
+          outputReasoningTokens:
+            event.totalUsage?.outputTokenDetails.reasoningTokens,
           finishReason: event.finishReason,
           cost: gateway?.cost,
           provider: gateway?.routing?.finalProvider,

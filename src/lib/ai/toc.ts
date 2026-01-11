@@ -1,12 +1,11 @@
-import { NoObjectGeneratedError } from "ai";
+import { NoContentGeneratedError, Output } from "ai";
 import { and, asc, eq } from "drizzle-orm";
-import { jsonrepair } from "jsonrepair";
 import { z } from "zod";
 import { db } from "@/db";
 import { pdfIndexingTable, pdfsTable } from "@/db/schema";
 import { generateId } from "@/lib/id";
 import { getFileFromStorage } from "../storage";
-import { trackedGenerateObject } from "./tracked-generation";
+import { trackedGenerateText } from "./tracked-generation";
 import { upsertText } from "./vectorize";
 
 export const extractToC = async ({
@@ -103,7 +102,7 @@ export const extractToCByTexts = async ({
     .join("\n\n");
 
   try {
-    const schema = z.array(
+    const tocSchema = z.array(
       z.object({
         startPage: z.number().int().min(1),
         endPage: z.number().int().max(pageCount),
@@ -122,13 +121,15 @@ export const extractToCByTexts = async ({
       "Return in this JSON format: [{ startPage: number, endPage: number, title: string, summary: string }, ...]." +
       "DO NOT explain anything, ONLY return the JSON.";
 
-    const { object } = await trackedGenerateObject({
+    const { output } = await trackedGenerateText({
       model: process.env.PDF_TOC_MODEL_ID,
       internal: true,
       userId,
       pdfId,
       usageType: "pdf_toc",
-      schema,
+      output: Output.object({
+        schema: tocSchema,
+      }),
       messages: [
         {
           role: "user",
@@ -140,20 +141,16 @@ export const extractToCByTexts = async ({
           ],
         },
       ],
-      experimental_repairText: async ({ text }) => {
-        return jsonrepair(text);
-      },
     });
 
-    return object.map(({ summary, ...rest }) => ({
-      ...rest,
-      content: summary,
+    return output.map((section: z.infer<typeof tocSchema>[number]) => ({
+      ...section,
+      content: section.summary,
     }));
   } catch (error) {
-    if (NoObjectGeneratedError.isInstance(error)) {
-      console.log("NoObjectGeneratedError");
-      console.log("Cause:", error.cause);
-      console.log("Text:", error.text);
+    if (error instanceof NoContentGeneratedError) {
+      console.log("NoContentGeneratedError");
+      console.log("Error:", error);
     }
     throw error;
   }
@@ -253,13 +250,15 @@ export const extractToCByImages = async ({
         "Otherwise, set replaceLastSection to false. " +
         "Return JSON in this format: { replaceLastSection: boolean, sections: [{ startPage: number, endPage: number, title: string, summary: string }, ...] }.";
 
-      const { object } = await trackedGenerateObject({
+      const { output } = await trackedGenerateText({
         model: process.env.PDF_TOC_MODEL_ID,
         internal: true,
         userId,
         pdfId,
         usageType: "pdf_toc",
-        schema: batchSchema,
+        output: Output.object({
+          schema: batchSchema,
+        }),
         messages: [
           {
             role: "user",
@@ -274,7 +273,7 @@ export const extractToCByImages = async ({
         ],
       });
 
-      const { replaceLastSection = false, sections } = object;
+      const { replaceLastSection = false, sections } = output;
 
       let batchSections = sections;
 
@@ -290,15 +289,14 @@ export const extractToCByImages = async ({
       allSections.push(...batchSections);
     }
 
-    return allSections.map(({ summary, ...rest }) => ({
-      ...rest,
-      content: summary,
+    return allSections.map((section: z.infer<typeof sectionSchema>) => ({
+      ...section,
+      content: section.summary,
     }));
   } catch (error) {
-    if (NoObjectGeneratedError.isInstance(error)) {
-      console.log("NoObjectGeneratedError");
-      console.log("Cause:", error.cause);
-      console.log("Text:", error.text);
+    if (error instanceof NoContentGeneratedError) {
+      console.log("NoContentGeneratedError");
+      console.log("Error:", error);
     }
     throw error;
   }
@@ -331,17 +329,24 @@ export const getOrExtractToC = async ({
   const extractedSections = await extractToC({ pdfId, userId });
 
   if (extractedSections.length > 0) {
-    const sectionItems = extractedSections.map((section) => ({
-      id: generateId(),
-      pdfId,
-      type: "section" as const,
-      ...section,
-    }));
+    const sectionItems = extractedSections.map(
+      (section: {
+        startPage: number;
+        endPage: number;
+        title: string;
+        content: string;
+      }) => ({
+        id: generateId(),
+        pdfId,
+        type: "section" as const,
+        ...section,
+      }),
+    );
 
     await Promise.all([
       db.insert(pdfIndexingTable).values(sectionItems),
       upsertText(
-        sectionItems.map((item) => {
+        sectionItems.map((item: (typeof sectionItems)[number]) => {
           const combinedText = [item.title, item.content]
             .filter((part) => !!part && part.length > 0)
             .join("\n\n");

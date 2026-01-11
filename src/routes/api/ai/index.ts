@@ -120,7 +120,7 @@ export const Route = createFileRoute("/api/ai/")({
             return chat;
           })(),
         ]);
-        const messagesWithContext = buildMessages(messages, contexts);
+        const messagesWithContext = await buildMessages(messages, contexts);
 
         const stream = createUIMessageStream<MyUIMessage>({
           execute: async ({ writer }) => {

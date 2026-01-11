@@ -78,13 +78,13 @@ export const buildSystemMessage = async ({
 `;
 };
 
-export const buildMessages = (
+export const buildMessages = async (
   messages: UIMessage[],
   contexts?: Context[],
-): ModelMessage[] => {
+): Promise<ModelMessage[]> => {
   const currentMessage = messages[messages.length - 1];
   if (currentMessage.role !== "user") {
-    return convertToModelMessages(messages);
+    return await convertToModelMessages(messages);
   }
   const initialMessages = messages.slice(0, -1);
 
@@ -94,7 +94,7 @@ export const buildMessages = (
   );
   const imageContent = buildImageContent(contexts);
   return [
-    ...convertToModelMessages(initialMessages),
+    ...(await convertToModelMessages(initialMessages)),
     {
       role: "user",
       content: [textContent, ...imageContent].filter(Boolean),

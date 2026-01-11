@@ -6,7 +6,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createAuthMiddleware } from "better-auth/api";
 import { db } from "@/db";
 import { sendMessage } from "@/lib/discord";
-import { sendVerifyEmail } from "./email";
+import { sendResetPasswordEmail, sendVerifyEmail } from "./email";
 
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
@@ -43,6 +43,14 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: true,
+    sendResetPassword: async ({ user, url }) => {
+      waitUntil(
+        sendResetPasswordEmail({
+          email: user.email,
+          redirectUrl: url,
+        }),
+      );
+    },
   },
   emailVerification: {
     autoSignInAfterVerification: true,

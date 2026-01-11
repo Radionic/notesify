@@ -100,9 +100,9 @@ CREATE TABLE "models" (
 	"type" "model_type" NOT NULL,
 	"scope" "model_scope" DEFAULT 'basic' NOT NULL,
 	"thinking" "model_thinking",
-	"credits" integer DEFAULT 0 NOT NULL,
-	"max_output_tokens" integer,
-	"max_input_chars" integer
+	"credits" numeric(4, 2) DEFAULT 0 NOT NULL,
+	"max_input_chars" integer,
+	"max_output_tokens" integer
 );
 --> statement-breakpoint
 CREATE TABLE "model_usages" (

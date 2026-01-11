@@ -1,5 +1,5 @@
 {
-  "id": "05ad08f8-0f95-41a0-ba69-52fcdaa315b3",
+  "id": "ca712ef2-83ad-481a-97fc-732c5dccb295",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -899,19 +899,19 @@
         },
         "credits": {
           "name": "credits",
-          "type": "integer",
+          "type": "numeric(4, 2)",
           "primaryKey": false,
           "notNull": true,
           "default": 0
         },
-        "max_output_tokens": {
-          "name": "max_output_tokens",
+        "max_input_chars": {
+          "name": "max_input_chars",
           "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
-        "max_input_chars": {
-          "name": "max_input_chars",
+        "max_output_tokens": {
+          "name": "max_output_tokens",
           "type": "integer",
           "primaryKey": false,
           "notNull": false

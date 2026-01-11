@@ -84,7 +84,12 @@ const Viewer = () => {
       >
         {pdfViewerOpen && pdfId && (
           <>
-            <ResizablePanel minSize={30} className="relative" order={1}>
+            <ResizablePanel
+              minSize={30}
+              className="relative"
+              defaultSize={60}
+              order={1}
+            >
               <div className="flex flex-col h-full">
                 <PdfToolbar pdfId={pdfId} />
                 <div className="flex-1 relative">
@@ -107,7 +112,7 @@ const Viewer = () => {
 
         {chatsOpen && (
           <>
-            <ResizablePanel minSize={25} order={3}>
+            <ResizablePanel minSize={25} defaultSize={40} order={3}>
               <Chat />
             </ResizablePanel>
             <ResizableHandle withHandle />

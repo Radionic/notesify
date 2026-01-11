@@ -2,10 +2,7 @@ import { useAtom } from "jotai";
 import { Check } from "lucide-react";
 import { useEffect, useState } from "react";
 import { RiRobot2Line } from "react-icons/ri";
-import {
-  type PublicModel,
-  selectedModelAtom,
-} from "@/atoms/setting/providers";
+import { type PublicModel, selectedModelAtom } from "@/atoms/setting/providers";
 import {
   Command,
   CommandEmpty,

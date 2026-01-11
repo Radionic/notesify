@@ -57,7 +57,7 @@ export const extractPageTextData = async (
   const viewport = page.getViewport({ scale: 1 });
   const textContent = await page.getTextContent();
   const items = textContent.items as PdfJsTextItem[];
-  
+
   const parts = items.map((item) =>
     typeof item?.str === "string" ? sanitizePdfText(item.str) : "",
   );
@@ -68,7 +68,7 @@ export const extractPageTextData = async (
 
   const pageBboxes: PdfTextBbox[] = [];
   let rawCursor = 0;
-  
+
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
     const str = parts[i] ?? "";
@@ -91,10 +91,8 @@ export const extractPageTextData = async (
       continue;
     }
 
-    const x =
-      typeof item?.transform?.[4] === "number" ? item.transform[4] : 0;
-    const y =
-      typeof item?.transform?.[5] === "number" ? item.transform[5] : 0;
+    const x = typeof item?.transform?.[4] === "number" ? item.transform[4] : 0;
+    const y = typeof item?.transform?.[5] === "number" ? item.transform[5] : 0;
     const w = typeof item?.width === "number" ? item.width : 0;
     const h =
       typeof item?.height === "number" && item.height > 0
@@ -109,7 +107,7 @@ export const extractPageTextData = async (
       x + w,
       y + h,
     ]);
-    
+
     const leftPx = Math.min(x1, x2);
     const rightPx = Math.max(x1, x2);
     const topPx = Math.min(y1, y2);

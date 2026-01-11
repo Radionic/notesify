@@ -28,8 +28,14 @@ export const ChatMessageList = () => {
   );
 
   const { data: models = [] } = useLlmModels();
-  const { messages, error, isLoading, isLoadingInitMessages, regenerate } =
-    useChatAI({ chatId });
+  const {
+    messages,
+    error,
+    isLoading,
+    isLoadingInitMessages,
+    regenerate,
+    sendMessage,
+  } = useChatAI({ chatId });
   const [showLoading, setShowLoading] = useState(false);
 
   useEffect(() => {
@@ -102,6 +108,16 @@ export const ChatMessageList = () => {
             ? models.find((m) => m.id === modelId)
             : undefined;
           const isLast = i === messages.length - 1;
+
+          const canContinue =
+            message.role === "assistant" &&
+            message.metadata?.finishReason === "length" &&
+            isLast &&
+            !isLoading;
+          const continueMetadata =
+            previousMessage?.role === "user"
+              ? previousMessage.metadata
+              : undefined;
           return message.role === "user" ? (
             <div key={message.id} className="flex flex-col gap-1 items-end">
               <TextContextsPreview contexts={contexts} className="items-end" />
@@ -118,7 +134,15 @@ export const ChatMessageList = () => {
               header={model?.name}
               isLoading={isLast && isLoading}
               isLast={isLast}
-              reload={regenerate}
+              reload={() => regenerate()}
+              canContinue={canContinue}
+              onContinue={() => {
+                if (!continueMetadata) return;
+                sendMessage({
+                  text: "Continue",
+                  metadata: continueMetadata,
+                });
+              }}
             />
           );
         })}

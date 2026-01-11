@@ -14,6 +14,8 @@ export const getModelById = async ({
       id: true,
       modelId: true,
       providerOptions: true,
+      maxInputChars: true,
+      maxOutputTokens: true,
     },
     where: internal
       ? eq(modelsTable.id, id)

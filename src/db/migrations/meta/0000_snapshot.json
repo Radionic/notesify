@@ -1,5 +1,5 @@
 {
-  "id": "520698b8-1260-4133-9e34-a4b1ca9c22c7",
+  "id": "05ad08f8-0f95-41a0-ba69-52fcdaa315b3",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -894,6 +894,25 @@
           "name": "thinking",
           "type": "model_thinking",
           "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "credits": {
+          "name": "credits",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "max_output_tokens": {
+          "name": "max_output_tokens",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "max_input_chars": {
+          "name": "max_input_chars",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         }

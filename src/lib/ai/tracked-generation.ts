@@ -4,6 +4,7 @@ import { db } from "@/db";
 import { type ModelUsageType, modelUsagesTable } from "@/db/schema";
 import { generateId } from "@/lib/id";
 import { getModelById } from "./get-model";
+import { truncateMessages } from "./truncate-messages";
 
 type GatewayMetadata = {
   cost?: string;
@@ -24,19 +25,36 @@ export const trackedGenerateText = async (
     internal?: boolean;
   },
 ): Promise<Awaited<ReturnType<typeof generateText>>> => {
-  const { userId, pdfId, chatId, messageId, usageType, internal, ...aiArgs } =
-    args;
+  const {
+    userId,
+    pdfId,
+    chatId,
+    messageId,
+    usageType,
+    internal,
+    prompt,
+    messages,
+    ...aiArgs
+  } = args;
 
   try {
     const model = await getModelById({
       id: aiArgs.model.toString(),
       internal,
     });
+
+    const truncatedInput = truncateMessages(
+      { prompt, messages },
+      model.maxInputChars,
+    );
+
     const result = await generateText({
       ...aiArgs,
+      ...truncatedInput,
       model: model.modelId,
+      maxOutputTokens: model.maxOutputTokens ?? undefined,
       providerOptions: model.providerOptions as ProviderOptions,
-    });
+    } as Parameters<typeof generateText>[0]);
     const gateway = result.providerMetadata?.gateway as GatewayMetadata;
     await db.insert(modelUsagesTable).values({
       id: generateId(),
@@ -99,6 +117,7 @@ export async function trackedGenerateObject(
     const result = await generateObject({
       ...aiArgs,
       model: model.modelId,
+      maxOutputTokens: model.maxOutputTokens ?? undefined,
       providerOptions: model.providerOptions as ProviderOptions,
     });
     const gateway = result.providerMetadata?.gateway as GatewayMetadata;
@@ -143,6 +162,8 @@ export const trackedStreamText = async (
     messageId,
     usageType,
     internal,
+    prompt,
+    messages,
     onFinish,
     ...aiArgs
   } = args;
@@ -152,9 +173,16 @@ export const trackedStreamText = async (
     internal,
   });
 
+  const truncatedInput = truncateMessages(
+    { prompt, messages },
+    model.maxInputChars,
+  );
+
   const result = streamText({
     ...aiArgs,
+    ...truncatedInput,
     model: model.modelId,
+    maxOutputTokens: model.maxOutputTokens ?? undefined,
     providerOptions: model.providerOptions as ProviderOptions,
     onFinish: async (event) => {
       try {
@@ -182,7 +210,7 @@ export const trackedStreamText = async (
         throw error;
       }
     },
-  });
+  } as Parameters<typeof streamText>[0]);
 
   return result;
 };

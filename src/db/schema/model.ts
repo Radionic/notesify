@@ -1,4 +1,4 @@
-import { jsonb, pgEnum, pgTable, text } from "drizzle-orm/pg-core";
+import { integer, jsonb, pgEnum, pgTable, text } from "drizzle-orm/pg-core";
 
 export const modelTypeEnum = pgEnum("model_type", [
   "llm",
@@ -40,6 +40,9 @@ export const modelsTable = pgTable("models", {
   type: modelTypeEnum("type").notNull(),
   scope: modelScopeEnum("scope").notNull().default("basic"),
   thinking: modelThinkingEnum("thinking"),
+  credits: integer("credits").notNull().default(0),
+  maxInputChars: integer("max_input_chars"),
+  maxOutputTokens: integer("max_output_tokens"),
 });
 
 export type Model = typeof modelsTable.$inferSelect;

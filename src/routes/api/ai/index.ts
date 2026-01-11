@@ -53,6 +53,17 @@ export const messageMetadataSchema = z.object({
     .optional(),
   modelId: z.string().optional(),
   chatId: z.string().optional(),
+  finishReason: z
+    .enum([
+      "stop",
+      "length",
+      "content-filter",
+      "tool-calls",
+      "error",
+      "other",
+      "unknown",
+    ])
+    .optional(),
 });
 
 export type MessageMetadata = z.infer<typeof messageMetadataSchema>;
@@ -153,6 +164,9 @@ export const Route = createFileRoute("/api/ai/")({
                 messageMetadata: ({ part }) => {
                   if (part.type === "start") {
                     return { modelId };
+                  }
+                  if (part.type === "finish-step" || part.type === "finish") {
+                    return { finishReason: part.finishReason };
                   }
                 },
                 onFinish: async ({ responseMessage }) => {

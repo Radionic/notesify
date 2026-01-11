@@ -13,6 +13,7 @@ import {
   ReasoningContent,
   ReasoningTrigger,
 } from "@/components/ai-elements/reasoning";
+import { Button } from "@/components/ui/button";
 import type { MyUIMessage } from "@/routes/api/ai";
 import { PDFBlockquote } from "./pdf-blockquote";
 import { CalculateTool } from "./tools/calculate-tool";
@@ -31,12 +32,16 @@ export const ChatMessage = ({
   header,
   reload,
   isLast,
+  canContinue,
+  onContinue,
 }: {
   message: MyUIMessage;
   isLoading?: boolean;
   header?: string;
   reload?: () => void;
   isLast?: boolean;
+  canContinue?: boolean;
+  onContinue?: () => void;
 }) => {
   const renderTool = (tool: DynamicToolUIPart) => {
     const toolName = tool.type.split("-")[1];
@@ -100,6 +105,22 @@ export const ChatMessage = ({
           return null;
         })}
       </MessageContent>
+
+      {message.role === "assistant" && canContinue && (
+        <div className="w-fit flex items-center gap-2 rounded-lg border px-3 py-2 text-muted-foreground text-xs">
+          <span>Response stopped</span>
+          <Button
+            type="button"
+            variant="default"
+            size="sm"
+            className="h-7 rounded-lg px-3"
+            onClick={() => onContinue?.()}
+          >
+            Continue
+          </Button>
+        </div>
+      )}
+
       {message.role === "assistant" &&
         !isLoading &&
         message.parts?.length > 0 && (

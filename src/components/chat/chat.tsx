@@ -8,16 +8,6 @@ import { ImageContextsPreview } from "./contexts/image-context-preview";
 import { TextContextsPreview } from "./contexts/text-content-preview";
 import { ThreadFinder } from "./threads/thread-finder";
 
-// import { Message } from "ai";
-// const messages: Message[] = [
-//   {
-//     id: "1",
-//     role: "assistant",
-//     content: "```thinking\n123\n```",
-//     createdAt: new Date(),
-//   },
-// ];
-
 export const Chat = () => {
   const threadFinderOpen = useAtomValue(threadFinderOpenAtom);
   const contexts = useAtomValue(activeContextsAtom);

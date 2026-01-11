@@ -72,16 +72,18 @@ export function FlowSection() {
           >
             <div className="p-5 flex flex-col h-full">
               <div className="flex items-start justify-between gap-4">
-                <div className="inline-flex items-center justify-center rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
-                  {String(i + 1).padStart(2, "0")}
+                <div className="flex items-center gap-2">
+                  <div className="inline-flex items-center justify-center rounded-md bg-muted px-2 py-1 text-xs font-medium text-muted-foreground">
+                    {i + 1}
+                  </div>
+                  <h3 className="text-base font-semibold tracking-tight">
+                    {step.title}
+                  </h3>
                 </div>
                 <step.icon className={cn("h-5 w-5", step.accentClassName)} />
               </div>
 
-              <h3 className="mt-4 text-base font-semibold tracking-tight">
-                {step.title}
-              </h3>
-              <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
+              <p className="mt-3 text-sm text-muted-foreground leading-relaxed">
                 {step.description}
               </p>
 

@@ -1,6 +1,4 @@
 import { Link } from "@tanstack/react-router";
-import { AiOutlineLinux } from "react-icons/ai";
-import { IoLogoApple, IoLogoWindows } from "react-icons/io5";
 import { Button } from "@/components/ui/button";
 
 export function HeroSection() {
@@ -19,21 +17,12 @@ export function HeroSection() {
             Get Started
           </Button>
         </Link>
-
-        <div className="flex justify-center items-center my-4 space-x-2">
-          <span className="text-sm text-muted-foreground">
-            Available soon on
-          </span>
-          <IoLogoApple className="cursor-pointer" />
-          <IoLogoWindows className="cursor-pointer" />
-          <AiOutlineLinux className="cursor-pointer" />
-        </div>
       </div>
 
       <img
         src="/demo.jpg"
         alt="Notesify Demo"
-        className="rounded-xl shadow-2xl w-full max-w-5xl mx-auto"
+        className="rounded-xl shadow-2xl w-full max-w-5xl mx-auto mt-8"
       />
     </section>
   );

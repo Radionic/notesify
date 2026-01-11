@@ -33,11 +33,11 @@ const ModelsPage = () => {
       <main className="container max-w-4xl mx-auto px-4 py-16 space-y-12">
         <div className="space-y-6 text-center">
           <h1 className="font-ebg text-4xl md:text-5xl font-medium tracking-tight text-primary">
-            Available Models
+            Available AI Models
           </h1>
           <p className="text-lg text-muted-foreground leading-relaxed">
-            Notesify supports a wide range of state-of-the-art AI models. Choose
-            the one that best fits your needs.
+            Notesify supports most state-of-the-art AI models. Choose the one
+            that best fits your needs.
           </p>
         </div>
 

@@ -32,9 +32,9 @@ export const Header = () => {
         <Logo />
 
         {HEADER_PATHS.includes(path.pathname) && (
-          <div className="hidden md:flex items-center gap-3 font-ebg text-muted-foreground text-lg">
+          <div className="hidden md:flex items-center gap-4 font-ebg text-muted-foreground text-lg">
             <Link to="/">Blogs</Link>
-            <Link to="/models">Models</Link>
+            <Link to="/models">AI</Link>
             <Link to="/pricing">Pricing</Link>
           </div>
         )}
@@ -56,7 +56,7 @@ export const Header = () => {
                 <Link to="/models">Blogs</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link to="/models">Models</Link>
+                <Link to="/models">AI</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/pricing">Pricing</Link>

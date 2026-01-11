@@ -3,6 +3,7 @@ export type NotificationMessage =
       type: "user-register";
       name?: string | null;
       email?: string | null;
+      method: "email" | "google";
     }
   | {
       [key: string]: unknown;
@@ -16,7 +17,7 @@ export const sendMessage = async (message: NotificationMessage) => {
 
   const content = (() => {
     if (message.type === "user-register") {
-      return `New user registered!\nName: ${message.name}\nEmail: ${message.email}`;
+      return `New user registered!\nName: ${message.name}\nEmail: ${message.email}\nMethod: ${message.method}`;
     }
 
     return JSON.stringify(message);

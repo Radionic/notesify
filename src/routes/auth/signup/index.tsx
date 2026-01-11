@@ -18,7 +18,7 @@ function RouteComponent() {
     <div className="bg-panel min-h-screen flex flex-col">
       <Header />
       <main className="flex flex-1 items-center justify-center px-4">
-        <SignupForm className="w-full max-w-md" />
+        <SignupForm />
       </main>
     </div>
   );

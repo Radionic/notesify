@@ -6,6 +6,7 @@ import {
   MoreVertical,
   Pencil,
   Trash2,
+  FolderOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +15,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { FileNode } from "@/db/schema";
 
 interface FileGridProps {
@@ -37,14 +39,29 @@ export const FileGrid = ({
 }: FileGridProps) => {
   if (isLoading) {
     return (
-      <div className="text-center py-12 text-muted-foreground">Loading...</div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="flex items-center gap-3 p-3 rounded-lg border">
+            <Skeleton className="h-6 w-6 shrink-0 rounded" />
+            <Skeleton className="h-5 flex-1 rounded" />
+          </div>
+        ))}
+      </div>
     );
   }
 
   if (files.length === 0) {
     return (
-      <div className="text-center py-12 text-muted-foreground">
-        No files or folders found
+      <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+        <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-3">
+          <FolderOpen className="h-8 w-8 text-muted-foreground" />
+        </div>
+        <p className="text-lg font-medium text-foreground mb-1">
+          No files or folders
+        </p>
+        <p className="text-sm text-muted-foreground max-w-xs">
+          Upload a file or create a folder to get started
+        </p>
       </div>
     );
   }

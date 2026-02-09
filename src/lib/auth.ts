@@ -1,7 +1,7 @@
 // @ts-ignore
 import { waitUntil } from "cloudflare:workers";
 import { getRequest } from "@tanstack/react-start/server";
-import { betterAuth } from "better-auth";
+import { betterAuth } from "better-auth/minimal";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createAuthMiddleware } from "better-auth/api";
 import { db } from "@/db";
@@ -71,6 +71,12 @@ export const auth = betterAuth({
           method: "email",
         }),
       );
+    },
+  },
+  session: {
+    cookieCache: {
+      enabled: true,
+      maxAge: 60 * 60,
     },
   },
 });

@@ -12,7 +12,7 @@ export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
-  const navigate = useNavigate({ from: "/auth/login" });
+  const navigate = useNavigate({ from: "/auth/login/" });
   const search = useSearch({ from: "/auth/login/" });
   const { mutateAsync: signInWithGoogle, isPending: isLoading } =
     useGoogleSignIn();

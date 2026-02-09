@@ -10,7 +10,7 @@ import { protectRouteFn } from "@/server/auth";
 
 const RouteComponent = () => {
   const searchParams = useSearch({ from: "/library/" });
-  const navigate = useNavigate({ from: "/library" });
+  const navigate = useNavigate({ from: "/library/" });
 
   const handleSearchChange = (value?: string) => {
     navigate({

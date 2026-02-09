@@ -69,12 +69,12 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/models': typeof ModelsRoute
   '/pricing': typeof PricingRoute
-  '/library': typeof LibraryIndexRoute
-  '/viewer': typeof ViewerIndexRoute
+  '/library/': typeof LibraryIndexRoute
+  '/viewer/': typeof ViewerIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
-  '/api/ai': typeof ApiAiIndexRoute
-  '/auth/login': typeof AuthLoginIndexRoute
-  '/auth/reset-password': typeof AuthResetPasswordIndexRoute
+  '/api/ai/': typeof ApiAiIndexRoute
+  '/auth/login/': typeof AuthLoginIndexRoute
+  '/auth/reset-password/': typeof AuthResetPasswordIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -105,12 +105,12 @@ export interface FileRouteTypes {
     | '/'
     | '/models'
     | '/pricing'
-    | '/library'
-    | '/viewer'
+    | '/library/'
+    | '/viewer/'
     | '/api/auth/$'
-    | '/api/ai'
-    | '/auth/login'
-    | '/auth/reset-password'
+    | '/api/ai/'
+    | '/auth/login/'
+    | '/auth/reset-password/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -173,35 +173,35 @@ declare module '@tanstack/react-router' {
     '/viewer/': {
       id: '/viewer/'
       path: '/viewer'
-      fullPath: '/viewer'
+      fullPath: '/viewer/'
       preLoaderRoute: typeof ViewerIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/library/': {
       id: '/library/'
       path: '/library'
-      fullPath: '/library'
+      fullPath: '/library/'
       preLoaderRoute: typeof LibraryIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/reset-password/': {
       id: '/auth/reset-password/'
       path: '/auth/reset-password'
-      fullPath: '/auth/reset-password'
+      fullPath: '/auth/reset-password/'
       preLoaderRoute: typeof AuthResetPasswordIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth/login/': {
       id: '/auth/login/'
       path: '/auth/login'
-      fullPath: '/auth/login'
+      fullPath: '/auth/login/'
       preLoaderRoute: typeof AuthLoginIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/ai/': {
       id: '/api/ai/'
       path: '/api/ai'
-      fullPath: '/api/ai'
+      fullPath: '/api/ai/'
       preLoaderRoute: typeof ApiAiIndexRouteImport
       parentRoute: typeof rootRouteImport
     }

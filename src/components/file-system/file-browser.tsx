@@ -1,4 +1,4 @@
-import { FolderPlus, Search, Upload } from "lucide-react";
+import { FolderPlus, Plus, Search } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useDebounceValue } from "usehooks-ts";
@@ -25,6 +25,7 @@ import {
   useRenameFile,
 } from "@/queries/file-system/use-file-system";
 import { useDownloadPdf, useNavigatePdf } from "@/queries/pdf/use-pdf";
+import { getRouter } from "@/router";
 import { FileBreadcrumb, type PathItem } from "./file-breadcrumb";
 import { FileGrid } from "./file-grid";
 import { PdfFileUploader } from "./file-uploader";
@@ -32,7 +33,7 @@ import { PdfFileUploader } from "./file-uploader";
 export const FileBrowser = ({
   className,
   readOnly,
-  onPdfSelected,
+  onFileSelected,
   initialSearch,
   onSearchChanged,
   initialFolderId,
@@ -40,7 +41,7 @@ export const FileBrowser = ({
 }: {
   className?: string;
   readOnly?: boolean;
-  onPdfSelected?: (pdfId: string) => void;
+  onFileSelected?: (fileId: string) => void;
   initialSearch?: string;
   onSearchChanged?: (value: string) => void;
   initialFolderId?: string | null;
@@ -107,7 +108,13 @@ export const FileBrowser = ({
       onFolderIdChanged?.(item.id);
     } else if (item.type === "pdf") {
       navigatePdf({ pdfId: item.id });
-      onPdfSelected?.(item.id);
+      onFileSelected?.(item.id);
+    } else if (item.type === "webpage") {
+      getRouter().navigate({
+        to: "/viewer",
+        search: { sid: item.id, type: "webpage" },
+      });
+      onFileSelected?.(item.id);
     }
   };
 
@@ -206,8 +213,8 @@ export const FileBrowser = ({
               size="sm"
               onClick={() => setUploadDialog(true)}
             >
-              <Upload className="h-4 w-4 mr-1" />
-              Upload PDF
+              <Plus className="h-4 w-4 mr-1" />
+              Add
             </Button>
           </div>
         )}

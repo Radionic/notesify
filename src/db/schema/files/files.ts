@@ -13,7 +13,9 @@ export const filesTable = pgTable(
   {
     id: text("id").primaryKey(),
     name: text("name").notNull(),
-    type: text("type", { enum: ["folder", "pdf", "notes"] }).notNull(),
+    type: text("type", {
+      enum: ["folder", "pdf", "notes", "webpage"],
+    }).notNull(),
     parentId: text("parent_id").references((): AnyPgColumn => filesTable.id, {
       onDelete: "cascade",
     }),

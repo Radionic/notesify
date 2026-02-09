@@ -16,16 +16,18 @@ import {
 } from "@/components/ui/resizable";
 import { Header } from "@/components/viewer/header";
 import { PdfToolbar } from "@/components/viewer/toolbars/pdf-toolbar";
+import { WebpageViewer } from "@/components/webpages/webpage-viewer";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { protectRouteFn } from "@/server/auth";
 
 const viewerSearchSchema = z.object({
   sid: z.string(),
   page: z.number().optional(),
+  type: z.enum(["pdf", "webpage"]).optional().default("pdf"),
 });
 
 const Viewer = () => {
-  const { sid: pdfId, page } = Route.useSearch();
+  const { sid: id, page, type } = Route.useSearch();
 
   const chatsOpen = useAtomValue(chatsOpenAtom);
   const pdfViewerOpen = useAtomValue(pdfViewerOpenAtom);
@@ -33,8 +35,8 @@ const Viewer = () => {
   const pdfPreview = useAtomValue(pdfPreviewAtom);
   const isMobile = useIsMobile();
 
-  if (!pdfId) {
-    toast.info("No PDF found");
+  if (!id) {
+    toast.info("No file found");
     return <Navigate to="/library" />;
   }
 
@@ -43,12 +45,18 @@ const Viewer = () => {
       <div className="flex flex-col h-dvh">
         <Header />
         <div className="relative flex-1 overflow-hidden">
-          {pdfViewerOpen && pdfId && (
+          {type === "pdf" && pdfViewerOpen && id && (
             <div className="flex flex-col h-full">
-              <PdfToolbar pdfId={pdfId} />
+              <PdfToolbar pdfId={id} />
               <div className="flex-1 relative">
-                <PdfViewer pdfId={pdfId} page={page} />
+                <PdfViewer pdfId={id} page={page} />
               </div>
+            </div>
+          )}
+
+          {type !== "pdf" && (
+            <div className="flex-1 h-full">
+              <WebpageViewer webpageId={id} />
             </div>
           )}
 
@@ -64,7 +72,7 @@ const Viewer = () => {
             </div>
           )}
 
-          {pdfPreview && !chatsOpen && !audioRecorderOpen && (
+          {pdfPreview && !chatsOpen && !audioRecorderOpen && type === "pdf" && (
             <div className="absolute inset-0 z-50 bg-background">
               <PdfPagePreview />
             </div>
@@ -82,7 +90,7 @@ const Viewer = () => {
         direction="horizontal"
         className="flex-1 overflow-hidden [&>[data-resize-handle]:last-child]:hidden"
       >
-        {pdfViewerOpen && pdfId && (
+        {type === "pdf" && pdfViewerOpen && id && (
           <>
             <ResizablePanel
               minSize={30}
@@ -91,9 +99,9 @@ const Viewer = () => {
               order={1}
             >
               <div className="flex flex-col h-full">
-                <PdfToolbar pdfId={pdfId} />
+                <PdfToolbar pdfId={id} />
                 <div className="flex-1 relative">
-                  <PdfViewer pdfId={pdfId} page={page} />
+                  <PdfViewer pdfId={id} page={page} />
                 </div>
               </div>
             </ResizablePanel>
@@ -101,7 +109,21 @@ const Viewer = () => {
           </>
         )}
 
-        {pdfPreview && (
+        {type !== "pdf" && (
+          <>
+            <ResizablePanel
+              minSize={30}
+              className="relative"
+              defaultSize={60}
+              order={1}
+            >
+              <WebpageViewer webpageId={id} />
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+          </>
+        )}
+
+        {pdfPreview && type === "pdf" && (
           <>
             <ResizablePanel minSize={20} defaultSize={30} order={2}>
               <PdfPagePreview />

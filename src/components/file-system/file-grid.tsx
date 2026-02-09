@@ -2,6 +2,7 @@ import {
   Download,
   FileText,
   Folder,
+  Globe,
   MoreVertical,
   Pencil,
   Trash2,
@@ -60,6 +61,8 @@ export const FileGrid = ({
     >
       {item.type === "folder" ? (
         <Folder className="h-5 w-5 text-yellow-500 shrink-0" />
+      ) : item.type === "webpage" ? (
+        <Globe className="h-5 w-5 text-blue-500 shrink-0" />
       ) : (
         <FileText className="h-5 w-5 text-red-500 shrink-0" />
       )}

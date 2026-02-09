@@ -11,3 +11,4 @@ export * from "./pdf/pdf-bboxes";
 export * from "./pdf/pdf-indexing";
 export * from "./pdf/pdfs";
 export * from "./recording/recordings";
+export * from "./webpages/webpages";

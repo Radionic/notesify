@@ -7,6 +7,7 @@ import { assetsTable, pdfIndexingTable, pdfsTable } from "@/db/schema";
 import { generateId } from "@/lib/id";
 import { extractVisualInfo } from "./ocr";
 import { searchKeywords } from "./search-keywords";
+import { fetchWebContent, searchWeb } from "./search-web";
 import { getOrExtractToC } from "./toc";
 
 export const tools = ({
@@ -28,13 +29,11 @@ export const tools = ({
     },
   }),
   getPDFPageText: tool({
-    description: "Get full text of specified PDF pages.",
+    description:
+      "Get text of PDF pages (Page is 1-based). Recommended to get ALL needed pages at once instead of multiple calls of this tool.",
     inputSchema: z.object({
       pdfId: z.string(),
-      pages: z
-        .array(z.number())
-        .min(1)
-        .describe("List of page numbers to read."),
+      pages: z.array(z.number().min(1)),
       // previewCharsPerPage: z
       //   .number()
       //   .max(2000)
@@ -86,7 +85,7 @@ export const tools = ({
       "Extract visual info from a PDF page based on an instruction. Use this for extracting tables in Markdown, equations in KaTeX, describing/explaining images/figures/charts, or any visual content analysis.",
     inputSchema: z.object({
       pdfId: z.string(),
-      page: z.number().describe("The 1-based page number to analyze."),
+      page: z.number().min(1),
       instruction: z.string().describe("The instruction prompt for extraction"),
     }),
     execute: async ({ pdfId, page, instruction }) => {
@@ -212,6 +211,25 @@ export const tools = ({
   //       }));
   //   },
   // }),
+  searchWeb: tool({
+    description:
+      "Search the web. Results include titles, URLs, and descriptions.",
+    inputSchema: z.object({
+      query: z.string(),
+    }),
+    execute: async ({ query }) => {
+      return await searchWeb({ query });
+    },
+  }),
+  fetchWebContent: tool({
+    description: "Fetch the content of web URLs. Up to 10 URLs at a time.",
+    inputSchema: z.object({
+      urls: z.array(z.string()).max(10),
+    }),
+    execute: async ({ urls }) => {
+      return Promise.all(urls.map((url) => fetchWebContent({ url })));
+    },
+  }),
   calculate: tool({
     description:
       "Calculate Math expressions, using evaluate by MathJS. Supports standard math operations and derivatives (e.g. derivative('x^2', 'x')).",

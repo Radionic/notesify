@@ -25,6 +25,8 @@ import { GetTableOfContentsTool } from "./tools/get-table-of-contents-tool";
 import { GetViewingPdfMetadataTool } from "./tools/get-viewing-pdf-metadata-tool";
 import { SearchKeywordsTool } from "./tools/search-keywords-tool";
 import { SearchPagesTool } from "./tools/search-pages-tool";
+import { FetchWebContentTool } from "./tools/fetch-web-content-tool";
+import { SearchWebTool } from "./tools/search-web-tool";
 
 export const ChatMessage = ({
   message,
@@ -61,6 +63,8 @@ export const ChatMessage = ({
       .with("extractVisualInfoFromPDFPage", () => (
         <ExtractVisualInfoTool tool={tool} />
       ))
+      .with("searchWeb", () => <SearchWebTool tool={tool} />)
+      .with("fetchWebContent", () => <FetchWebContentTool tool={tool} />)
       .otherwise(() => null);
   };
 

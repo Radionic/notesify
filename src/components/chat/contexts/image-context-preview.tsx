@@ -26,7 +26,7 @@ const ImageContextPreview = ({
         src={context.content}
         alt="Context"
         className="border rounded w-full h-full object-contain cursor-pointer"
-        onClick={onPreview}
+        onPointerDown={onPreview}
       />
       <div className="absolute top-1 right-1 flex flex-row gap-1 opacity-50 bg-white/80 rounded p-0.5">
         {context.type !== "uploaded-image" && (

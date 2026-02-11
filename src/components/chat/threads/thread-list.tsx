@@ -18,11 +18,15 @@ const formatDateHeader = (dateStr: string): string => {
 };
 
 export const ThreadList = ({
+  chatId,
   chatrooms,
   isLoading,
+  onSelectChat,
 }: {
+  chatId: string;
   chatrooms?: Chat[];
   isLoading?: boolean;
+  onSelectChat: (chatId: string) => void;
 }) => {
   // Group chats by date
   const { groupedChats, sortedDates } = useMemo(() => {
@@ -73,7 +77,11 @@ export const ThreadList = ({
             {formatDateHeader(dateStr)}
           </div>
 
-          <ThreadGroup chats={groupedChats[dateStr]} />
+          <ThreadGroup
+            chats={groupedChats[dateStr]}
+            chatId={chatId}
+            onSelectChat={onSelectChat}
+          />
         </div>
       ))}
     </div>

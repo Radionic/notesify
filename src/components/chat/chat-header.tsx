@@ -1,24 +1,23 @@
-import { useAtom, useSetAtom } from "jotai";
+import { useSetAtom } from "jotai";
 import { History, Plus, X } from "lucide-react";
-
-import {
-  activeChatIdAtom,
-  chatsOpenAtom,
-  threadFinderOpenAtom,
-} from "@/atoms/chat/chats";
+import { chatsOpenAtom } from "@/atoms/chat/chats";
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
 import { Card } from "@/components/ui/card";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
 import { useChat } from "@/queries/chat/use-chat";
 
-export const ChatHeader = () => {
-  const [activeChatId, setActiveChatId] = useAtom(activeChatIdAtom);
-  const { data: activeChat } = useChat({ id: activeChatId });
-  const setThreadFinderOpen = useSetAtom(threadFinderOpenAtom);
+export const ChatHeader = ({
+  chatId,
+  onNewThread,
+  onOpenHistory,
+}: {
+  chatId: string;
+  onNewThread: () => void;
+  onOpenHistory: () => void;
+}) => {
+  const { data: activeChat } = useChat({ id: chatId });
+  const { isStreaming } = useChatAI({ chatId });
   const setChatsOpen = useSetAtom(chatsOpenAtom);
-
-  const { status } = useChatAI({ chatId: activeChatId });
-  const isLoading = status === "submitted" || status === "streaming";
 
   return (
     <Card className="sticky top-0 flex flex-col px-2 border-2 border-transparent z-30 rounded-none bg-header">
@@ -31,16 +30,16 @@ export const ChatHeader = () => {
 
         <TooltipButton
           tooltip="New thread"
-          disabled={isLoading}
-          onClick={() => setActiveChatId("")}
+          disabled={isStreaming}
+          onClick={onNewThread}
         >
           <Plus />
         </TooltipButton>
 
         <TooltipButton
           tooltip="History"
-          disabled={isLoading}
-          onClick={() => setThreadFinderOpen(true)}
+          disabled={isStreaming}
+          onClick={onOpenHistory}
         >
           <History />
         </TooltipButton>

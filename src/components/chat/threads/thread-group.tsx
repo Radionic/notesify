@@ -1,24 +1,24 @@
 import { formatDistanceToNowStrict } from "date-fns";
-import { useAtom, useSetAtom } from "jotai";
-import { activeChatIdAtom, threadFinderOpenAtom } from "@/atoms/chat/chats";
 import { Button } from "@/components/ui/button";
 import type { Chat } from "@/db/schema";
 
-export const ThreadGroup = ({ chats }: { chats: Chat[] }) => {
-  const [activeChatId, setActiveChatId] = useAtom(activeChatIdAtom);
-  const setThreadFinderOpen = useSetAtom(threadFinderOpenAtom);
-
+export const ThreadGroup = ({
+  chats,
+  chatId,
+  onSelectChat,
+}: {
+  chats: Chat[];
+  chatId: string;
+  onSelectChat: (chatId: string) => void;
+}) => {
   return chats.map((chat) => {
-    const isActive = chat.id === activeChatId;
+    const isActive = chat.id === chatId;
     return (
       <Button
         key={chat.id}
         variant={isActive ? "secondary" : "ghost"}
         className="w-full justify-start h-9 px-2 py-1"
-        onClick={() => {
-          setActiveChatId(chat.id);
-          setThreadFinderOpen(false);
-        }}
+        onClick={() => onSelectChat(chat.id)}
       >
         <div className="flex flex-row justify-between items-center w-full">
           <span className="truncate text-sm">{chat.title || "New Chat"}</span>

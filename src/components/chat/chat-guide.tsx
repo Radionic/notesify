@@ -1,14 +1,5 @@
-import { useAtomValue, useSetAtom } from "jotai";
 import { BookOpen, FileText, HelpCircle } from "lucide-react";
 import { useMemo, useRef } from "react";
-import { activeChatIdAtom } from "@/atoms/chat/chats";
-import { activeContextsAtom } from "@/atoms/chat/contexts";
-import {
-  activePdfIdAtom,
-  currentPageAtomFamily,
-  openedPdfIdsAtom,
-} from "@/atoms/pdf/pdf-viewer";
-import { selectedModelAtom } from "@/atoms/setting/providers";
 import { Button } from "@/components/ui/button";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
 import { useElementWidth } from "@/hooks/use-element-width";
@@ -31,19 +22,12 @@ const actions = [
   },
 ] as const;
 
-export const ChatGuide = ({ chatId }: { chatId: string }) => {
-  const { sendMessage, status, error } = useChatAI({ chatId });
-  const setActiveChatId = useSetAtom(activeChatIdAtom);
-
-  const selectedModel = useAtomValue(selectedModelAtom);
-  const contexts = useAtomValue(activeContextsAtom);
-  const pdfId = useAtomValue(activePdfIdAtom);
-  const openedPdfIds = useAtomValue(openedPdfIdsAtom);
-  const viewingPage = useAtomValue(currentPageAtomFamily(pdfId));
-
-  const isLoading = status === "submitted" || status === "streaming";
-  const disableActions = isLoading || !!error || !selectedModel;
-
+export const ChatGuide = ({
+  chatId,
+}: {
+  chatId: string;
+}) => {
+  const { messages, isLoadingMessages, handleSubmit } = useChatAI({ chatId });
   const containerRef = useRef<HTMLDivElement | null>(null);
   const containerWidth = useElementWidth(containerRef);
 
@@ -51,6 +35,8 @@ export const ChatGuide = ({ chatId }: { chatId: string }) => {
     const columns = containerWidth < 280 ? 1 : containerWidth < 480 ? 2 : 3;
     return `grid-cols-${columns}`;
   }, [containerWidth]);
+
+  if (messages.length > 0 || isLoadingMessages) return null;
 
   return (
     <div ref={containerRef} className="flex flex-col grow w-full p-2">
@@ -71,22 +57,7 @@ export const ChatGuide = ({ chatId }: { chatId: string }) => {
               type="button"
               variant="outline"
               className="w-full max-w-[240px] justify-start"
-              disabled={disableActions}
-              onClick={() => {
-                if (!selectedModel) return;
-                setActiveChatId(chatId);
-                sendMessage({
-                  text: prompt,
-                  metadata: {
-                    openedPdfIds,
-                    pdfId,
-                    viewingPage,
-                    contexts,
-                    modelId: selectedModel.id,
-                    chatId,
-                  },
-                });
-              }}
+              onClick={() => handleSubmit(prompt)}
             >
               <Icon />
               <span>{label}</span>

@@ -1,110 +1,46 @@
-import { useAtom, useAtomValue } from "jotai";
-import { useMemo, useRef, useState } from "react";
-import { activeChatIdAtom } from "@/atoms/chat/chats";
-import { activeContextsAtom } from "@/atoms/chat/contexts";
-import {
-  activePdfIdAtom,
-  currentPageAtomFamily,
-  openedPdfIdsAtom,
-} from "@/atoms/pdf/pdf-viewer";
-import { selectedModelAtom } from "@/atoms/setting/providers";
+import { Plus } from "lucide-react";
+import { useRef, useState } from "react";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ensureVisionModel } from "@/lib/ai/ensure-vision-model";
-import { generateId } from "@/lib/id";
 import { ModelSelector } from "../pdf/model-selector";
+import { TooltipButton } from "../tooltip/tooltip-button";
 import { Textarea } from "../ui/textarea";
 import { SelectAreaContextButton } from "./action-button/select-context-button";
 import { SendButton } from "./action-button/send-button";
 
-export const ChatInput = () => {
-  const [contexts, setContexts] = useAtom(activeContextsAtom);
-  const pdfId = useAtomValue(activePdfIdAtom);
-  const [activeChatId, setActiveChatId] = useAtom(activeChatIdAtom);
-  const chatId = useMemo(
-    () => (activeChatId ? activeChatId : generateId()),
-    [activeChatId],
-  );
-
-  const selectedModel = useAtomValue(selectedModelAtom);
-  const openedPdfIds = useAtomValue(openedPdfIdsAtom);
-  const viewingPage = useAtomValue(currentPageAtomFamily(pdfId));
-  const { sendMessage, stop, status, error } = useChatAI({ chatId });
+export const ChatInput = ({
+  chatId,
+}: {
+  chatId: string;
+}) => {
+  const {
+    error,
+    isStreaming,
+    handleSubmit,
+    stop,
+    handleImageUpload,
+    handlePaste,
+  } = useChatAI({ chatId });
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const isMobile = useIsMobile();
 
   const [input, setInput] = useState<string>("");
-  const isLoading = status === "submitted" || status === "streaming";
-  const disableSending =
-    input.length === 0 || isLoading || !!error || !selectedModel;
-
-  const _handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    const { files } = e.clipboardData;
-    if (!files || files.length === 0) {
-      return;
-    }
-
-    const imageFile = Array.from(files).find((file) =>
-      file.type.startsWith("image/"),
-    );
-    if (!imageFile) {
-      return;
-    }
-
-    if (!ensureVisionModel({ model: selectedModel })) {
-      return;
-    }
-
-    e.preventDefault();
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result;
-      if (typeof result === "string") {
-        setContexts([
-          ...contexts,
-          {
-            id: generateId(),
-            type: "uploaded-image",
-            content: result,
-          },
-        ]);
-      }
-    };
-    reader.readAsDataURL(imageFile);
-  };
+  const disableSending = input.length === 0 || isStreaming || !!error;
 
   const _handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isLoading) {
+    if (isStreaming) {
       stop();
       return;
     }
 
-    const hasVisionContext = contexts.some((context) =>
-      ["uploaded-image", "area", "page"].includes(context.type),
-    );
-    if (
-      disableSending ||
-      (hasVisionContext && !ensureVisionModel({ model: selectedModel }))
-    ) {
+    if (disableSending) {
       return;
     }
 
-    sendMessage({
-      text: input,
-      metadata: {
-        openedPdfIds,
-        pdfId,
-        viewingPage,
-        contexts,
-        modelId: selectedModel.id,
-        chatId,
-      },
-    });
-    setActiveChatId(chatId);
+    handleSubmit(input);
     setInput("");
-    setContexts([]);
 
     if (isMobile) {
       textareaRef.current?.blur();
@@ -124,7 +60,7 @@ export const ChatInput = () => {
         rows={1}
         value={input}
         onChange={(e) => setInput(e.target.value)}
-        onPaste={_handlePaste}
+        onPaste={handlePaste}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey) {
             _handleSubmit(e);
@@ -137,9 +73,26 @@ export const ChatInput = () => {
         <div className="flex flex-row">
           <ModelSelector />
           <SelectAreaContextButton />
+          <TooltipButton
+            tooltip="Upload files or images"
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <Plus className="h-4 w-4 opacity-50" />
+          </TooltipButton>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleImageUpload(file);
+              e.target.value = "";
+            }}
+          />
         </div>
         <div className="flex flex-row items-center">
-          <SendButton disabled={disableSending} isLoading={isLoading} />
+          <SendButton disabled={disableSending} isLoading={isStreaming} />
         </div>
       </div>
     </form>

@@ -14,37 +14,41 @@ import {
   ReasoningTrigger,
 } from "@/components/ai-elements/reasoning";
 import { Button } from "@/components/ui/button";
+import { useLlmModels } from "@/queries/model/use-llm-models";
 import type { MyUIMessage } from "@/routes/api/ai";
 import { PDFBlockquote } from "./pdf-blockquote";
 import { CalculateTool } from "./tools/calculate-tool";
 import { CreateFlashcardsTool } from "./tools/create-flashcards-tool";
 import { CreateMiniQuizTool } from "./tools/create-mini-quiz-tool";
 import { ExtractVisualInfoTool } from "./tools/extract-visual-info-tool";
+import { FetchWebContentTool } from "./tools/fetch-web-content-tool";
 import { GetPageTextTool } from "./tools/get-page-text-tool";
 import { GetTableOfContentsTool } from "./tools/get-table-of-contents-tool";
 import { GetViewingPdfMetadataTool } from "./tools/get-viewing-pdf-metadata-tool";
 import { SearchKeywordsTool } from "./tools/search-keywords-tool";
 import { SearchPagesTool } from "./tools/search-pages-tool";
-import { FetchWebContentTool } from "./tools/fetch-web-content-tool";
 import { SearchWebTool } from "./tools/search-web-tool";
 
 export const ChatMessage = ({
+  modelId,
   message,
   isLoading,
-  header,
-  reload,
+  onRegenerate,
   isLast,
   canContinue,
   onContinue,
 }: {
+  modelId?: string;
   message: MyUIMessage;
   isLoading?: boolean;
-  header?: string;
-  reload?: () => void;
+  onRegenerate?: () => void;
   isLast?: boolean;
   canContinue?: boolean;
   onContinue?: () => void;
 }) => {
+  const { data: models = [] } = useLlmModels();
+  const model = modelId ? models.find((m) => m.id === modelId) : undefined;
+
   const renderTool = (tool: DynamicToolUIPart) => {
     const toolName = tool.type.split("-")[1];
     if (!toolName) return null;
@@ -70,8 +74,8 @@ export const ChatMessage = ({
 
   return (
     <Message from={message.role}>
-      {header && message.role === "assistant" && (
-        <span className="text-xs text-muted-foreground">{header}</span>
+      {message.role === "assistant" && model && (
+        <span className="text-xs text-muted-foreground">{model.name}</span>
       )}
       <MessageContent>
         {message.parts?.map((part, index) => {
@@ -129,9 +133,9 @@ export const ChatMessage = ({
         !isLoading &&
         message.parts?.length > 0 && (
           <MessageActions>
-            {isLast && reload && (
+            {isLast && onRegenerate && (
               <MessageAction
-                onClick={() => reload()}
+                onClick={() => onRegenerate()}
                 label="Regenerate"
                 className="text-foreground/40 hover:text-foreground transition-colors"
               >

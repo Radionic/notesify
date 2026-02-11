@@ -9,8 +9,6 @@ export const chatsOpenAtom = atomWithStorage<boolean>(
   "chatsOpen",
   window.innerWidth >= MOBILE_BREAKPOINT,
 );
-export const threadFinderOpenAtom = atom<boolean>(false);
-export const activeChatIdAtom = atom<string>("");
 
 export const chatInstanceAtomFamily = atomFamily((chatId: string) =>
   atom(

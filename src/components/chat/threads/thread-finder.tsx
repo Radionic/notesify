@@ -6,15 +6,28 @@ import { ThreadHeader } from "./thread-header";
 import { ThreadList } from "./thread-list";
 import { ThreadSearch } from "./thread-search";
 
-export const ThreadFinder = () => {
+export const ThreadFinder = ({
+  chatId,
+  onBack,
+  onSelectChat,
+}: {
+  chatId: string;
+  onBack: () => void;
+  onSelectChat: (chatId: string) => void;
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const { data: chatrooms, isLoading } = useChats({ searchTerm });
 
   return (
     <div className="h-dvh p-2 space-y-2 overflow-y-auto">
-      <ThreadHeader />
+      <ThreadHeader chatId={chatId} onBack={onBack} />
       <ThreadSearch searchTerm={searchTerm} onSearch={setSearchTerm} />
-      <ThreadList chatrooms={chatrooms} isLoading={isLoading} />
+      <ThreadList
+        chatrooms={chatrooms}
+        isLoading={isLoading}
+        chatId={chatId}
+        onSelectChat={onSelectChat}
+      />
     </div>
   );
 };

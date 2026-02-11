@@ -1,97 +1,46 @@
-import type { DynamicToolUIPart } from "ai";
-import { useAtomValue } from "jotai";
 import { dotPulse } from "ldrs";
-import { useEffect, useMemo, useState } from "react";
-import { activeChatIdAtom } from "@/atoms/chat/chats";
 import {
   Conversation,
   ConversationContent,
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
-import { useChatAI } from "@/hooks/chat/use-chat-ai";
-import { generateId } from "@/lib/id";
-import { useLlmModels } from "@/queries/model/use-llm-models";
+import { useChatAI, useShowChatLoading } from "@/hooks/chat/use-chat-ai";
 import { Badge } from "../badge";
 import { Spinner } from "../ui/spinner";
-import { ChatGuide } from "./chat-guide";
 import { ChatMessage } from "./chat-message";
 import { ImageContextsPreview } from "./contexts/image-context-preview";
 import { TextContextsPreview } from "./contexts/text-content-preview";
 
 dotPulse.register();
 
-export const ChatMessageList = () => {
-  const activeChatId = useAtomValue(activeChatIdAtom);
-  const chatId = useMemo(
-    () => (activeChatId ? activeChatId : generateId()),
-    [activeChatId],
-  );
-
-  const { data: models = [] } = useLlmModels();
+export const ChatMessageList = ({
+  chatId,
+}: {
+  chatId: string;
+}) => {
   const {
     messages,
     error,
-    isLoading,
-    isLoadingInitMessages,
+    isStreaming,
+    isLoadingMessages,
     regenerate,
     sendMessage,
   } = useChatAI({ chatId });
-  const [showLoading, setShowLoading] = useState(false);
 
-  useEffect(() => {
-    if (!isLoading || messages?.length === 0) {
-      setShowLoading(false);
-      return;
-    }
+  const showChatLoading = useShowChatLoading({
+    messages,
+    isStreaming,
+  });
 
-    const lastMessage = messages[messages.length - 1];
-    if (lastMessage.role !== "assistant") {
-      setShowLoading(false);
-      return;
-    }
-
-    if (lastMessage.parts?.length === 0) {
-      setShowLoading(true);
-      return;
-    }
-
-    const parts = lastMessage.parts ?? [];
-    const lastPart = parts[parts.length - 1] as DynamicToolUIPart | undefined;
-    const isToolPart = lastPart?.type.startsWith("tool-");
-    const toolState = lastPart?.state;
-    const isToolFinished =
-      isToolPart &&
-      (toolState === "output-available" || toolState === "output-error");
-
-    // Only apply the 5-second rule when the last part is a finished tool
-    // and the chat is still loading. For non-tool parts, we only show
-    // loading in the initial "no parts yet" phase.
-    const shouldWaitForFiveSeconds = isToolFinished && isLoading;
-
-    if (!shouldWaitForFiveSeconds) {
-      setShowLoading(false);
-      return;
-    }
-
-    const timeoutId = setTimeout(() => {
-      setShowLoading(true);
-    }, 5000);
-
-    return () => {
-      clearTimeout(timeoutId);
-    };
-  }, [messages, isLoading]);
-
-  if (messages?.length === 0) {
-    if (isLoadingInitMessages) {
+  if (messages.length === 0) {
+    if (isLoadingMessages) {
       return (
         <div className="flex items-center justify-center gap-2 grow">
-          <Spinner />
-          <p>Loading messages...</p>
+          <Spinner className="w-6 h-6 text-muted-foreground" />
         </div>
       );
     }
-    return <ChatGuide chatId={chatId} />;
+    return null;
   }
 
   return (
@@ -104,20 +53,18 @@ export const ChatMessageList = () => {
             previousMessage?.role === "user" && message.role === "assistant"
               ? previousMessage.metadata?.modelId
               : undefined;
-          const model = modelId
-            ? models.find((m) => m.id === modelId)
-            : undefined;
           const isLast = i === messages.length - 1;
 
           const canContinue =
             message.role === "assistant" &&
             message.metadata?.finishReason === "length" &&
             isLast &&
-            !isLoading;
+            !isStreaming;
           const continueMetadata =
             previousMessage?.role === "user"
               ? previousMessage.metadata
               : undefined;
+
           return message.role === "user" ? (
             <div key={message.id} className="flex flex-col gap-1 items-end">
               <TextContextsPreview contexts={contexts} className="items-end" />
@@ -131,23 +78,20 @@ export const ChatMessageList = () => {
             <ChatMessage
               key={message.id}
               message={message}
-              header={model?.name}
-              isLoading={isLast && isLoading}
+              modelId={modelId}
+              isLoading={isLast && isStreaming}
               isLast={isLast}
-              reload={() => regenerate()}
+              onRegenerate={regenerate}
               canContinue={canContinue}
               onContinue={() => {
                 if (!continueMetadata) return;
-                sendMessage({
-                  text: "Continue",
-                  metadata: continueMetadata,
-                });
+                sendMessage({ text: "Continue", metadata: continueMetadata });
               }}
             />
           );
         })}
 
-        {showLoading && <l-dot-pulse size="24" speed="1.25" color="#525252" />}
+        {showChatLoading && <l-dot-pulse size="24" speed="1.25" color="#525252" />}
 
         {error && (
           <Badge variant="red" className="w-fit p-2">

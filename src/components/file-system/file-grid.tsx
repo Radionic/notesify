@@ -2,11 +2,11 @@ import {
   Download,
   FileText,
   Folder,
+  FolderOpen,
   Globe,
   MoreVertical,
   Pencil,
   Trash2,
-  FolderOpen,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -18,16 +18,6 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import type { FileNode } from "@/db/schema";
 
-interface FileGridProps {
-  files: FileNode[];
-  isLoading?: boolean;
-  readOnly?: boolean;
-  onItemClick: (item: FileNode) => void;
-  onRename?: (item: FileNode) => void;
-  onDelete?: (item: FileNode) => void;
-  onDownload?: (item: FileNode) => void;
-}
-
 export const FileGrid = ({
   files,
   isLoading,
@@ -36,16 +26,31 @@ export const FileGrid = ({
   onRename,
   onDownload,
   onDelete,
-}: FileGridProps) => {
+  onUpload,
+}: {
+  files: FileNode[];
+  isLoading?: boolean;
+  readOnly?: boolean;
+  onItemClick: (item: FileNode) => void;
+  onRename?: (item: FileNode) => void;
+  onDelete?: (item: FileNode) => void;
+  onDownload?: (item: FileNode) => void;
+  onUpload?: () => void;
+}) => {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="flex items-center gap-3 p-3 rounded-lg border">
-            <Skeleton className="h-6 w-6 shrink-0 rounded" />
-            <Skeleton className="h-5 flex-1 rounded" />
-          </div>
-        ))}
+      <div className="@container">
+        <div className="grid grid-cols-1 @min-[400px]:grid-cols-2 @min-[600px]:grid-cols-3 @min-[800px]:grid-cols-4 @min-[1000px]:grid-cols-5 @min-[1200px]:grid-cols-6 gap-2">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div
+              key={i}
+              className="flex items-center gap-3 p-3 rounded-lg border"
+            >
+              <Skeleton className="h-6 w-6 shrink-0 rounded" />
+              <Skeleton className="h-5 flex-1 rounded" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
@@ -59,8 +64,15 @@ export const FileGrid = ({
         <p className="text-lg font-medium text-foreground mb-1">
           No files or folders
         </p>
-        <p className="text-sm text-muted-foreground max-w-xs">
-          Upload a file or create a folder to get started
+        <p className="text-sm text-muted-foreground max-w-xs mb-1">
+          <button
+            type="button"
+            onClick={onUpload}
+            className="text-sm font-medium text-blue-500 underline-offset-4 hover:underline cursor-pointer"
+          >
+            Add a file
+          </button>{" "}
+          to get started
         </p>
       </div>
     );
@@ -121,14 +133,14 @@ export const FileGrid = ({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="@container space-y-6">
       {folders.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+        <div className="grid grid-cols-1 @min-[400px]:grid-cols-2 @min-[600px]:grid-cols-3 @min-[800px]:grid-cols-4 @min-[1000px]:grid-cols-5 @min-[1200px]:grid-cols-6 gap-2">
           {folders.map(renderItem)}
         </div>
       )}
       {nonFolders.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+        <div className="grid grid-cols-1 @min-[400px]:grid-cols-2 @min-[600px]:grid-cols-3 @min-[800px]:grid-cols-4 @min-[1000px]:grid-cols-5 @min-[1200px]:grid-cols-6 gap-2">
           {nonFolders.map(renderItem)}
         </div>
       )}

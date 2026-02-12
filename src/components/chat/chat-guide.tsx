@@ -22,11 +22,7 @@ const actions = [
   },
 ] as const;
 
-export const ChatGuide = ({
-  chatId,
-}: {
-  chatId: string;
-}) => {
+export const ChatGuide = ({ chatId }: { chatId: string }) => {
   const { messages, isLoadingMessages, handleSubmit } = useChatAI({ chatId });
   const containerRef = useRef<HTMLDivElement | null>(null);
   const containerWidth = useElementWidth(containerRef);

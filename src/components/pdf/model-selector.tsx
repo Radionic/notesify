@@ -1,7 +1,6 @@
 import { useAtom } from "jotai";
-import { Check } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { useEffect, useState } from "react";
-import { RiRobot2Line } from "react-icons/ri";
 import { type PublicModel, selectedModelAtom } from "@/atoms/setting/providers";
 import {
   Command,
@@ -83,14 +82,14 @@ export const ModelSelector = () => {
         }
       }}
     >
-      <PopoverTrigger className="w-full">
+      <PopoverTrigger>
         <TooltipButton tooltip="AI Model">
-          <RiRobot2Line className="opacity-50 size-5!" />
           {selectedModel && (
             <span className="text-muted-foreground">
               {getModelDisplayName(selectedModel)}
             </span>
           )}
+          <ChevronDown className="opacity-50 size-4" />
         </TooltipButton>
       </PopoverTrigger>
       <PopoverContent className="p-0 w-80">

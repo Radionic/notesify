@@ -60,7 +60,7 @@ export function EmailAuthForm({
         await emailSignIn.mutateAsync({
           email,
           password,
-          callbackURL: "/library",
+          callbackURL: "/viewer",
         });
         return;
       } else {
@@ -68,7 +68,7 @@ export function EmailAuthForm({
           name,
           email,
           password,
-          callbackURL: "/library",
+          callbackURL: "/viewer",
         });
 
         toast.success("Verification email sent. Please check your inbox.", {

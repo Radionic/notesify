@@ -60,7 +60,6 @@ export const ThreadList = ({
         {isLoading ? (
           <div className="flex items-center gap-2">
             <Spinner />
-            Loading...
           </div>
         ) : (
           "No chats found."

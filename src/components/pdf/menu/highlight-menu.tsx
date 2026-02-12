@@ -1,6 +1,5 @@
-import { useAtom, useSetAtom } from "jotai";
+import { useAtom } from "jotai";
 import { Copy, Sparkles, Trash } from "lucide-react";
-import { chatsOpenAtom } from "@/atoms/chat/chats";
 import { activeHighlightAtom } from "@/atoms/pdf/pdf-viewer";
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
 import { Separator } from "@/components/ui/separator";
@@ -12,13 +11,13 @@ import {
   useCopyHighlight,
   useDeleteHighlight,
 } from "@/queries/pdf/use-highlight";
+import { getRouter } from "@/router";
 import { BoundingRect } from "./bounding-rect";
 import { HighlightOptions } from "./highlight-options";
 import { Menu } from "./menu";
 
 export const HighlightMenu = ({ pdfId }: { pdfId: string }) => {
   const [activeHighlight, setActiveHighlight] = useAtom(activeHighlightAtom);
-  const setChatsOpen = useSetAtom(chatsOpenAtom);
   const { addContext } = useChatContext();
   const { mutateAsync: deleteHighlight } = useDeleteHighlight();
   const { mutateAsync: copyHighlight } = useCopyHighlight();
@@ -76,7 +75,11 @@ export const HighlightMenu = ({ pdfId }: { pdfId: string }) => {
                 page: activeHighlight.rects[0].page,
                 pdfId,
               });
-              setChatsOpen(true);
+              getRouter().navigate({
+                to: "/viewer",
+                search: (prev) => ({ ...prev, co: true }),
+                replace: true,
+              });
             }}
           >
             <Sparkles />

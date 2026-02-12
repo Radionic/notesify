@@ -129,7 +129,13 @@ export const useNavigatePdf = () => {
   }) => {
     getRouter().navigate({
       to: "/viewer",
-      search: { sid: pdfId, page },
+      search: (prev: Record<string, unknown>) => ({
+        ...prev,
+        sid: pdfId,
+        page,
+        type: "pdf" as const,
+        so: true,
+      }),
     });
   };
 

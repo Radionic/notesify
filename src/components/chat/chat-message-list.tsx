@@ -13,11 +13,7 @@ import { TextContextsPreview } from "./contexts/text-content-preview";
 
 dotPulse.register();
 
-export const ChatMessageList = ({
-  chatId,
-}: {
-  chatId: string;
-}) => {
+export const ChatMessageList = ({ chatId }: { chatId: string }) => {
   const {
     messages,
     error,
@@ -91,7 +87,9 @@ export const ChatMessageList = ({
           );
         })}
 
-        {showChatLoading && <l-dot-pulse size="24" speed="1.25" color="#525252" />}
+        {showChatLoading && (
+          <l-dot-pulse size="24" speed="1.25" color="#525252" />
+        )}
 
         {error && (
           <Badge variant="red" className="w-fit p-2">

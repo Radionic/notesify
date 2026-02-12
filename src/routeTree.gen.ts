@@ -13,7 +13,6 @@ import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as ModelsRouteImport } from './routes/models'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ViewerIndexRouteImport } from './routes/viewer/index'
-import { Route as LibraryIndexRouteImport } from './routes/library/index'
 import { Route as AuthResetPasswordIndexRouteImport } from './routes/auth/reset-password/index'
 import { Route as AuthLoginIndexRouteImport } from './routes/auth/login/index'
 import { Route as ApiAiIndexRouteImport } from './routes/api/ai/index'
@@ -37,11 +36,6 @@ const IndexRoute = IndexRouteImport.update({
 const ViewerIndexRoute = ViewerIndexRouteImport.update({
   id: '/viewer/',
   path: '/viewer/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LibraryIndexRoute = LibraryIndexRouteImport.update({
-  id: '/library/',
-  path: '/library/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthResetPasswordIndexRoute = AuthResetPasswordIndexRouteImport.update({
@@ -69,7 +63,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/models': typeof ModelsRoute
   '/pricing': typeof PricingRoute
-  '/library/': typeof LibraryIndexRoute
   '/viewer/': typeof ViewerIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/ai/': typeof ApiAiIndexRoute
@@ -80,7 +73,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/models': typeof ModelsRoute
   '/pricing': typeof PricingRoute
-  '/library': typeof LibraryIndexRoute
   '/viewer': typeof ViewerIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/ai': typeof ApiAiIndexRoute
@@ -92,7 +84,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/models': typeof ModelsRoute
   '/pricing': typeof PricingRoute
-  '/library/': typeof LibraryIndexRoute
   '/viewer/': typeof ViewerIndexRoute
   '/api/auth/$': typeof ApiAuthSplatRoute
   '/api/ai/': typeof ApiAiIndexRoute
@@ -105,7 +96,6 @@ export interface FileRouteTypes {
     | '/'
     | '/models'
     | '/pricing'
-    | '/library/'
     | '/viewer/'
     | '/api/auth/$'
     | '/api/ai/'
@@ -116,7 +106,6 @@ export interface FileRouteTypes {
     | '/'
     | '/models'
     | '/pricing'
-    | '/library'
     | '/viewer'
     | '/api/auth/$'
     | '/api/ai'
@@ -127,7 +116,6 @@ export interface FileRouteTypes {
     | '/'
     | '/models'
     | '/pricing'
-    | '/library/'
     | '/viewer/'
     | '/api/auth/$'
     | '/api/ai/'
@@ -139,7 +127,6 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ModelsRoute: typeof ModelsRoute
   PricingRoute: typeof PricingRoute
-  LibraryIndexRoute: typeof LibraryIndexRoute
   ViewerIndexRoute: typeof ViewerIndexRoute
   ApiAuthSplatRoute: typeof ApiAuthSplatRoute
   ApiAiIndexRoute: typeof ApiAiIndexRoute
@@ -177,13 +164,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ViewerIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/library/': {
-      id: '/library/'
-      path: '/library'
-      fullPath: '/library/'
-      preLoaderRoute: typeof LibraryIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth/reset-password/': {
       id: '/auth/reset-password/'
       path: '/auth/reset-password'
@@ -219,7 +199,6 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ModelsRoute: ModelsRoute,
   PricingRoute: PricingRoute,
-  LibraryIndexRoute: LibraryIndexRoute,
   ViewerIndexRoute: ViewerIndexRoute,
   ApiAuthSplatRoute: ApiAuthSplatRoute,
   ApiAiIndexRoute: ApiAiIndexRoute,

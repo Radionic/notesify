@@ -112,7 +112,12 @@ export const FileBrowser = ({
     } else if (item.type === "webpage") {
       getRouter().navigate({
         to: "/viewer",
-        search: { sid: item.id, type: "webpage" },
+        search: (prev: Record<string, unknown>) => ({
+          ...prev,
+          sid: item.id,
+          type: "webpage" as const,
+          so: true,
+        }),
       });
       onFileSelected?.(item.id);
     }
@@ -233,6 +238,7 @@ export const FileBrowser = ({
         }
         onDelete={readOnly ? undefined : handleDelete}
         onDownload={handleDownload}
+        onUpload={() => setUploadDialog(true)}
       />
 
       {/* Rename Dialog */}

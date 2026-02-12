@@ -12,7 +12,7 @@ export function HeroSection() {
           The all-in-one AI note taking workspace
         </p>
 
-        <Link to="/library" className="p-0">
+        <Link to="/viewer" className="p-0">
           <Button className="text-lg rounded-md bg-blue-500 px-8 py-5 font-medium text-white hover:bg-blue-600 mt-6">
             Get Started
           </Button>

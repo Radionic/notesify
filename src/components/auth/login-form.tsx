@@ -23,7 +23,7 @@ export function LoginForm({
   async function handleGoogleSignIn() {
     try {
       setError(null);
-      await signInWithGoogle({ callbackURL: "/library" });
+      await signInWithGoogle({ callbackURL: "/viewer" });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong.");
     }

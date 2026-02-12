@@ -1,10 +1,9 @@
-import { useSetAtom } from "jotai";
 import { History, Plus, X } from "lucide-react";
-import { chatsOpenAtom } from "@/atoms/chat/chats";
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
 import { Card } from "@/components/ui/card";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
 import { useChat } from "@/queries/chat/use-chat";
+import { getRouter } from "@/router";
 
 export const ChatHeader = ({
   chatId,
@@ -17,7 +16,6 @@ export const ChatHeader = ({
 }) => {
   const { data: activeChat } = useChat({ id: chatId });
   const { isStreaming } = useChatAI({ chatId });
-  const setChatsOpen = useSetAtom(chatsOpenAtom);
 
   return (
     <Card className="sticky top-0 flex flex-col px-2 border-2 border-transparent z-30 rounded-none bg-header">
@@ -44,7 +42,16 @@ export const ChatHeader = ({
           <History />
         </TooltipButton>
 
-        <TooltipButton tooltip="Close" onClick={() => setChatsOpen(false)}>
+        <TooltipButton
+          tooltip="Close"
+          onClick={() =>
+            getRouter().navigate({
+              to: "/viewer",
+              search: (prev) => ({ ...prev, co: false }),
+              replace: true,
+            })
+          }
+        >
           <X />
         </TooltipButton>
       </div>

@@ -1,12 +1,11 @@
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
-import { toast } from "sonner";
+import { useMemo } from "react";
 import { z } from "zod";
-import { chatsOpenAtom } from "@/atoms/chat/chats";
-import { pdfPreviewAtom, pdfViewerOpenAtom } from "@/atoms/pdf/pdf-viewer";
-import { audioRecorderOpenAtom } from "@/atoms/recording/audio-recorder";
+import { pdfPreviewAtom } from "@/atoms/pdf/pdf-viewer";
 import { AudioRecorder } from "@/components/audio-recorder/audio-recorder";
 import { Chat } from "@/components/chat/chat";
+import { FileBrowser } from "@/components/file-system/file-browser";
 import { PdfPagePreview } from "@/components/pdf/pdf-page-preview";
 import { PdfViewer } from "@/components/pdf/pdf-viewer";
 import {
@@ -18,26 +17,48 @@ import { Header } from "@/components/viewer/header";
 import { PdfToolbar } from "@/components/viewer/toolbars/pdf-toolbar";
 import { WebpageViewer } from "@/components/webpages/webpage-viewer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { generateId } from "@/lib/id";
 import { protectRouteFn } from "@/server/auth";
 
 const viewerSearchSchema = z.object({
-  sid: z.string(),
-  page: z.number().optional(),
-  type: z.enum(["pdf", "webpage"]).optional().default("pdf"),
+  so: z.boolean().optional(), // source open
+  co: z.boolean().optional(), // chat open
+  sid: z.string().optional(), // source id
+  cid: z.string().optional(), // chat id
+  type: z.enum(["pdf", "webpage"]).optional(), // source type
+  page: z.number().optional(), // pdf page
 });
 
 const Viewer = () => {
-  const { sid: id, page, type } = Route.useSearch();
+  const { sid, type, cid, so, co } = Route.useSearch();
+  const navigate = useNavigate({ from: "/viewer/" });
 
-  const chatsOpen = useAtomValue(chatsOpenAtom);
-  const pdfViewerOpen = useAtomValue(pdfViewerOpenAtom);
-  const audioRecorderOpen = useAtomValue(audioRecorderOpenAtom);
   const pdfPreview = useAtomValue(pdfPreviewAtom);
   const isMobile = useIsMobile();
 
-  if (!id) {
-    toast.info("No file found");
-    return <Navigate to="/library" />;
+  const sourceOpen = so ?? !!sid;
+  const chatOpen = isMobile && sourceOpen ? false : (co ?? !sourceOpen);
+
+  const handleChatIdChange = (chatId: string) => {
+    navigate({ search: (prev) => ({ ...prev, cid: chatId }), replace: true });
+  };
+
+  const [fallbackChatId] = useMemo(() => generateId(), []);
+  const chatId = cid || fallbackChatId;
+
+  if (!sourceOpen && !cid) {
+    return (
+      <div className="flex flex-col h-dvh">
+        <Header />
+        <main className="flex-1 overflow-hidden">
+          <Chat
+            chatId={chatId}
+            onChatIdChange={handleChatIdChange}
+            isCentered
+          />
+        </main>
+      </div>
+    );
   }
 
   if (isMobile) {
@@ -45,34 +66,40 @@ const Viewer = () => {
       <div className="flex flex-col h-dvh">
         <Header />
         <div className="relative flex-1 overflow-hidden">
-          {type === "pdf" && pdfViewerOpen && id && (
+          {sourceOpen && sid && type === "pdf" && (
             <div className="flex flex-col h-full">
-              <PdfToolbar pdfId={id} />
+              <PdfToolbar pdfId={sid} />
               <div className="flex-1 relative">
-                <PdfViewer pdfId={id} page={page} />
+                <PdfViewer pdfId={sid} />
               </div>
             </div>
           )}
 
-          {type !== "pdf" && (
+          {sourceOpen && sid && type === "webpage" && (
             <div className="flex-1 h-full">
-              <WebpageViewer webpageId={id} />
+              <WebpageViewer webpageId={sid} />
             </div>
           )}
 
-          {chatsOpen && (
+          {sourceOpen && !sid && (
+            <div className="h-full overflow-y-auto p-4">
+              <FileBrowser />
+            </div>
+          )}
+
+          {chatOpen && !sourceOpen && (
             <div className="absolute inset-0 z-50 bg-background">
-              <Chat />
+              <Chat chatId={chatId} onChatIdChange={handleChatIdChange} />
             </div>
           )}
 
-          {audioRecorderOpen && !chatsOpen && (
+          {!chatOpen && !sourceOpen && (
             <div className="absolute inset-0 z-50 bg-background">
               <AudioRecorder />
             </div>
           )}
 
-          {pdfPreview && !chatsOpen && !audioRecorderOpen && type === "pdf" && (
+          {pdfPreview && !chatOpen && type === "pdf" && (
             <div className="absolute inset-0 z-50 bg-background">
               <PdfPagePreview />
             </div>
@@ -90,7 +117,7 @@ const Viewer = () => {
         direction="horizontal"
         className="flex-1 overflow-hidden [&>[data-resize-handle]:last-child]:hidden"
       >
-        {type === "pdf" && pdfViewerOpen && id && (
+        {sourceOpen && sid && type === "pdf" && (
           <>
             <ResizablePanel
               minSize={30}
@@ -99,9 +126,9 @@ const Viewer = () => {
               order={1}
             >
               <div className="flex flex-col h-full">
-                <PdfToolbar pdfId={id} />
+                <PdfToolbar pdfId={sid} />
                 <div className="flex-1 relative">
-                  <PdfViewer pdfId={id} page={page} />
+                  <PdfViewer pdfId={sid} />
                 </div>
               </div>
             </ResizablePanel>
@@ -109,7 +136,7 @@ const Viewer = () => {
           </>
         )}
 
-        {type !== "pdf" && (
+        {sourceOpen && sid && type === "webpage" && (
           <>
             <ResizablePanel
               minSize={30}
@@ -117,7 +144,23 @@ const Viewer = () => {
               defaultSize={60}
               order={1}
             >
-              <WebpageViewer webpageId={id} />
+              <WebpageViewer webpageId={sid} />
+            </ResizablePanel>
+            <ResizableHandle withHandle />
+          </>
+        )}
+
+        {sourceOpen && !sid && (
+          <>
+            <ResizablePanel
+              minSize={30}
+              className="relative"
+              defaultSize={60}
+              order={1}
+            >
+              <div className="h-full overflow-y-auto p-4">
+                <FileBrowser />
+              </div>
             </ResizablePanel>
             <ResizableHandle withHandle />
           </>
@@ -132,19 +175,13 @@ const Viewer = () => {
           </>
         )}
 
-        {chatsOpen && (
+        {chatOpen && (
           <>
             <ResizablePanel minSize={25} defaultSize={40} order={3}>
-              <Chat />
+              <Chat chatId={chatId} onChatIdChange={handleChatIdChange} />
             </ResizablePanel>
             <ResizableHandle withHandle />
           </>
-        )}
-
-        {audioRecorderOpen && (
-          <ResizablePanel minSize={25} order={4}>
-            <AudioRecorder />
-          </ResizablePanel>
         )}
       </ResizablePanelGroup>
     </div>

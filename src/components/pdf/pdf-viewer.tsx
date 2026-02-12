@@ -66,7 +66,7 @@ export const PdfViewer = ({
       pdfData,
       container: containerRef.current,
     }).catch(() => {
-      navigate({ to: "/library" });
+      navigate({ to: "/viewer" });
     });
   }, [pdf, pdfId, pdfData, loadPdf, navigate]);
 

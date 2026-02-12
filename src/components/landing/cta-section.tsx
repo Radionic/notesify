@@ -23,7 +23,7 @@ export function CtaSection({ className }: { className?: string }) {
           </p>
 
           <div className="mt-4 md:mt-8 flex justify-center">
-            <Link to="/library">
+            <Link to="/viewer">
               <Button className="text-base rounded-md bg-blue-500 px-8 py-5 font-medium text-white hover:bg-blue-600">
                 Get Started
               </Button>

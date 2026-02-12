@@ -1,9 +1,8 @@
-import { useAtomValue, useSetAtom } from "jotai";
+import { useAtomValue } from "jotai";
 import { Sparkles } from "lucide-react";
 import { LuHighlighter } from "react-icons/lu";
 import { MdTranslate } from "react-icons/md";
 import { toast } from "sonner";
-import { chatsOpenAtom } from "@/atoms/chat/chats";
 import { selectedHighlightColorAtom } from "@/atoms/pdf/highlight-options";
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
 import { Card } from "@/components/ui/card";
@@ -13,6 +12,7 @@ import { useTextSelection } from "@/hooks/pdf/use-text-selection";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { generateId } from "@/lib/id";
 import { useCreateHighlight } from "@/queries/pdf/use-highlight";
+import { getRouter } from "@/router";
 import { HighlightOptions } from "./highlight-options";
 import { Menu } from "./menu";
 
@@ -23,7 +23,6 @@ export const TextMenu = ({
   pdfId: string;
   container: HTMLDivElement | null;
 }) => {
-  const setChatsOpen = useSetAtom(chatsOpenAtom);
   const { addContext } = useChatContext();
   const { mutateAsync: createHighlight } = useCreateHighlight();
   const selectedColor = useAtomValue(selectedHighlightColorAtom);
@@ -52,7 +51,11 @@ export const TextMenu = ({
             page: rects[0].page,
             pdfId,
           });
-          setChatsOpen(true);
+          getRouter().navigate({
+            to: "/viewer",
+            search: (prev) => ({ ...prev, co: true }),
+            replace: true,
+          });
           dismissMenu();
         }}
       >

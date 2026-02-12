@@ -1,5 +1,6 @@
+import { useNavigate } from "@tanstack/react-router";
 import { useAtom } from "jotai";
-import { ChevronDown, Eraser, Highlighter, Pen } from "lucide-react";
+import { ArrowLeft, ChevronDown, Eraser, Highlighter, Pen } from "lucide-react";
 import { useState } from "react";
 import { activeAnnotatorAtomFamily } from "@/atoms/pdf/annotator-options";
 import { FileBrowser } from "@/components/file-system/file-browser";
@@ -9,12 +10,7 @@ import { UndoRedoButton } from "@/components/pdf/menu/buttons/undo-redo-button";
 import { TooltipButton } from "@/components/tooltip/tooltip-button";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Spinner } from "@/components/ui/spinner";
 import { cn } from "@/lib/utils";
@@ -26,9 +22,19 @@ export const PdfToolbar = ({ pdfId }: { pdfId: string }) => {
     activeAnnotatorAtomFamily(pdfId),
   );
   const [browserOpen, setBrowserOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <Card className="sticky top-0 h-9 flex flex-row items-center gap-0.5 border-2 border-transparent z-30 rounded-none bg-header scrollbar-hide overflow-x-auto overflow-y-hidden touch-pan-x md:overflow-visible">
+      <TooltipButton
+        tooltip="Back to Library"
+        onClick={() => navigate({ to: "/viewer", search: { so: true } })}
+      >
+        <ArrowLeft />
+      </TooltipButton>
+
+      <Separator orientation="vertical" className="mx-0.5 h-6" />
+
       <Button
         variant="ghost"
         onClick={() => setBrowserOpen(true)}
@@ -45,10 +51,7 @@ export const PdfToolbar = ({ pdfId }: { pdfId: string }) => {
       </Button>
 
       <Dialog open={browserOpen} onOpenChange={setBrowserOpen}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Open a PDF</DialogTitle>
-          </DialogHeader>
+        <DialogContent className="w-5xl pt-8 max-w-[95vw] max-h-[80vh] overflow-y-auto">
           <FileBrowser readOnly onFileSelected={() => setBrowserOpen(false)} />
         </DialogContent>
       </Dialog>

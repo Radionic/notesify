@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { createRouter } from "@tanstack/react-router";
+import { createRouter, Navigate } from "@tanstack/react-router";
 import { setupRouterSsrQueryIntegration } from "@tanstack/react-router-ssr-query";
 
 import { routeTree } from "./routeTree.gen";
@@ -11,6 +11,7 @@ export function getRouter() {
     routeTree,
     context: { queryClient },
     defaultPreload: "intent",
+    defaultNotFoundComponent: () => <Navigate to="/" replace />,
     Wrap: (props: { children: React.ReactNode }) => {
       return (
         <QueryClientProvider client={queryClient}>

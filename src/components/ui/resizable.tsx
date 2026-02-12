@@ -1,7 +1,9 @@
 "use client";
 
 import { GripVertical } from "lucide-react";
+import { useEffect, useRef } from "react";
 import * as ResizablePrimitive from "react-resizable-panels";
+import type { ImperativePanelHandle } from "react-resizable-panels";
 
 import { cn } from "@/lib/utils";
 
@@ -18,7 +20,31 @@ const ResizablePanelGroup = ({
   />
 );
 
-const ResizablePanel = ResizablePrimitive.Panel;
+const ResizablePanel = ({
+  collapsed,
+  ...props
+}: React.ComponentProps<typeof ResizablePrimitive.Panel> & {
+  collapsed?: boolean;
+}) => {
+  const ref = useRef<ImperativePanelHandle>(null);
+
+  useEffect(() => {
+    if (collapsed === undefined) return;
+    if (collapsed) {
+      ref.current?.collapse();
+    } else {
+      ref.current?.expand();
+    }
+  }, [collapsed]);
+
+  return (
+    <ResizablePrimitive.Panel
+      ref={ref}
+      {...(collapsed !== undefined && { collapsible: true, collapsedSize: 0 })}
+      {...props}
+    />
+  );
+};
 
 const ResizableHandle = ({
   withHandle,

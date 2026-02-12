@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
 import { z } from "zod";
 import { pdfPreviewAtom } from "@/atoms/pdf/pdf-viewer";
-import { AudioRecorder } from "@/components/audio-recorder/audio-recorder";
 import { Chat } from "@/components/chat/chat";
 import { FileBrowser } from "@/components/file-system/file-browser";
 import { PdfPagePreview } from "@/components/pdf/pdf-page-preview";
@@ -16,6 +15,7 @@ import { Header } from "@/components/viewer/header";
 import { PdfToolbar } from "@/components/viewer/toolbars/pdf-toolbar";
 import { WebpageViewer } from "@/components/webpages/webpage-viewer";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 import { protectRouteFn } from "@/server/auth";
 
 const viewerSearchSchema = z.object({
@@ -41,24 +41,13 @@ const Viewer = () => {
     navigate({ search: (prev) => ({ ...prev, cid: chatId }), replace: true });
   };
 
-  if (!sourceOpen && !cid) {
-    return (
-      <div className="flex flex-col h-dvh">
-        <Header />
-        <main className="flex-1 overflow-hidden">
-          <Chat chatId={cid} onChatIdChange={handleChatIdChange} isCentered />
-        </main>
-      </div>
-    );
-  }
-
   if (isMobile) {
     return (
       <div className="flex flex-col h-dvh">
         <Header />
         <div className="relative flex-1 overflow-hidden">
-          {sourceOpen && sid && type === "pdf" && (
-            <div className="flex flex-col h-full">
+          {sid && type === "pdf" && (
+            <div className={cn("flex flex-col h-full", !sourceOpen && "hidden")}>
               <PdfToolbar pdfId={sid} />
               <div className="flex-1 relative">
                 <PdfViewer pdfId={sid} />
@@ -66,8 +55,8 @@ const Viewer = () => {
             </div>
           )}
 
-          {sourceOpen && sid && type === "webpage" && (
-            <div className="flex-1 h-full">
+          {sid && type === "webpage" && (
+            <div className={cn("flex-1 h-full", !sourceOpen && "hidden")}>
               <WebpageViewer webpageId={sid} />
             </div>
           )}
@@ -83,14 +72,9 @@ const Viewer = () => {
               <Chat
                 chatId={cid}
                 onChatIdChange={handleChatIdChange}
-                minimal={!sourceOpen}
+                isCentered={!cid}
+                minimal={!!cid}
               />
-            </div>
-          )}
-
-          {!chatOpen && !sourceOpen && (
-            <div className="absolute inset-0 z-50 bg-background">
-              <AudioRecorder />
             </div>
           )}
 
@@ -112,9 +96,10 @@ const Viewer = () => {
         direction="horizontal"
         className="flex-1 overflow-hidden [&>[data-resize-handle]:last-child]:hidden"
       >
-        {sourceOpen && sid && type === "pdf" && (
+        {sid && type === "pdf" && (
           <>
             <ResizablePanel
+              collapsed={!sourceOpen}
               minSize={30}
               className="relative"
               defaultSize={50}
@@ -127,13 +112,14 @@ const Viewer = () => {
                 </div>
               </div>
             </ResizablePanel>
-            <ResizableHandle withHandle />
+            {sourceOpen && <ResizableHandle withHandle />}
           </>
         )}
 
-        {sourceOpen && sid && type === "webpage" && (
+        {sid && type === "webpage" && (
           <>
             <ResizablePanel
+              collapsed={!sourceOpen}
               minSize={30}
               className="relative"
               defaultSize={50}
@@ -141,7 +127,7 @@ const Viewer = () => {
             >
               <WebpageViewer webpageId={sid} />
             </ResizablePanel>
-            <ResizableHandle withHandle />
+            {sourceOpen && <ResizableHandle withHandle />}
           </>
         )}
 
@@ -176,7 +162,8 @@ const Viewer = () => {
               <Chat
                 chatId={cid}
                 onChatIdChange={handleChatIdChange}
-                minimal={!sourceOpen}
+                isCentered={!sourceOpen && !cid}
+                minimal={!sourceOpen && !!cid}
               />
             </ResizablePanel>
             <ResizableHandle withHandle />

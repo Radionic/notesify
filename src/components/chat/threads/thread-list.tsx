@@ -23,7 +23,7 @@ export const ThreadList = ({
   isLoading,
   onSelectChat,
 }: {
-  chatId: string;
+  chatId?: string;
   chatrooms?: Chat[];
   isLoading?: boolean;
   onSelectChat: (chatId: string) => void;

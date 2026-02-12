@@ -6,8 +6,6 @@ import type { Highlight } from "@/db/schema";
 import type { ExplicitDest } from "@/lib/pdf/link-service";
 import type { TextSelection } from "@/lib/types";
 
-export const pdfViewerOpenAtom = atom<boolean>(true);
-
 export const documentAtomFamily = atomFamily((pdfId?: string) =>
   atom<PDFDocumentProxy>(),
 );

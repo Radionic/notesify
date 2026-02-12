@@ -15,7 +15,17 @@ export const WebpageToolbar = ({ webpageId }: { webpageId: string }) => {
     <Card className="sticky top-0 h-9 flex flex-row items-center gap-0.5 border-2 border-transparent z-30 rounded-none bg-header">
       <TooltipButton
         tooltip="Back to Library"
-        onClick={() => navigate({ to: "/viewer", search: { so: true } })}
+        onClick={() =>
+          navigate({
+            to: "/viewer",
+            search: (prev) => ({
+              ...prev,
+              sid: undefined,
+              type: undefined,
+              so: true,
+            }),
+          })
+        }
       >
         <ArrowLeft />
       </TooltipButton>

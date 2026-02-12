@@ -8,7 +8,7 @@ export const ThreadGroup = ({
   onSelectChat,
 }: {
   chats: Chat[];
-  chatId: string;
+  chatId?: string;
   onSelectChat: (chatId: string) => void;
 }) => {
   return chats.map((chat) => {

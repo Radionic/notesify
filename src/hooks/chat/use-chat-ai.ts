@@ -2,7 +2,7 @@ import { useChat } from "@ai-sdk/react";
 import type { DynamicToolUIPart } from "ai";
 import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
-import { chatInstanceAtomFamily } from "@/atoms/chat/chats";
+import { chatInstanceAtomFamily, pendingChatIdAtom } from "@/atoms/chat/chats";
 import { activeContextsAtom } from "@/atoms/chat/contexts";
 import {
   activePdfIdAtom,
@@ -13,12 +13,16 @@ import { selectedModelAtom } from "@/atoms/setting/providers";
 import { ensureVisionModel } from "@/lib/ai/ensure-vision-model";
 import { generateId } from "@/lib/id";
 import { useMessages } from "@/queries/chat/use-messages";
+import { getRouter } from "@/router";
 import type { MyUIMessage } from "@/routes/api/ai";
 
-export const useChatAI = ({ chatId }: { chatId: string }) => {
+export const useChatAI = ({ chatId }: { chatId?: string }) => {
+  const [pendingChatId, setPendingChatId] = useAtom(pendingChatIdAtom);
+  const effectiveChatId = chatId ?? pendingChatId;
+
   const { data: initialMessages, isLoading: isLoadingMessages } =
     useMessages(chatId);
-  const chat = useAtomValue(chatInstanceAtomFamily(chatId));
+  const chat = useAtomValue(chatInstanceAtomFamily(effectiveChatId));
 
   const [contexts, setContexts] = useAtom(activeContextsAtom);
   const selectedModel = useAtomValue(selectedModelAtom);
@@ -35,7 +39,7 @@ export const useChatAI = ({ chatId }: { chatId: string }) => {
     stop,
     regenerate,
   } = useChat({
-    id: chatId,
+    id: effectiveChatId,
     chat,
   });
 
@@ -74,10 +78,22 @@ export const useChatAI = ({ chatId }: { chatId: string }) => {
         viewingPage,
         contexts,
         modelId: selectedModel.id,
-        chatId,
+        chatId: effectiveChatId,
       },
     });
     setContexts([]);
+
+    if (!chatId) {
+      getRouter().navigate({
+        to: "/viewer",
+        search: (prev: Record<string, unknown>) => ({
+          ...prev,
+          cid: effectiveChatId,
+        }),
+        replace: true,
+      });
+      setPendingChatId(generateId());
+    }
   };
 
   const handleImageUpload = (file: File) => {

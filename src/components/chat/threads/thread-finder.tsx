@@ -11,7 +11,7 @@ export const ThreadFinder = ({
   onBack,
   onSelectChat,
 }: {
-  chatId: string;
+  chatId?: string;
   onBack: () => void;
   onSelectChat: (chatId: string) => void;
 }) => {
@@ -19,7 +19,7 @@ export const ThreadFinder = ({
   const { data: chatrooms, isLoading } = useChats({ searchTerm });
 
   return (
-    <div className="h-dvh p-2 space-y-2 overflow-y-auto">
+    <div className="w-full max-w-3xl mx-auto h-dvh p-2 space-y-2 overflow-y-auto">
       <ThreadHeader chatId={chatId} onBack={onBack} />
       <ThreadSearch searchTerm={searchTerm} onSearch={setSearchTerm} />
       <ThreadList

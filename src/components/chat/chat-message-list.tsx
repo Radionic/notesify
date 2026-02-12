@@ -13,7 +13,7 @@ import { TextContextsPreview } from "./contexts/text-content-preview";
 
 dotPulse.register();
 
-export const ChatMessageList = ({ chatId }: { chatId: string }) => {
+export const ChatMessageList = ({ chatId }: { chatId?: string }) => {
   const {
     messages,
     error,

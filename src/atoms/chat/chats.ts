@@ -1,16 +1,12 @@
 import { Chat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { atom } from "jotai";
-import { atomWithStorage } from "jotai/utils";
 import { atomFamily } from "jotai-family";
-import { MOBILE_BREAKPOINT } from "@/hooks/use-mobile";
+import { generateId } from "@/lib/id";
 
-export const chatsOpenAtom = atomWithStorage<boolean>(
-  "chatsOpen",
-  window.innerWidth >= MOBILE_BREAKPOINT,
-);
+export const pendingChatIdAtom = atom<string>(generateId());
 
-export const chatInstanceAtomFamily = atomFamily((chatId: string) =>
+export const chatInstanceAtomFamily = atomFamily((chatId?: string) =>
   atom(
     new Chat<UIMessage>({
       id: chatId,

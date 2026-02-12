@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useAtomValue } from "jotai";
-import { useMemo } from "react";
 import { z } from "zod";
 import { pdfPreviewAtom } from "@/atoms/pdf/pdf-viewer";
 import { AudioRecorder } from "@/components/audio-recorder/audio-recorder";
@@ -17,7 +16,6 @@ import { Header } from "@/components/viewer/header";
 import { PdfToolbar } from "@/components/viewer/toolbars/pdf-toolbar";
 import { WebpageViewer } from "@/components/webpages/webpage-viewer";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { generateId } from "@/lib/id";
 import { protectRouteFn } from "@/server/auth";
 
 const viewerSearchSchema = z.object({
@@ -39,23 +37,16 @@ const Viewer = () => {
   const sourceOpen = so ?? !!sid;
   const chatOpen = isMobile && sourceOpen ? false : (co ?? !sourceOpen);
 
-  const handleChatIdChange = (chatId: string) => {
+  const handleChatIdChange = (chatId?: string) => {
     navigate({ search: (prev) => ({ ...prev, cid: chatId }), replace: true });
   };
-
-  const [fallbackChatId] = useMemo(() => generateId(), []);
-  const chatId = cid || fallbackChatId;
 
   if (!sourceOpen && !cid) {
     return (
       <div className="flex flex-col h-dvh">
         <Header />
         <main className="flex-1 overflow-hidden">
-          <Chat
-            chatId={chatId}
-            onChatIdChange={handleChatIdChange}
-            isCentered
-          />
+          <Chat chatId={cid} onChatIdChange={handleChatIdChange} isCentered />
         </main>
       </div>
     );
@@ -89,7 +80,11 @@ const Viewer = () => {
 
           {chatOpen && !sourceOpen && (
             <div className="absolute inset-0 z-50 bg-background">
-              <Chat chatId={chatId} onChatIdChange={handleChatIdChange} />
+              <Chat
+                chatId={cid}
+                onChatIdChange={handleChatIdChange}
+                minimal={!sourceOpen}
+              />
             </div>
           )}
 
@@ -122,7 +117,7 @@ const Viewer = () => {
             <ResizablePanel
               minSize={30}
               className="relative"
-              defaultSize={60}
+              defaultSize={50}
               order={1}
             >
               <div className="flex flex-col h-full">
@@ -141,7 +136,7 @@ const Viewer = () => {
             <ResizablePanel
               minSize={30}
               className="relative"
-              defaultSize={60}
+              defaultSize={50}
               order={1}
             >
               <WebpageViewer webpageId={sid} />
@@ -155,7 +150,7 @@ const Viewer = () => {
             <ResizablePanel
               minSize={30}
               className="relative"
-              defaultSize={60}
+              defaultSize={50}
               order={1}
             >
               <div className="h-full overflow-y-auto p-4">
@@ -168,7 +163,7 @@ const Viewer = () => {
 
         {pdfPreview && type === "pdf" && (
           <>
-            <ResizablePanel minSize={20} defaultSize={30} order={2}>
+            <ResizablePanel minSize={30} defaultSize={30} order={2}>
               <PdfPagePreview />
             </ResizablePanel>
             <ResizableHandle withHandle />
@@ -177,8 +172,12 @@ const Viewer = () => {
 
         {chatOpen && (
           <>
-            <ResizablePanel minSize={25} defaultSize={40} order={3}>
-              <Chat chatId={chatId} onChatIdChange={handleChatIdChange} />
+            <ResizablePanel minSize={30} defaultSize={50} order={3}>
+              <Chat
+                chatId={cid}
+                onChatIdChange={handleChatIdChange}
+                minimal={!sourceOpen}
+              />
             </ResizablePanel>
             <ResizableHandle withHandle />
           </>

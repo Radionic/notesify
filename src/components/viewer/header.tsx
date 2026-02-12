@@ -24,17 +24,18 @@ const PanelToggle = ({
     <button
       type="button"
       className={cn(
-        "flex h-7 w-7 items-center justify-center rounded-full transition-all duration-200",
+        "flex items-center gap-1.5 px-2.5 py-2.5 text-xs font-medium transition-all duration-200 border-b-2 -mb-px cursor-pointer",
         recording
-          ? "text-red-500"
+          ? "border-red-500 text-red-500"
           : active
-            ? "text-blue-500"
-            : "text-muted-foreground hover:text-foreground",
+            ? "border-foreground text-foreground"
+            : "border-transparent text-muted-foreground hover:text-foreground",
       )}
       onClick={onClick}
       title={title}
     >
       {icon}
+      <span>{title}</span>
     </button>
   );
 };
@@ -73,15 +74,21 @@ export const Header = () => {
     }
 
     if (panel === "source") {
-      navigate({ so: !sourceOpen });
+      navigate({
+        so: !sourceOpen,
+        co: chatOpen,
+      });
     } else {
-      navigate({ co: !chatOpen });
+      navigate({
+        co: !chatOpen,
+        so: sourceOpen,
+      });
     }
   };
 
   return (
-    <Card className="sticky flex flex-row w-full px-0.5 py-1 border-2 border-transparent border-b-border justify-between z-30 rounded-none bg-header">
-      <div className="flex flex-row items-center gap-1">
+    <Card className="sticky grid grid-cols-[auto_1fr_auto] w-full px-1 border-b border-border z-30 rounded-none bg-header shadow-none">
+      <div className="flex items-center">
         <Link to="/viewer" search={{}}>
           <img
             src="/favicon.png"
@@ -89,25 +96,27 @@ export const Header = () => {
             className="w-6 h-6 rounded-sm mx-1"
           />
         </Link>
+      </div>
 
-        <div className="flex flex-row items-center gap-0.5 rounded-md bg-muted p-0.5">
+      <div className="flex items-center justify-start md:justify-center">
+        <div className="flex flex-row items-center gap-1.5">
           <PanelToggle
             active={sourceOpen}
             onClick={() => togglePanel("source")}
             icon={<Library className="h-3.5 w-3.5" />}
-            title="Library"
+            title="Source"
           />
 
           <PanelToggle
             active={chatOpen}
             onClick={() => togglePanel("chat")}
             icon={<Sparkles className="h-3.5 w-3.5" />}
-            title="AI Assistant"
+            title="AI"
           />
         </div>
       </div>
 
-      <div className="flex flex-row items-center gap-0.5">
+      <div className="flex items-center">
         <UserIcon />
       </div>
     </Card>

@@ -10,7 +10,7 @@ export const ChatInput = ({
   chatId,
   rows = 1,
 }: {
-  chatId: string;
+  chatId?: string;
   rows?: number;
 }) => {
   const {

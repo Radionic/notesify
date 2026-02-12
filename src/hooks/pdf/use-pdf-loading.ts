@@ -6,7 +6,6 @@ import {
   activePdfIdAtom,
   currentPageAtomFamily,
   documentAtomFamily,
-  openedPdfIdsAtom,
   pdfPreviewAtom,
   renderedPagesAtomFamily,
   viewerAtomFamily,
@@ -62,7 +61,6 @@ export const useLoadPdf = () => {
       // Update pdf states
       const store = getDefaultStore();
       store.set(activePdfIdAtom, pdf.id);
-      store.set(openedPdfIdsAtom, (currentIds) => [...currentIds, pdf.id]);
       store.set(documentAtomFamily(pdf.id), pdfDocument);
       store.set(viewerAtomFamily(pdf.id), pdfViewer);
       linkService.setInternalLinkClickHandler(({ pageNumber, destArray }) => {
@@ -111,9 +109,6 @@ export const useUnloadPdf = () => {
     console.log("Unloading PDF", pdfId);
     const store = getDefaultStore();
     store.set(activePdfIdAtom, undefined);
-    store.set(openedPdfIdsAtom, (currentIds) =>
-      currentIds.filter((id) => id !== pdfId),
-    );
     const documentAtom = documentAtomFamily(pdfId);
     await store.get(documentAtom)?.destroy();
     store.set(documentAtom, undefined);

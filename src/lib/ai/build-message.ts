@@ -1,5 +1,5 @@
 import { convertToModelMessages, type ModelMessage, type UIMessage } from "ai";
-import { and, eq, getTableColumns, inArray } from "drizzle-orm";
+import { and, eq, getTableColumns } from "drizzle-orm";
 import type { Context } from "@/atoms/chat/contexts";
 import { db } from "@/db";
 import { filesTable, pdfsTable } from "@/db/schema";
@@ -34,48 +34,32 @@ const buildImageContent = (contexts?: Context[]) => {
 
 export const buildSystemMessage = async ({
   userId,
-  openedPdfIds,
-  pdfId,
-  viewingPage,
+  source,
 }: {
   userId: string;
-  openedPdfIds: string[];
-  pdfId: string;
-  viewingPage: number;
+  source?: { type: "pdf"; pdfId: string; viewingPage: number };
 }) => {
-  if (openedPdfIds.length === 0) {
-    return "No PDFs opened";
+  if (!source) {
+    return "No pdf or webpage source opened";
   }
 
-  const openedPdfs = await db
-    .select({
-      ...getTableColumns(pdfsTable),
-      name: filesTable.name,
-    })
-    .from(pdfsTable)
-    .innerJoin(filesTable, eq(filesTable.id, pdfsTable.id))
-    .where(
-      and(inArray(pdfsTable.id, openedPdfIds), eq(filesTable.userId, userId)),
-    );
+  if (source.type === "pdf") {
+    const [viewingPdf] = await db
+      .select({
+        ...getTableColumns(pdfsTable),
+        name: filesTable.name,
+      })
+      .from(pdfsTable)
+      .innerJoin(filesTable, eq(filesTable.id, pdfsTable.id))
+      .where(
+        and(eq(pdfsTable.id, source.pdfId), eq(filesTable.userId, userId)),
+      );
 
-  // Only 1 opened pdf for now
-  // const openedPdfsContext = openedPdfs
-  //   .map(
-  //     (pdf) =>
-  //       `{ name: "${pdf.name}", id: "${pdf.id}", totalPages: ${pdf.pageCount} }`,
-  //   )
-  //   .join(", ");
-  const viewingPdf = openedPdfs.find((pdf) => pdf.id === pdfId);
-  return `You are a helpful PDF assistant. The user is viewing page ${viewingPage} of ${viewingPdf?.name} (id: ${viewingPdf?.id}, total pages: ${viewingPdf?.pageCount}). Follow these rules:
+    return `You are a helpful AI assistant. The user is viewing page ${source.viewingPage} of ${viewingPdf?.name} (id: ${viewingPdf?.id}, total pages: ${viewingPdf?.pageCount}). Follow these rules:
   
 1. Respond in GitHub Flavored Markdown (GFM) format
-2. For mathematical expressions, all MUST be expressed in KaTeX and wrapped by double dollar signs
-3. ONLY when user explicitly asks for sources, citations or location, use this Markdown Blockquote format to reference/cite PDF content:
-> pdfId: {pdf id}
-> pdfPage: {pdf page number}
->
-> {exact quotes from the pdf page, no rephrasing, summarizing or truncating}
-`;
+2. For mathematical expressions, all MUST be expressed in KaTeX and wrapped by double dollar signs`;
+  }
 };
 
 export const buildMessages = async (

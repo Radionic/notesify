@@ -25,7 +25,6 @@ export interface PdfPreviewState {
 }
 export const pdfPreviewAtom = atom<PdfPreviewState | null>(null);
 
-export const openedPdfIdsAtom = atom<string[]>([]);
 export const activePdfIdAtom = atom<string>();
 export const activeTextSelectionAtomFamily = atomFamily((pdfId?: string) =>
   atom<TextSelection>(),

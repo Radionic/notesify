@@ -4,11 +4,7 @@ import { useAtom, useAtomValue } from "jotai";
 import { useEffect, useState } from "react";
 import { chatInstanceAtomFamily, pendingChatIdAtom } from "@/atoms/chat/chats";
 import { activeContextsAtom } from "@/atoms/chat/contexts";
-import {
-  activePdfIdAtom,
-  currentPageAtomFamily,
-  openedPdfIdsAtom,
-} from "@/atoms/pdf/pdf-viewer";
+import { activePdfIdAtom, currentPageAtomFamily } from "@/atoms/pdf/pdf-viewer";
 import { selectedModelAtom } from "@/atoms/setting/providers";
 import { ensureVisionModel } from "@/lib/ai/ensure-vision-model";
 import { generateId } from "@/lib/id";
@@ -27,7 +23,6 @@ export const useChatAI = ({ chatId }: { chatId?: string }) => {
   const [contexts, setContexts] = useAtom(activeContextsAtom);
   const selectedModel = useAtomValue(selectedModelAtom);
   const pdfId = useAtomValue(activePdfIdAtom);
-  const openedPdfIds = useAtomValue(openedPdfIdsAtom);
   const viewingPage = useAtomValue(currentPageAtomFamily(pdfId));
 
   const {
@@ -73,9 +68,10 @@ export const useChatAI = ({ chatId }: { chatId?: string }) => {
     sendMessage({
       text,
       metadata: {
-        openedPdfIds,
-        pdfId,
-        viewingPage,
+        source:
+          pdfId && viewingPage
+            ? { type: "pdf", pdfId, viewingPage }
+            : undefined,
         contexts,
         modelId: selectedModel.id,
         chatId: effectiveChatId,

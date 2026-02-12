@@ -20,9 +20,15 @@ import { getSession } from "@/lib/auth";
 import { generateId } from "@/lib/id";
 
 export const messageMetadataSchema = z.object({
-  openedPdfIds: z.array(z.string()).optional(),
-  pdfId: z.string().optional(),
-  viewingPage: z.number().optional(),
+  source: z
+    .discriminatedUnion("type", [
+      z.object({
+        type: z.literal("pdf"),
+        pdfId: z.string(),
+        viewingPage: z.number(),
+      }),
+    ])
+    .optional(),
   contexts: z
     .array(
       z.object({
@@ -81,7 +87,7 @@ export const Route = createFileRoute("/api/ai/")({
         const { messages } = await request.json();
 
         const lastMessage = messages[messages.length - 1];
-        const { openedPdfIds, pdfId, viewingPage, contexts, modelId, chatId } =
+        const { source, contexts, modelId, chatId } =
           lastMessage.metadata ?? {};
 
         const session = await getSession();
@@ -101,9 +107,7 @@ export const Route = createFileRoute("/api/ai/")({
         const [systemMessage, chat] = await Promise.all([
           buildSystemMessage({
             userId: session.user.id,
-            openedPdfIds,
-            pdfId,
-            viewingPage,
+            source,
           }),
           (async () => {
             const [chat] = await db
@@ -147,7 +151,7 @@ export const Route = createFileRoute("/api/ai/")({
             const result = await trackedStreamText({
               model: modelId,
               userId,
-              pdfId,
+              pdfId: source?.type === "pdf" ? source.pdfId : undefined,
               chatId,
               messageId: assistantMessageId,
               usageType: "chat",
@@ -185,7 +189,7 @@ export const Route = createFileRoute("/api/ai/")({
                       model: process.env.TITLE_SUMMARIZATION_MODEL_ID,
                       internal: true,
                       userId,
-                      pdfId,
+                      pdfId: source?.type === "pdf" ? source.pdfId : undefined,
                       chatId,
                       usageType: "chat_title",
                       prompt,

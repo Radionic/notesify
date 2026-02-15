@@ -12,5 +12,4 @@ export type Context = {
 };
 
 export const activeContextsAtom = atom<Context[]>([]);
-export const activePreviewContextAtom = atom<Context>();
 export const activeBoundingContextAtom = atom<Context>();

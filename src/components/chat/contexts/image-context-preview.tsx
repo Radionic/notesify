@@ -1,17 +1,10 @@
-import { useSetAtom } from "jotai";
+import { useState } from "react";
 import { CgClose } from "react-icons/cg";
 import { VscGoToFile } from "react-icons/vsc";
-import { activePreviewContextAtom, type Context } from "@/atoms/chat/contexts";
+import type { Context } from "@/atoms/chat/contexts";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useChatContext } from "@/hooks/chat/use-chat-context";
 import { cn } from "@/lib/utils";
-
-interface ImageContextPreviewProps {
-  context: Context;
-  removable?: boolean;
-  onJump: () => void;
-  onPreview: () => void;
-  onRemove: () => void;
-}
 
 const ImageContextPreview = ({
   context,
@@ -19,7 +12,13 @@ const ImageContextPreview = ({
   onJump,
   onPreview,
   onRemove,
-}: ImageContextPreviewProps) => {
+}: {
+  context: Context;
+  removable?: boolean;
+  onJump: () => void;
+  onPreview: () => void;
+  onRemove: () => void;
+}) => {
   return (
     <div className="relative w-32 h-32">
       <img
@@ -50,7 +49,7 @@ export const ImageContextsPreview = ({
   className?: string;
 }) => {
   const { jumpToContext, removeContext } = useChatContext();
-  const setActivePreviewContext = useSetAtom(activePreviewContextAtom);
+  const [activePreviewContext, setActivePreviewContext] = useState<Context>();
   const validContexts = contexts?.filter(
     (context) =>
       context.type === "area" ||
@@ -75,6 +74,24 @@ export const ImageContextsPreview = ({
           onRemove={() => removeContext(context.id)}
         />
       ))}
+      <Dialog
+        open={
+          activePreviewContext?.type === "area" ||
+          activePreviewContext?.type === "page" ||
+          activePreviewContext?.type === "uploaded-image"
+        }
+        onOpenChange={() => setActivePreviewContext(undefined)}
+      >
+        <DialogContent className="max-w-3xl">
+          {activePreviewContext?.content && (
+            <img
+              src={activePreviewContext.content}
+              alt="Context Preview"
+              className="w-full object-contain max-h-[80vh]"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

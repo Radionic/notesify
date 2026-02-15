@@ -18,7 +18,6 @@ import { useZoom } from "../../hooks/pdf/use-zoom";
 import { ContextBoundingBox } from "../chat/contexts/context-bounding-box";
 import { PDFBlockquoteHighlight } from "../chat/pdf-blockquote-highlight";
 import { Spinner } from "../ui/spinner";
-import { PreviewImageDialog } from "./dialog/preview-image-dialog";
 import { AnnotatorLayer } from "./layer/annotator-layer";
 import { HighlightLayer } from "./layer/highlight-layer";
 import { Layer } from "./layer/layer";
@@ -134,8 +133,6 @@ export const PdfViewer = ({
 
       <PDFBlockquoteHighlight pdfId={pdfId} />
       <ContextBoundingBox pdfId={pdfId} />
-
-      <PreviewImageDialog />
     </div>
   );
 };

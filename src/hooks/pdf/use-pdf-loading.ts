@@ -52,6 +52,7 @@ export const useLoadPdf = () => {
         annotationMode: AnnotationMode.ENABLE,
         textLayerMode: 1,
         removePageBorders: true,
+        annotationEditorMode: -1,
       });
 
       linkService.setDocument(pdfDocument);

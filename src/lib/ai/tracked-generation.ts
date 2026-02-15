@@ -1,18 +1,79 @@
-import { generateText, type JSONValue, streamText } from "ai";
+import { createOpenAICompatible } from "@ai-sdk/openai-compatible";
+import { type FinishReason, generateText, streamText } from "ai";
 import { db } from "@/db";
 import { type ModelUsageType, modelUsagesTable } from "@/db/schema";
 import { generateId } from "@/lib/id";
 import { getModelById } from "./get-model";
 import { truncateMessages } from "./truncate-messages";
 
-type GatewayMetadata = {
-  cost?: string;
-  routing?: {
-    finalProvider?: string;
+const openrouter = createOpenAICompatible({
+  name: "openrouter",
+  apiKey: process.env.OPENROUTER_API_KEY,
+  baseURL: "https://openrouter.ai/api/v1",
+});
+
+type ProviderUsage = {
+  inputTokenDetails: {
+    noCacheTokens?: number;
+    cacheReadTokens?: number;
+    cacheWriteTokens?: number;
+  };
+  outputTokenDetails: {
+    textTokens?: number;
+    reasoningTokens?: number;
+  };
+  raw?: {
+    cost_details?: {
+      upstream_inference_cost?: number;
+      upstream_inference_prompt_cost?: number;
+      upstream_inference_completions_cost?: number;
+    };
   };
 };
 
-type ProviderOptions = Record<string, Record<string, JSONValue>>;
+const insertStepsUsage = async ({
+  modelId,
+  userId,
+  chatId,
+  messageId,
+  pdfId,
+  usageType,
+  steps,
+}: {
+  modelId: string;
+  userId: string;
+  chatId?: string;
+  messageId?: string;
+  pdfId?: string;
+  usageType: ModelUsageType;
+  steps: {
+    usage: ProviderUsage;
+    finishReason: FinishReason;
+  }[];
+}) => {
+  if (steps.length === 0) return;
+  await db.insert(modelUsagesTable).values(
+    steps.map(({ usage, finishReason }) => ({
+      id: generateId(),
+      modelId,
+      userId,
+      chatId,
+      messageId,
+      pdfId,
+      type: usageType,
+      inputUncachedTokens: usage.inputTokenDetails.noCacheTokens,
+      inputCachedReadTokens: usage.inputTokenDetails.cacheReadTokens,
+      inputCachedWriteTokens: usage.inputTokenDetails.cacheWriteTokens,
+      outputTextTokens: usage.outputTokenDetails.textTokens,
+      outputReasoningTokens: usage.outputTokenDetails.reasoningTokens,
+      inputCost:
+        usage.raw?.cost_details?.upstream_inference_prompt_cost?.toString(),
+      outputCost:
+        usage.raw?.cost_details?.upstream_inference_completions_cost?.toString(),
+      finishReason,
+    })),
+  );
+};
 
 export const trackedGenerateText = async (
   args: Parameters<typeof generateText>[0] & {
@@ -50,30 +111,18 @@ export const trackedGenerateText = async (
     const result = await generateText({
       ...aiArgs,
       ...truncatedInput,
-      model: model.modelId,
+      model: openrouter.chatModel(model.modelId),
       maxOutputTokens: model.maxOutputTokens ?? undefined,
-      providerOptions: model.providerOptions as ProviderOptions,
+      providerOptions: model.providerOptions,
     } as Parameters<typeof generateText>[0]);
-    const gateway = result.providerMetadata?.gateway as GatewayMetadata;
-    await db.insert(modelUsagesTable).values({
-      id: generateId(),
+    await insertStepsUsage({
       modelId: model.id,
       userId,
       chatId,
       messageId,
       pdfId,
-      type: usageType,
-      inputUncachedTokens: result.totalUsage?.inputTokenDetails.noCacheTokens,
-      inputCachedReadTokens:
-        result.totalUsage?.inputTokenDetails.cacheReadTokens,
-      inputCachedWriteTokens:
-        result.totalUsage?.inputTokenDetails.cacheWriteTokens,
-      outputTextTokens: result.totalUsage?.outputTokenDetails.textTokens,
-      outputReasoningTokens:
-        result.totalUsage?.outputTokenDetails.reasoningTokens,
-      finishReason: result.finishReason,
-      cost: gateway?.cost,
-      provider: gateway?.routing?.finalProvider,
+      usageType,
+      steps: result.steps,
     });
     return result;
   } catch (error) {
@@ -118,33 +167,20 @@ export const trackedStreamText = async (
   const result = streamText({
     ...aiArgs,
     ...truncatedInput,
-    model: model.modelId,
+    model: openrouter.chatModel(model.modelId),
     maxOutputTokens: model.maxOutputTokens ?? undefined,
-    providerOptions: model.providerOptions as ProviderOptions,
+    providerOptions: model.providerOptions,
     onFinish: async (event) => {
       try {
         await onFinish?.(event);
-        const gateway = event.providerMetadata?.gateway as GatewayMetadata;
-        await db.insert(modelUsagesTable).values({
-          id: generateId(),
+        await insertStepsUsage({
           modelId: model.id,
           userId,
           chatId,
           messageId,
           pdfId,
-          type: usageType,
-          inputUncachedTokens:
-            event.totalUsage?.inputTokenDetails.noCacheTokens,
-          inputCachedReadTokens:
-            event.totalUsage?.inputTokenDetails.cacheReadTokens,
-          inputCachedWriteTokens:
-            event.totalUsage?.inputTokenDetails.cacheWriteTokens,
-          outputTextTokens: event.totalUsage?.outputTokenDetails.textTokens,
-          outputReasoningTokens:
-            event.totalUsage?.outputTokenDetails.reasoningTokens,
-          finishReason: event.finishReason,
-          cost: gateway?.cost,
-          provider: gateway?.routing?.finalProvider,
+          usageType,
+          steps: event.steps,
         });
       } catch (error) {
         console.error("Error streaming text:", error);

@@ -70,22 +70,23 @@ const Viewer = () => {
             </div>
           )}
 
-          {sourceOpen && !sid && (
-            <div className="h-full overflow-y-auto p-4">
-              <FileBrowser />
-            </div>
-          )}
+          <div className={cn("h-full overflow-y-auto p-4", sid && "hidden")}>
+            <FileBrowser />
+          </div>
 
-          {chatOpen && !sourceOpen && (
-            <div className="absolute inset-0 z-50 bg-background">
-              <Chat
-                chatId={cid}
-                onChatIdChange={handleChatIdChange}
-                isCentered={!cid}
-                minimal={!!cid}
-              />
-            </div>
-          )}
+          <div
+            className={cn(
+              "absolute inset-0 z-50 bg-background",
+              !(chatOpen && !sourceOpen) && "hidden",
+            )}
+          >
+            <Chat
+              chatId={cid}
+              onChatIdChange={handleChatIdChange}
+              isCentered={!cid}
+              minimal={!!cid}
+            />
+          </div>
 
           {pdfPreview && !chatOpen && type === "pdf" && (
             <div className="absolute inset-0 z-50 bg-background">
@@ -155,21 +156,18 @@ const Viewer = () => {
           </>
         )}
 
-        {sourceOpen && !sid && (
-          <>
-            <ResizablePanel
-              minSize={30}
-              className="relative"
-              defaultSize={50}
-              order={1}
-            >
-              <div className="h-full overflow-y-auto p-4">
-                <FileBrowser />
-              </div>
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-          </>
-        )}
+        <ResizablePanel
+          collapsed={!(sourceOpen && !sid)}
+          minSize={30}
+          className={cn("relative", sid && "hidden")}
+          defaultSize={50}
+          order={1}
+        >
+          <div className="h-full overflow-y-auto p-4">
+            <FileBrowser />
+          </div>
+        </ResizablePanel>
+        {sourceOpen && !sid && <ResizableHandle withHandle />}
 
         {pdfPreview && type === "pdf" && (
           <>
@@ -180,19 +178,20 @@ const Viewer = () => {
           </>
         )}
 
-        {chatOpen && (
-          <>
-            <ResizablePanel minSize={30} defaultSize={50} order={3}>
-              <Chat
-                chatId={cid}
-                onChatIdChange={handleChatIdChange}
-                isCentered={!sourceOpen && !cid}
-                minimal={!sourceOpen && !!cid}
-              />
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-          </>
-        )}
+        <ResizablePanel
+          collapsed={!chatOpen}
+          minSize={30}
+          defaultSize={50}
+          order={3}
+        >
+          <Chat
+            chatId={cid}
+            onChatIdChange={handleChatIdChange}
+            isCentered={!sourceOpen && !cid}
+            minimal={!sourceOpen && !!cid}
+          />
+        </ResizablePanel>
+        {chatOpen && <ResizableHandle withHandle />}
       </ResizablePanelGroup>
     </div>
   );

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { pdfPreviewAtom } from "@/atoms/pdf/pdf-viewer";
 import { Chat } from "@/components/chat/chat";
 import { FileBrowser } from "@/components/file-system/file-browser";
+import { ImageViewer } from "@/components/images/image-viewer";
 import { PdfPagePreview } from "@/components/pdf/pdf-page-preview";
 import { PdfViewer } from "@/components/pdf/pdf-viewer";
 import {
@@ -23,7 +24,7 @@ const viewerSearchSchema = z.object({
   co: z.boolean().optional(), // chat open
   sid: z.string().optional(), // source id
   cid: z.string().optional(), // chat id
-  type: z.enum(["pdf", "webpage"]).optional(), // source type
+  type: z.enum(["pdf", "webpage", "image"]).optional(), // source type
   page: z.number().optional(), // pdf page
 });
 
@@ -47,7 +48,9 @@ const Viewer = () => {
         <Header />
         <div className="relative flex-1 overflow-hidden">
           {sid && type === "pdf" && (
-            <div className={cn("flex flex-col h-full", !sourceOpen && "hidden")}>
+            <div
+              className={cn("flex flex-col h-full", !sourceOpen && "hidden")}
+            >
               <PdfToolbar pdfId={sid} />
               <div className="flex-1 relative">
                 <PdfViewer pdfId={sid} />
@@ -58,6 +61,12 @@ const Viewer = () => {
           {sid && type === "webpage" && (
             <div className={cn("flex-1 h-full", !sourceOpen && "hidden")}>
               <WebpageViewer webpageId={sid} />
+            </div>
+          )}
+
+          {sid && type === "image" && (
+            <div className={cn("flex-1 h-full", !sourceOpen && "hidden")}>
+              <ImageViewer imageId={sid} />
             </div>
           )}
 
@@ -126,6 +135,21 @@ const Viewer = () => {
               order={1}
             >
               <WebpageViewer webpageId={sid} />
+            </ResizablePanel>
+            {sourceOpen && <ResizableHandle withHandle />}
+          </>
+        )}
+
+        {sid && type === "image" && (
+          <>
+            <ResizablePanel
+              collapsed={!sourceOpen}
+              minSize={30}
+              className="relative"
+              defaultSize={50}
+              order={1}
+            >
+              <ImageViewer imageId={sid} />
             </ResizablePanel>
             {sourceOpen && <ResizableHandle withHandle />}
           </>

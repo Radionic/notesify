@@ -24,6 +24,10 @@ import {
   useRemoveFile,
   useRenameFile,
 } from "@/queries/file-system/use-file-system";
+import {
+  useDownloadImage,
+  useNavigateImage,
+} from "@/queries/images/use-images";
 import { useDownloadPdf, useNavigatePdf } from "@/queries/pdf/use-pdf";
 import { getRouter } from "@/router";
 import { FileBreadcrumb, type PathItem } from "./file-breadcrumb";
@@ -31,7 +35,6 @@ import { FileGrid } from "./file-grid";
 import { PdfFileUploader } from "./file-uploader";
 
 export const FileBrowser = ({
-  className,
   readOnly,
   onFileSelected,
   initialSearch,
@@ -39,7 +42,6 @@ export const FileBrowser = ({
   initialFolderId,
   onFolderIdChanged,
 }: {
-  className?: string;
   readOnly?: boolean;
   onFileSelected?: (fileId: string) => void;
   initialSearch?: string;
@@ -86,7 +88,9 @@ export const FileBrowser = ({
   const { mutateAsync: removeFile } = useRemoveFile();
   const { mutateAsync: renameFile } = useRenameFile();
   const { mutateAsync: downloadPdf } = useDownloadPdf();
+  const { mutateAsync: downloadImage } = useDownloadImage();
   const { navigatePdf } = useNavigatePdf();
+  const { navigateImage } = useNavigateImage();
 
   const handleCreateFolderSubmit = () => {
     if (!folderDialog?.name.trim()) return;
@@ -120,6 +124,9 @@ export const FileBrowser = ({
         }),
       });
       onFileSelected?.(item.id);
+    } else if (item.type === "image") {
+      navigateImage({ imageId: item.id });
+      onFileSelected?.(item.id);
     }
   };
 
@@ -139,8 +146,11 @@ export const FileBrowser = ({
   };
 
   const handleDownload = (item: FileNode) => {
-    if (item.type !== "pdf") return;
-    downloadPdf({ pdfId: item.id, filename: item.name });
+    if (item.type === "pdf") {
+      downloadPdf({ pdfId: item.id, filename: item.name });
+    } else if (item.type === "image") {
+      downloadImage({ imageId: item.id, filename: item.name });
+    }
   };
 
   const handleRenameSubmit = () => {
@@ -173,7 +183,7 @@ export const FileBrowser = ({
   };
 
   return (
-    <div className={className}>
+    <>
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         {debouncedQuery ? (
@@ -307,6 +317,6 @@ export const FileBrowser = ({
           <PdfFileUploader parentId={currentFolderId} />
         </DialogContent>
       </Dialog>
-    </div>
+    </>
   );
 };

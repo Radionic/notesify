@@ -4,6 +4,7 @@ import {
   Folder,
   FolderOpen,
   Globe,
+  Image,
   MoreVertical,
   Pencil,
   Trash2,
@@ -57,7 +58,7 @@ export const FileGrid = ({
 
   if (files.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+      <div className="flex flex-col items-center justify-center pt-64 px-8 text-center">
         <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-3">
           <FolderOpen className="h-8 w-8 text-muted-foreground" />
         </div>
@@ -92,6 +93,8 @@ export const FileGrid = ({
         <Folder className="h-5 w-5 text-yellow-500 shrink-0" />
       ) : item.type === "webpage" ? (
         <Globe className="h-5 w-5 text-blue-500 shrink-0" />
+      ) : item.type === "image" ? (
+        <Image className="h-5 w-5 text-purple-500 shrink-0" />
       ) : (
         <FileText className="h-5 w-5 text-red-500 shrink-0" />
       )}
@@ -111,7 +114,7 @@ export const FileGrid = ({
                 Rename
               </DropdownMenuItem>
             )}
-            {onDownload && item.type === "pdf" && (
+            {onDownload && (item.type === "pdf" || item.type === "image") && (
               <DropdownMenuItem onClick={() => onDownload(item)}>
                 <Download className="h-4 w-4 mr-2" />
                 Download

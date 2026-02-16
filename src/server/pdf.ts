@@ -148,9 +148,16 @@ export const addPdfFn = createServerFn({ method: "POST" })
       scroll: { x: 0, y: 0 },
       zoom: 1,
     };
+    const lastDotIndex = data.name.lastIndexOf(".");
+    const extension =
+      lastDotIndex > 0 ? data.name.slice(lastDotIndex + 1) : null;
+    const nameWithoutExt =
+      lastDotIndex > 0 ? data.name.slice(0, lastDotIndex) : data.name;
+
     const newFile: FileNode = {
       id,
-      name: data.name,
+      name: nameWithoutExt,
+      extension,
       type: "pdf",
       parentId: data.parentId,
       userId: session.user.id,

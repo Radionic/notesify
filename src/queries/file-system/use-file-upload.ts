@@ -83,6 +83,7 @@ export const useUploadFile = () => {
           fileId: upload.fileId,
           fileType: upload.fileType,
           fileName: upload.fileName,
+          fileExtension: upload.fileExtension,
           parentId: upload.parentId,
         },
       });

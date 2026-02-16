@@ -56,9 +56,9 @@ export const getFileDataFn = createServerFn()
       return new Response("File not found", { status: 404 });
     }
 
-    // Extract extension from filename
-    const extension = file.name.split(".").pop() || "";
-    const filename = extension ? `${data.fileId}.${extension}` : data.fileId;
+    const filename = file.extension
+      ? `${data.fileId}.${file.extension}`
+      : data.fileId;
 
     const body = await getFileFromStorage({
       type: data.type,

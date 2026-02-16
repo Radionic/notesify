@@ -13,6 +13,7 @@ export const filesTable = pgTable(
   {
     id: text("id").primaryKey(),
     name: text("name").notNull(),
+    extension: text("extension"),
     type: text("type", {
       enum: ["folder", "pdf", "notes", "webpage", "image"],
     }).notNull(),

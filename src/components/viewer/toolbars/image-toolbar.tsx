@@ -48,7 +48,12 @@ export const ImageToolbar = ({ imageId }: { imageId: string }) => {
       {file && (
         <TooltipButton
           tooltip="Download"
-          onClick={() => downloadImage({ imageId, filename: file.name })}
+          onClick={() =>
+            downloadImage({
+              imageId,
+              filename: `${file.name}.${file.extension || "png"}`,
+            })
+          }
         >
           <Download className="h-4 w-4" />
         </TooltipButton>

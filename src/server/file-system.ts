@@ -174,15 +174,16 @@ export const addFileFn = createServerFn()
     return newFile;
   });
 
-async function getPdfIdsInFolder(
+async function getFilesInFolder(
   userId: string,
   folderId: string,
-): Promise<string[]> {
+): Promise<Array<{ id: string; extension: string | null; type: string }>> {
   const cteName = sql`file_tree`;
 
   const baseQuery = db
     .select({
       id: filesTable.id,
+      extension: filesTable.extension,
       type: filesTable.type,
       parentId: filesTable.parentId,
     })
@@ -192,6 +193,7 @@ async function getPdfIdsInFolder(
   const recursiveQuery = db
     .select({
       id: filesTable.id,
+      extension: filesTable.extension,
       type: filesTable.type,
       parentId: filesTable.parentId,
     })
@@ -210,12 +212,16 @@ async function getPdfIdsInFolder(
     WITH RECURSIVE ${cteName} AS (
       ${combinedQuery}
     )
-    SELECT id, type FROM ${cteName}
+    SELECT id, extension, type FROM ${cteName}
   `);
 
   return result.rows
-    .filter((row) => row.type === "pdf")
-    .map((row) => row.id as string);
+    .filter((row) => row.type !== "folder")
+    .map((row) => ({
+      id: row.id as string,
+      extension: row.extension as string | null,
+      type: row.type as string,
+    }));
 }
 
 const removeFileSchema = z.object({
@@ -252,24 +258,45 @@ export const removeFileFn = createServerFn()
     ];
 
     if (file.type === "folder") {
-      const pdfIds = await getPdfIdsInFolder(session.user.id, data.id);
+      const files = await getFilesInFolder(session.user.id, data.id);
 
-      const indexItems = await db.query.pdfIndexingTable.findMany({
-        where: inArray(pdfIndexingTable.pdfId, pdfIds),
-      });
-      operations.push(deleteEmbeddingsByIds(indexItems.map((item) => item.id)));
+      const pdfFiles = files.filter((f) => f.type === "pdf");
+      const pdfIds = pdfFiles.map((f) => f.id);
 
-      pdfIds.forEach((pdfId) => {
+      if (pdfIds.length > 0) {
+        const indexItems = await db.query.pdfIndexingTable.findMany({
+          where: inArray(pdfIndexingTable.pdfId, pdfIds),
+        });
+        operations.push(
+          deleteEmbeddingsByIds(indexItems.map((item) => item.id)),
+        );
+
+        pdfFiles.forEach((pdfFile) => {
+          operations.push(
+            removeFileFromStorage({
+              type: "pdfs",
+              userId: session.user.id,
+              filename: `${pdfFile.id}.pdf`,
+            }),
+            removeFolderFromStorage({
+              type: "pdf-images",
+              userId: session.user.id,
+              subfolders: [pdfFile.id],
+            }),
+          );
+        });
+      }
+
+      const imageFiles = files.filter((f) => f.type === "image");
+      imageFiles.forEach((imageFile) => {
+        const filename = imageFile.extension
+          ? `${imageFile.id}.${imageFile.extension}`
+          : imageFile.id;
         operations.push(
           removeFileFromStorage({
-            type: "pdfs",
+            type: "images",
             userId: session.user.id,
-            filename: `${pdfId}.pdf`,
-          }),
-          removeFolderFromStorage({
-            type: "pdf-images",
-            userId: session.user.id,
-            subfolders: [pdfId],
+            filename,
           }),
         );
       });
@@ -279,11 +306,14 @@ export const removeFileFn = createServerFn()
       });
       operations.push(deleteEmbeddingsByIds(indexItems.map((item) => item.id)));
 
+      const filename = file.extension
+        ? `${data.id}.${file.extension}`
+        : `${data.id}.pdf`;
       operations.push(
         removeFileFromStorage({
           type: "pdfs",
           userId: session.user.id,
-          filename: `${data.id}.pdf`,
+          filename,
         }),
         removeFolderFromStorage({
           type: "pdf-images",
@@ -292,11 +322,14 @@ export const removeFileFn = createServerFn()
         }),
       );
     } else if (file.type === "image") {
+      const filename = file.extension
+        ? `${data.id}.${file.extension}`
+        : data.id;
       operations.push(
         removeFileFromStorage({
           type: "images",
           userId: session.user.id,
-          filename: data.id,
+          filename,
         }),
       );
     }

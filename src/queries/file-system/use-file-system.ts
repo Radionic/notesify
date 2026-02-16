@@ -177,6 +177,11 @@ export const useRemoveFile = () => {
           undefined,
         );
         queryClient.setQueryData<Pdf>(["pdf", fileId], undefined);
+      } else if (type === "image") {
+        queryClient.setQueryData<Blob>(
+          ["file-data", "images", fileId],
+          undefined,
+        );
       }
     },
   });

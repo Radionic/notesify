@@ -48,7 +48,11 @@ export const createUploadUrlFn = createServerFn()
     }
 
     const fileId = generateId();
-    const extension = data.name.split(".").pop();
+    const lastDotIndex = data.name.lastIndexOf(".");
+    const extension =
+      lastDotIndex > 0 ? data.name.slice(lastDotIndex + 1) : null;
+    const nameWithoutExt =
+      lastDotIndex > 0 ? data.name.slice(0, lastDotIndex) : data.name;
     const filename = extension ? `${fileId}.${extension}` : fileId;
     const key = getObjectKey({
       type: config.storageType as "pdfs" | "images",
@@ -64,7 +68,8 @@ export const createUploadUrlFn = createServerFn()
     return {
       fileId,
       fileType: data.type,
-      fileName: data.name,
+      fileName: nameWithoutExt,
+      fileExtension: extension,
       parentId: data.parentId ?? null,
       contentType: data.contentType,
       uploadUrl,
@@ -75,6 +80,7 @@ const completeUploadSchema = z.object({
   fileId: z.string(),
   fileType: uploadFileTypeSchema,
   fileName: z.string().min(1),
+  fileExtension: z.string().nullish(),
   parentId: z.string().nullable().optional(),
 });
 
@@ -89,6 +95,7 @@ export const completeUploadFn = createServerFn()
     const newFile = {
       id: data.fileId,
       name: data.fileName,
+      extension: data.fileExtension,
       type: data.fileType,
       parentId: data.parentId ?? null,
       userId: session.user.id,

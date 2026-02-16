@@ -149,7 +149,10 @@ export const FileBrowser = ({
     if (item.type === "pdf") {
       downloadPdf({ pdfId: item.id, filename: item.name });
     } else if (item.type === "image") {
-      downloadImage({ imageId: item.id, filename: item.name });
+      downloadImage({
+        imageId: item.id,
+        filename: `${item.name}.${item.extension || "png"}`,
+      });
     }
   };
 
@@ -185,7 +188,7 @@ export const FileBrowser = ({
   return (
     <>
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between sm:gap-4 gap-2 mb-4">
         {debouncedQuery ? (
           <h1 className="text-lg font-semibold">
             Library{" "}

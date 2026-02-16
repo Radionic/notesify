@@ -8,8 +8,8 @@ import { useChatAI, useShowChatLoading } from "@/hooks/chat/use-chat-ai";
 import { Badge } from "../badge";
 import { Spinner } from "../ui/spinner";
 import { ChatMessage } from "./chat-message";
-import { ImageContextsPreview } from "./contexts/image-context-preview";
-import { TextContextsPreview } from "./contexts/text-content-preview";
+import { FileContextsPreview } from "./contexts/file-context-preview";
+import { TextContextsPreview } from "./contexts/text-context-preview";
 
 dotPulse.register();
 
@@ -64,7 +64,7 @@ export const ChatMessageList = ({ chatId }: { chatId?: string }) => {
           return message.role === "user" ? (
             <div key={message.id} className="flex flex-col gap-1 items-end">
               <TextContextsPreview contexts={contexts} className="items-end" />
-              <ImageContextsPreview
+              <FileContextsPreview
                 contexts={contexts}
                 className="justify-end"
               />

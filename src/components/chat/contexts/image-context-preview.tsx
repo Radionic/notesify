@@ -1,20 +1,18 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { CgClose } from "react-icons/cg";
-import type { Context, ImageContext } from "@/atoms/chat/contexts";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import type { ImageContext } from "@/atoms/chat/contexts";
+import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { useRemoveImageContext } from "@/hooks/chat/use-image-context-upload";
 import { cn } from "@/lib/utils";
 import { useFileData } from "@/queries/file-system/use-file-system";
 
-const ContextImage = ({
+export const ContextImage = ({
   context,
-  alt,
   className,
   onPointerDown,
 }: {
   context: ImageContext;
-  alt: string;
   className?: string;
   onPointerDown?: () => void;
 }) => {
@@ -43,14 +41,14 @@ const ContextImage = ({
   return (
     <img
       src={imageSrc}
-      alt={alt}
+      alt="Context"
       className={className}
       onPointerDown={onPointerDown}
     />
   );
 };
 
-const ImageContextPreview = ({
+export const ImageContextPreview = ({
   context,
   removable,
   onPreview,
@@ -63,10 +61,9 @@ const ImageContextPreview = ({
     useRemoveImageContext();
 
   return (
-    <div className="relative w-20 h-20">
+    <div className="relative w-20 h-20 group">
       <ContextImage
         context={context}
-        alt="Context"
         className={cn(
           "border rounded w-full h-full object-cover cursor-pointer",
           isDeleting && "opacity-50",
@@ -78,59 +75,18 @@ const ImageContextPreview = ({
           <Spinner />
         </div>
       )}
-      <div className="absolute top-1 right-1 flex flex-row gap-1 opacity-50 bg-white/80 rounded p-0.5">
+      <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
         {removable && !isDeleting && (
-          <CgClose
-            className="cursor-pointer w-3 h-3"
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 bg-background/90 backdrop-blur-sm"
             onClick={() => removeContext(context.id)}
-          />
+          >
+            <CgClose className="w-4 h-4" />
+          </Button>
         )}
       </div>
     </div>
-  );
-};
-
-export const ImageContextsPreview = ({
-  contexts,
-  removable,
-  className,
-}: {
-  contexts?: Context[];
-  removable?: boolean;
-  className?: string;
-}) => {
-  const [activePreviewContext, setActivePreviewContext] =
-    useState<ImageContext>();
-
-  const imageContexts = contexts?.filter((context) => context.type === "image");
-  if (!imageContexts || imageContexts.length === 0) return null;
-
-  return (
-    <>
-      <div className={cn("flex flex-wrap gap-2", className)}>
-        {imageContexts.map((context) => (
-          <ImageContextPreview
-            key={context.id}
-            context={context}
-            removable={removable}
-            onPreview={() => setActivePreviewContext(context)}
-          />
-        ))}
-      </div>
-      <Dialog
-        open={activePreviewContext?.type === "image"}
-        onOpenChange={() => setActivePreviewContext(undefined)}
-      >
-        <DialogContent className="max-w-3xl p-0 overflow-hidden border-none bg-transparent shadow-none">
-          {activePreviewContext && (
-            <ContextImage
-              context={activePreviewContext}
-              alt="Context Preview"
-              className="w-full object-contain max-h-[90vh] rounded-lg"
-            />
-          )}
-        </DialogContent>
-      </Dialog>
-    </>
   );
 };

@@ -1,10 +1,7 @@
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import {
-  completeUploadFn,
-  createUploadUrlFn,
-  removeFileFn,
-} from "@/server/file-system";
+import { removeFileFn } from "@/server/file-system";
+import { completeUploadFn, createUploadUrlFn } from "@/server/upload";
 
 type UploadableFileType = "image" | "pdf";
 

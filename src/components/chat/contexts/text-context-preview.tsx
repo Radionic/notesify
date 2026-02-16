@@ -46,20 +46,20 @@ export const TextContextsPreview = ({
   className?: string;
 }) => {
   const { jumpToContext, removeContext } = useChatContext();
-  if (!contexts || contexts.length === 0) return null;
+  const textContexts = contexts?.filter((context) => context.type === "text");
+  if (!textContexts || textContexts.length === 0) return null;
+
   return (
     <div className={cn("flex flex-col gap-2", className)}>
-      {contexts
-        .filter((context) => context.type === "text")
-        .map((context) => (
-          <TextContextPreview
-            key={context.id}
-            context={context}
-            removable={removable}
-            onJump={() => jumpToContext(context)}
-            onRemove={() => removeContext(context.id)}
-          />
-        ))}
+      {textContexts.map((context) => (
+        <TextContextPreview
+          key={context.id}
+          context={context}
+          removable={removable}
+          onJump={() => jumpToContext(context)}
+          onRemove={() => removeContext(context.id)}
+        />
+      ))}
     </div>
   );
 };

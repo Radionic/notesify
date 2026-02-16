@@ -8,9 +8,8 @@ import { cn } from "@/lib/utils";
 import { ChatHeader } from "./chat-header";
 import { ChatInput } from "./chat-input";
 import { ChatMessageList } from "./chat-message-list";
-import { ImageContextsPreview } from "./contexts/image-context-preview";
-import { ImageUploadPlaceholders } from "./contexts/image-upload-placeholder";
-import { TextContextsPreview } from "./contexts/text-content-preview";
+import { FileContextsPreview } from "./contexts/file-context-preview";
+import { TextContextsPreview } from "./contexts/text-context-preview";
 import { ThreadFinder } from "./threads/thread-finder";
 
 const ChatBranding = ({
@@ -73,8 +72,7 @@ export const Chat = ({
         <input {...getInputProps()} />
         <ChatBranding className="justify-center mb-6" />
         <div className="w-full max-w-2xl space-y-2 px-4">
-          <ImageUploadPlaceholders />
-          <ImageContextsPreview contexts={contexts} removable />
+          <FileContextsPreview contexts={contexts} removable />
           <TextContextsPreview contexts={contexts} removable />
           <ChatInput chatId={chatId} rows={3} isDragging={isDragActive} />
         </div>
@@ -118,8 +116,7 @@ export const Chat = ({
           />
           {/* <ChatGuide chatId={chatId} /> */}
           <div className="space-y-2 flex-none p-2">
-            <ImageUploadPlaceholders />
-            <ImageContextsPreview contexts={contexts} removable />
+            <FileContextsPreview contexts={contexts} removable />
             <TextContextsPreview contexts={contexts} removable />
             <ChatInput chatId={chatId} isDragging={isDragActive} />
           </div>

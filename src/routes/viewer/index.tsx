@@ -42,6 +42,20 @@ const Viewer = () => {
     navigate({ search: (prev) => ({ ...prev, cid: chatId }), replace: true });
   };
 
+  const handleSourceCollapse = (collapsed: boolean) => {
+    navigate({
+      search: (prev) => ({ ...prev, so: !collapsed }),
+      replace: true,
+    });
+  };
+
+  const handleChatCollapse = (collapsed: boolean) => {
+    navigate({
+      search: (prev) => ({ ...prev, co: !collapsed }),
+      replace: true,
+    });
+  };
+
   if (isMobile) {
     return (
       <div className="flex flex-col h-dvh">
@@ -110,6 +124,8 @@ const Viewer = () => {
           <>
             <ResizablePanel
               collapsed={!sourceOpen}
+              onCollapse={() => handleSourceCollapse(true)}
+              onExpand={() => handleSourceCollapse(false)}
               minSize={30}
               className="relative"
               defaultSize={50}
@@ -130,6 +146,8 @@ const Viewer = () => {
           <>
             <ResizablePanel
               collapsed={!sourceOpen}
+              onCollapse={() => handleSourceCollapse(true)}
+              onExpand={() => handleSourceCollapse(false)}
               minSize={30}
               className="relative"
               defaultSize={50}
@@ -145,6 +163,8 @@ const Viewer = () => {
           <>
             <ResizablePanel
               collapsed={!sourceOpen}
+              onCollapse={() => handleSourceCollapse(true)}
+              onExpand={() => handleSourceCollapse(false)}
               minSize={30}
               className="relative"
               defaultSize={50}
@@ -158,6 +178,8 @@ const Viewer = () => {
 
         <ResizablePanel
           collapsed={!(sourceOpen && !sid)}
+          onCollapse={() => handleSourceCollapse(true)}
+          onExpand={() => handleSourceCollapse(false)}
           minSize={30}
           className={cn("relative", sid && "hidden")}
           defaultSize={50}
@@ -180,6 +202,8 @@ const Viewer = () => {
 
         <ResizablePanel
           collapsed={!chatOpen}
+          onCollapse={() => handleChatCollapse(true)}
+          onExpand={() => handleChatCollapse(false)}
           minSize={30}
           defaultSize={50}
           order={3}

@@ -62,13 +62,17 @@ export const ModelSelector = () => {
     </CommandItem>
   );
 
-  // Auto-select a default model once models load
+  // Auto-select a default model once models load, or reset if selected model no longer exists
   useEffect(() => {
-    if (!isLoading && models.length > 0 && !selectedModel) {
-      const defaultModel =
-        models.find((m) => m.id === import.meta.env.VITE_DEFAULT_MODEL_ID) ??
-        models[0];
-      setSelectedModel(defaultModel);
+    if (!isLoading && models.length > 0) {
+      const modelExists =
+        selectedModel && models.some((m) => m.id === selectedModel.id);
+      if (!modelExists) {
+        const defaultModel =
+          models.find((m) => m.id === import.meta.env.VITE_DEFAULT_MODEL_ID) ??
+          models[0];
+        setSelectedModel(defaultModel);
+      }
     }
   }, [isLoading, models, selectedModel, setSelectedModel]);
 

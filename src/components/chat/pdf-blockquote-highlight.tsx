@@ -15,7 +15,7 @@ export const PDFBlockquoteHighlight = ({ pdfId }: { pdfId: string }) => {
   useEffect(() => {
     if (
       !context ||
-      context.pdfId !== pdfId ||
+      context.fileId !== pdfId ||
       context.type !== "text" ||
       context.rects !== undefined
     ) {
@@ -48,8 +48,8 @@ export const PDFBlockquoteHighlight = ({ pdfId }: { pdfId: string }) => {
 
   if (
     !context ||
-    !context.pdfId ||
-    context.pdfId !== pdfId ||
+    !context.fileId ||
+    context.fileId !== pdfId ||
     context.type !== "text" ||
     !context.rects ||
     context.rects.length === 0

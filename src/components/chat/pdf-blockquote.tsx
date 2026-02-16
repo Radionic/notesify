@@ -92,7 +92,7 @@ export const PDFBlockquote = ({
     setActiveBoundingContext({
       id: generateId(),
       type: "text",
-      pdfId: parsed.pdfId,
+      fileId: parsed.pdfId,
       page: parsed.pdfPage,
       content: parsed.text,
       // rects is undefined to trigger client-side search

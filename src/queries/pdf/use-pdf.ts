@@ -99,7 +99,7 @@ export const useDownloadPdf = () => {
       filename = filename.endsWith(".pdf") ? filename : `${filename}.pdf`;
 
       const response = await getFileData({
-        data: { type: "pdfs", filename: `${pdfId}.pdf` },
+        data: { type: "pdfs", fileId: pdfId },
       });
       if (!response.ok) {
         throw new Error("Failed to download PDF");

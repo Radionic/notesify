@@ -1,6 +1,8 @@
 import { ImagePlus } from "lucide-react";
 import { useRef, useState } from "react";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
+import { useUploadImageContext } from "@/hooks/chat/use-image-context-upload";
+import { useUploadStatus } from "@/hooks/upload/use-upload-status";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { ModelSelector } from "../pdf/model-selector";
@@ -17,20 +19,16 @@ export const ChatInput = ({
   rows?: number;
   isDragging?: boolean;
 }) => {
-  const {
-    error,
-    isStreaming,
-    handleSubmit,
-    stop,
-    handleImageUpload,
-    handlePaste,
-  } = useChatAI({ chatId });
+  const { error, isStreaming, handleSubmit, stop } = useChatAI({ chatId });
+  const { handleImageUpload, handlePasteImage } = useUploadImageContext();
+  const { isAnyPending } = useUploadStatus();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const isMobile = useIsMobile();
   const [isOver, setIsOver] = useState(false);
 
   const [input, setInput] = useState<string>("");
-  const disableSending = input.length === 0 || isStreaming || !!error;
+  const disableSending =
+    input.length === 0 || isStreaming || !!error || isAnyPending;
 
   const _handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,7 +86,7 @@ export const ChatInput = ({
           rows={rows}
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onPaste={handlePaste}
+          onPaste={handlePasteImage}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               _handleSubmit(e);

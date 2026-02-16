@@ -3,6 +3,7 @@ import { and, eq, getTableColumns } from "drizzle-orm";
 import type { Context } from "@/atoms/chat/contexts";
 import { db } from "@/db";
 import { filesTable, pdfsTable } from "@/db/schema";
+import { getObjectKey, presignUrl } from "@/lib/storage";
 import { getTextFromMessage } from "./get-text-from-message";
 
 const buildTextContent = (content: string, contexts?: Context[]) => {
@@ -18,18 +19,34 @@ const buildTextContent = (content: string, contexts?: Context[]) => {
   };
 };
 
-const buildImageContent = (contexts?: Context[]) => {
+const buildImageContent = async ({
+  contexts,
+  userId,
+}: {
+  contexts?: Context[];
+  userId: string;
+}) => {
+  if (!contexts?.length) {
+    return [];
+  }
+
   return (
-    contexts
-      ?.filter(
-        (c) =>
-          c.type === "page" || c.type === "area" || c.type === "uploaded-image",
-      )
-      .map((c) => ({
-        type: "image" as const,
-        image: c.content || "",
-      })) || []
-  );
+    await Promise.all(
+      contexts.map(async (context) => {
+        if (context.type !== "image" || !context.fileId) {
+          return null;
+        }
+
+        const key = getObjectKey({
+          type: "images",
+          userId,
+          filename: context.fileId,
+        });
+        const imageUrl = await presignUrl({ key, method: "GET" });
+        return { type: "image" as const, image: imageUrl };
+      }),
+    )
+  ).filter(Boolean);
 };
 
 export const buildSystemMessage = async ({
@@ -40,7 +57,7 @@ export const buildSystemMessage = async ({
   source?: { type: "pdf"; pdfId: string; viewingPage: number };
 }) => {
   if (!source) {
-    return "No pdf or webpage source opened";
+    return "You are a helpful AI assistant. The user has not opened any pdf or webpage.";
   }
 
   if (source.type === "pdf") {
@@ -65,6 +82,7 @@ export const buildSystemMessage = async ({
 export const buildMessages = async (
   messages: UIMessage[],
   contexts?: Context[],
+  userId?: string,
 ): Promise<ModelMessage[]> => {
   const currentMessage = messages[messages.length - 1];
   if (currentMessage.role !== "user") {
@@ -76,7 +94,9 @@ export const buildMessages = async (
     getTextFromMessage(currentMessage),
     contexts,
   );
-  const imageContent = buildImageContent(contexts);
+  const imageContent = userId
+    ? await buildImageContent({ contexts, userId })
+    : [];
   return [
     ...(await convertToModelMessages(initialMessages)),
     {

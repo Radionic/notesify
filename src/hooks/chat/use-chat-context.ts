@@ -3,6 +3,7 @@ import {
   activeBoundingContextAtom,
   activeContextsAtom,
   type Context,
+  type TextContext,
 } from "@/atoms/chat/contexts";
 import { useNavigatePdf } from "@/queries/pdf/use-pdf";
 
@@ -19,12 +20,12 @@ export const useChatContext = () => {
     setActiveContexts(activeContexts.filter((context) => context.id !== id));
   };
 
-  const jumpToContext = (context: Context) => {
-    if (!context.pdfId || !context.page) {
+  const jumpToContext = (context: TextContext) => {
+    if (!context.fileId || !context.page) {
       return;
     }
     navigatePdf({
-      pdfId: context.pdfId,
+      pdfId: context.fileId,
       page: context.page,
     });
     setActiveBoundingContext(context);

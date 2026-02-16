@@ -1,0 +1,105 @@
+import { useMutation } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  completeUploadFn,
+  createUploadUrlFn,
+  removeFileFn,
+} from "@/server/file-system";
+
+type UploadableFileType = "image" | "pdf";
+
+const uploadFile = ({
+  file,
+  uploadUrl,
+  contentType,
+  onProgress,
+}: {
+  file: File;
+  uploadUrl: string;
+  contentType: string;
+  onProgress?: (progress: number) => void;
+}) =>
+  new Promise<void>((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open("PUT", uploadUrl, true);
+    xhr.setRequestHeader("Content-Type", contentType);
+
+    xhr.upload.onprogress = (event) => {
+      if (!event.lengthComputable) {
+        return;
+      }
+      const progress = Math.round((event.loaded / event.total) * 100);
+      onProgress?.(progress);
+    };
+
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        onProgress?.(100);
+        resolve();
+        return;
+      }
+      reject(new Error(`Upload failed with status ${xhr.status}`));
+    };
+
+    xhr.onerror = () => {
+      reject(new Error("Upload failed"));
+    };
+
+    xhr.send(file);
+  });
+
+export const useUploadFile = () => {
+  const createUploadUrl = useServerFn(createUploadUrlFn);
+  const completeUpload = useServerFn(completeUploadFn);
+
+  return useMutation({
+    mutationFn: async ({
+      file,
+      fileType,
+      parentId,
+      onProgress,
+    }: {
+      file: File;
+      fileType: UploadableFileType;
+      parentId?: string | null;
+      onProgress?: (progress: number) => void;
+    }) => {
+      const upload = await createUploadUrl({
+        data: {
+          name: file.name,
+          type: fileType,
+          contentType: file.type,
+          size: file.size,
+          parentId: parentId ?? null,
+        },
+      });
+
+      await uploadFile({
+        file,
+        uploadUrl: upload.uploadUrl,
+        contentType: upload.contentType,
+        onProgress,
+      });
+
+      const newFile = await completeUpload({
+        data: {
+          fileId: upload.fileId,
+          fileType: upload.fileType,
+          fileName: upload.fileName,
+          parentId: upload.parentId,
+        },
+      });
+      return newFile;
+    },
+  });
+};
+
+export const useDeleteFile = () => {
+  const removeFile = useServerFn(removeFileFn);
+
+  return useMutation({
+    mutationFn: async ({ fileId }: { fileId: string }) => {
+      await removeFile({ data: { id: fileId } });
+    },
+  });
+};

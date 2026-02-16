@@ -1,5 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
+import { and, eq } from "drizzle-orm";
 import z from "zod";
+import { db } from "@/db";
+import { filesTable } from "@/db/schema";
 import { getSession } from "@/lib/auth";
 import {
   getFileFromStorage,
@@ -31,7 +34,7 @@ export const removeFileFn = createServerFn()
 
 const getFileDataSchema = z.object({
   type: storageTypeSchema,
-  filename: z.string(),
+  fileId: z.string(),
 });
 
 export const getFileDataFn = createServerFn()
@@ -42,29 +45,32 @@ export const getFileDataFn = createServerFn()
       throw new Error("Unauthorized");
     }
 
+    const file = await db.query.filesTable.findFirst({
+      where: and(
+        eq(filesTable.id, data.fileId),
+        eq(filesTable.userId, session.user.id),
+      ),
+    });
+
+    if (!file) {
+      return new Response("File not found", { status: 404 });
+    }
+
+    // Extract extension from filename
+    const extension = file.name.split(".").pop() || "";
+    const filename = extension ? `${data.fileId}.${extension}` : data.fileId;
+
     const body = await getFileFromStorage({
       type: data.type,
       userId: session.user.id,
-      filename: data.filename,
+      filename,
     });
 
     if (!body) {
       return new Response("Not Found", { status: 404 });
     }
 
-    const contentType =
-      data.type === "pdfs"
-        ? "application/pdf"
-        : data.type === "recordings"
-          ? "audio/webm"
-          : "image/jpeg"; // "pdf-images"
-
-    return new Response(body, {
-      status: 200,
-      headers: {
-        "Content-Type": contentType,
-      },
-    });
+    return new Response(body, { status: 200 });
   });
 
 type UploadFileInput = {

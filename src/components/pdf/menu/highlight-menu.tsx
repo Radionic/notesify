@@ -73,7 +73,7 @@ export const HighlightMenu = ({ pdfId }: { pdfId: string }) => {
                 content: activeHighlight.text,
                 rects: activeHighlight.rects,
                 page: activeHighlight.rects[0].page,
-                pdfId,
+                fileId: pdfId,
               });
               getRouter().navigate({
                 to: "/viewer",

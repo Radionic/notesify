@@ -49,7 +49,7 @@ export const TextMenu = ({
             content: text,
             rects,
             page: rects[0].page,
-            pdfId,
+            fileId: pdfId,
           });
           getRouter().navigate({
             to: "/viewer",

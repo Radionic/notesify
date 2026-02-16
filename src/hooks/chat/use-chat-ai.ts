@@ -58,8 +58,8 @@ export const useChatAI = ({ chatId }: { chatId?: string }) => {
   const handleSubmit = (text: string) => {
     if (!selectedModel) return;
 
-    const hasVisionContext = contexts.some((context) =>
-      ["uploaded-image", "area", "page"].includes(context.type),
+    const hasVisionContext = contexts.some(
+      (context) => context.type === "image",
     );
     if (hasVisionContext && !ensureVisionModel({ model: selectedModel })) {
       return;
@@ -92,38 +92,6 @@ export const useChatAI = ({ chatId }: { chatId?: string }) => {
     }
   };
 
-  const handleImageUpload = (file: File) => {
-    if (!ensureVisionModel({ model: selectedModel })) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = reader.result;
-      if (typeof result === "string") {
-        setContexts([
-          ...contexts,
-          {
-            id: generateId(),
-            type: "uploaded-image" as const,
-            content: result,
-          },
-        ]);
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    const { files } = e.clipboardData;
-    if (!files || files.length === 0) return;
-
-    const imageFile = Array.from(files).find((file) =>
-      file.type.startsWith("image/"),
-    );
-    if (!imageFile) return;
-
-    e.preventDefault();
-    handleImageUpload(imageFile);
-  };
-
   return {
     messages: messages as MyUIMessage[],
     error,
@@ -135,8 +103,6 @@ export const useChatAI = ({ chatId }: { chatId?: string }) => {
     stop,
     regenerate,
     handleSubmit,
-    handleImageUpload,
-    handlePaste,
   };
 };
 

@@ -8,11 +8,10 @@ export const ContextBoundingBox = ({ pdfId }: { pdfId: string }) => {
   const [context, setContext] = useAtom(activeBoundingContextAtom);
   if (
     !context ||
-    !context.pdfId ||
-    context.pdfId !== pdfId ||
+    !context.fileId ||
+    context.fileId !== pdfId ||
     !context.rects ||
-    !pdfId ||
-    context.type === "text"
+    !pdfId
   ) {
     return null;
   }

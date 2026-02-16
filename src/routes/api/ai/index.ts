@@ -31,30 +31,32 @@ export const messageMetadataSchema = z.object({
     .optional(),
   contexts: z
     .array(
-      z.object({
-        id: z.string(),
-        type: z.enum([
-          "text",
-          "area",
-          "page",
-          "viewing-page",
-          "uploaded-image",
-        ]),
-        content: z.string().optional(),
-        rects: z
-          .array(
-            z.object({
-              page: z.number(),
-              top: z.number(),
-              right: z.number(),
-              bottom: z.number(),
-              left: z.number(),
-            }),
-          )
-          .optional(),
-        page: z.number().optional(),
-        pdfId: z.string().optional(),
-      }),
+      z.discriminatedUnion("type", [
+        z.object({
+          id: z.string(),
+          type: z.literal("text"),
+          content: z.string().optional(),
+          fileId: z.string().optional(),
+          rects: z
+            .array(
+              z.object({
+                page: z.number(),
+                top: z.number(),
+                right: z.number(),
+                bottom: z.number(),
+                left: z.number(),
+              }),
+            )
+            .optional(),
+          page: z.number().optional(),
+        }),
+        z.object({
+          id: z.string(),
+          type: z.literal("image"),
+          fileId: z.string().optional(),
+          fileName: z.string().optional(),
+        }),
+      ]),
     )
     .optional(),
   modelId: z.string().optional(),
@@ -135,7 +137,11 @@ export const Route = createFileRoute("/api/ai/")({
             return chat;
           })(),
         ]);
-        const messagesWithContext = await buildMessages(messages, contexts);
+        const messagesWithContext = await buildMessages(
+          messages,
+          contexts,
+          userId,
+        );
 
         const stream = createUIMessageStream<MyUIMessage>({
           execute: async ({ writer }) => {

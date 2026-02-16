@@ -1,9 +1,15 @@
 // @ts-ignore
 import { env } from "cloudflare:workers";
+import { AwsClient } from "aws4fetch";
 import sanitizeFilename from "sanitize-filename";
 import z from "zod";
 
-export const storageTypeSchema = z.enum(["pdfs", "recordings", "pdf-images"]);
+export const storageTypeSchema = z.enum([
+  "pdfs",
+  "recordings",
+  "pdf-images",
+  "images",
+]);
 export type StorageType = z.infer<typeof storageTypeSchema>;
 
 type R2Bucket = {
@@ -34,7 +40,7 @@ type R2Bucket = {
 
 const bucket: R2Bucket = env.BUCKET;
 
-const getObjectKey = ({
+export const getObjectKey = ({
   type,
   userId,
   filename,
@@ -133,4 +139,51 @@ export const uploadFilesToStorage = async ({
       });
     }),
   );
+};
+
+const accessKeyId = process.env.R2_ACCESS_KEY_ID;
+const secretAccessKey = process.env.R2_SECRET_ACCESS_KEY;
+const accountId = process.env.R2_ACCOUNT_ID;
+const bucketName = process.env.R2_BUCKET_NAME;
+
+if (!accessKeyId || !secretAccessKey || !accountId || !bucketName) {
+  throw new Error("R2 configuration error");
+}
+
+const client = new AwsClient({
+  service: "s3",
+  region: "auto",
+  accessKeyId,
+  secretAccessKey,
+});
+
+export const presignUrl = async ({
+  key,
+  method,
+  contentType,
+  expiresIn = 3600,
+}: {
+  key: string;
+  method: "GET" | "PUT";
+  contentType?: string;
+  expiresIn?: number;
+}): Promise<string> => {
+  const R2_URL = `https://${accountId}.r2.cloudflarestorage.com`;
+
+  const headers: Record<string, string> = {};
+  if (contentType) {
+    headers["Content-Type"] = contentType;
+  }
+
+  const signedRequest = await client.sign(
+    new Request(`${R2_URL}/${bucketName}/${key}?X-Amz-Expires=${expiresIn}`, {
+      method,
+      headers,
+    }),
+    {
+      aws: { signQuery: true },
+    },
+  );
+
+  return signedRequest.url.toString();
 };

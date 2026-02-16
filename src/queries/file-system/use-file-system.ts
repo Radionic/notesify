@@ -26,17 +26,17 @@ export const useFileData = ({
   id,
   type,
 }: {
-  id: string;
-  type: "pdfs" | "recordings";
+  id?: string;
+  type: "pdfs" | "recordings" | "images";
 }) => {
   const getFileData = useServerFn(getFileDataFn);
 
   return useQuery({
-    queryKey: ["file-data", id],
+    queryKey: ["file-data", type, id],
     queryFn: async () => {
-      const ext = type === "pdfs" ? ".pdf" : ".webm";
+      if (!id) return null;
       const res = await getFileData({
-        data: { type, filename: `${id}${ext}` },
+        data: { type, fileId: id },
       });
       if (!res.ok) {
         if (res.status === 404) return null;
@@ -116,7 +116,7 @@ export const useAddPdf = () => {
         }),
       );
       queryClient.setQueryData<FileNode>(["file", newFile.id], newFile);
-      queryClient.setQueryData<Blob>(["file-data", newPdf.id], pdfData);
+      queryClient.setQueryData<Blob>(["file-data", "pdfs", newPdf.id], pdfData);
       queryClient.setQueryData<Pdf>(["pdf", newPdf.id], newPdf);
     },
   });
@@ -172,7 +172,10 @@ export const useRemoveFile = () => {
       );
       queryClient.setQueryData<FileNode>(["file", fileId], undefined);
       if (type === "pdf") {
-        queryClient.setQueryData<Blob>(["file-data", fileId], undefined);
+        queryClient.setQueryData<Blob>(
+          ["file-data", "pdfs", fileId],
+          undefined,
+        );
         queryClient.setQueryData<Pdf>(["pdf", fileId], undefined);
       }
     },

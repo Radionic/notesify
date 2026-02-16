@@ -22,7 +22,6 @@ import { AnnotatorLayer } from "./layer/annotator-layer";
 import { HighlightLayer } from "./layer/highlight-layer";
 import { Layer } from "./layer/layer";
 import { Layers } from "./layer/layers";
-import { SelectContextArea } from "./layer/select-context-layer";
 import { HighlightMenu } from "./menu/highlight-menu";
 import { TextMenu } from "./menu/text-menu";
 
@@ -126,7 +125,6 @@ export const PdfViewer = ({
               pageNumber={pageNumber}
               disabled={annotator !== undefined}
             />
-            <SelectContextArea pdfId={pdfId} pageNumber={pageNumber} />
           </Layer>
         )}
       </Layers>

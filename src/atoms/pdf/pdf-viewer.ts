@@ -30,4 +30,3 @@ export const activeTextSelectionAtomFamily = atomFamily((pdfId?: string) =>
   atom<TextSelection>(),
 );
 export const activeHighlightAtom = atom<Highlight>();
-export const selectContextModeAtom = atom<"area" | "page">();

@@ -30,7 +30,7 @@ export const FileContextsPreview = ({
       <div className={cn("flex flex-wrap gap-2", className)}>
         {imageContexts?.map((context) => (
           <ImageContextPreview
-            key={context.id}
+            key={context.fileId}
             context={context}
             removable={removable}
             onPreview={() => setActivePreviewContext(context)}

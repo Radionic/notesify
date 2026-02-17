@@ -81,7 +81,7 @@ export const ImageContextPreview = ({
             variant="ghost"
             size="icon"
             className="h-7 w-7 bg-background/90 backdrop-blur-sm"
-            onClick={() => removeContext(context.id)}
+            onClick={() => removeContext(context.fileId)}
           >
             <CgClose className="w-4 h-4" />
           </Button>

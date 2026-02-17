@@ -51,10 +51,8 @@ export const messageMetadataSchema = z.object({
           page: z.number().optional(),
         }),
         z.object({
-          id: z.string(),
           type: z.literal("image"),
-          fileId: z.string().optional(),
-          fileName: z.string().optional(),
+          fileId: z.string(),
         }),
       ]),
     )

@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { type ClipboardEvent, useCallback } from "react";
 import { toast } from "sonner";
-import { activeContextsAtom } from "@/atoms/chat/contexts";
+import { activeContextsAtom, type ImageContext } from "@/atoms/chat/contexts";
 import { selectedModelAtom } from "@/atoms/setting/providers";
 import { uploadingIdsAtom } from "@/atoms/upload";
 import { useUploadStatus } from "@/hooks/upload/use-upload-status";
@@ -18,21 +18,19 @@ export const useRemoveImageContext = () => {
   const { mutateAsync: deleteFile } = useDeleteFile();
 
   return useMutation({
-    mutationFn: async (contextId: string) => {
+    mutationFn: async (fileId: string) => {
       const targetContext = contexts.find(
-        (context) => context.id === contextId,
-      );
-      if (!targetContext || targetContext.type !== "image") {
-        throw new Error("Context not found or not an image");
-      }
-
-      if (!targetContext.fileId) {
-        throw new Error("Context has no fileId");
+        (context) => context.type === "image" && context.fileId === fileId,
+      ) as ImageContext;
+      if (!targetContext) {
+        throw new Error("Context not found");
       }
 
       await deleteFile({ fileId: targetContext.fileId });
       setContexts((prevContexts) =>
-        prevContexts.filter((c) => c.id !== contextId),
+        prevContexts.filter(
+          (c) => c.type !== "image" || c.fileId !== targetContext.fileId,
+        ),
       );
     },
     onError: () => {
@@ -58,9 +56,10 @@ export const useUploadImageContext = () => {
       updateStatus(uploadId, { status: "uploading", progress: 0 });
 
       try {
-        const { id: fileId, name: fileName } = await uploadFile({
+        const { id: fileId } = await uploadFile({
           file,
           fileType: "image",
+          parentId: null,
           onProgress: (uploadProgress) =>
             updateStatus(uploadId, {
               status: "uploading",
@@ -71,10 +70,8 @@ export const useUploadImageContext = () => {
         setContexts((prevContexts) => [
           ...prevContexts,
           {
-            id: uploadId,
             type: "image",
             fileId,
-            fileName,
           },
         ]);
         setUploadingIds((prev) => prev.filter((id) => id !== uploadId));

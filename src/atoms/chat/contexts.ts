@@ -12,10 +12,8 @@ export type TextContext = {
 };
 
 export type ImageContext = {
-  id: string;
   type: "image";
-  fileId?: string;
-  fileName?: string;
+  fileId: string;
 };
 
 export type Context = TextContext | ImageContext;

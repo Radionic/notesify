@@ -17,7 +17,11 @@ export const useChatContext = () => {
   };
 
   const removeContext = (id: string) => {
-    setActiveContexts(activeContexts.filter((context) => context.id !== id));
+    setActiveContexts(
+      activeContexts.filter(
+        (context) => context.type !== "text" || context.id !== id,
+      ),
+    );
   };
 
   const jumpToContext = (context: TextContext) => {

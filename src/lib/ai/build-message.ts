@@ -1,5 +1,5 @@
 import { convertToModelMessages, type ModelMessage, type UIMessage } from "ai";
-import { and, eq, getTableColumns } from "drizzle-orm";
+import { and, eq, getTableColumns, inArray } from "drizzle-orm";
 import type { Context } from "@/atoms/chat/contexts";
 import { db } from "@/db";
 import { filesTable, pdfsTable } from "@/db/schema";
@@ -26,21 +26,37 @@ const buildImageContent = async ({
   contexts?: Context[];
   userId: string;
 }) => {
-  if (!contexts?.length) {
+  const imageContexts = contexts?.filter((context) => context.type === "image");
+  if (!imageContexts || !imageContexts.length) {
     return [];
   }
 
+  const imageFileIds = imageContexts.map((context) => context.fileId);
+  const imageFiles = await db
+    .select({
+      id: filesTable.id,
+      extension: filesTable.extension,
+    })
+    .from(filesTable)
+    .where(
+      and(
+        eq(filesTable.userId, userId),
+        eq(filesTable.type, "image"),
+        inArray(filesTable.id, imageFileIds),
+      ),
+    );
+
   return (
     await Promise.all(
-      contexts.map(async (context) => {
-        if (context.type !== "image" || !context.fileId) {
-          return null;
-        }
+      imageFiles.map(async (file) => {
+        const filename = file.extension
+          ? `${file.id}.${file.extension}`
+          : file.id;
 
         const key = getObjectKey({
           type: "images",
           userId,
-          filename: context.fileId,
+          filename,
         });
         const imageUrl = await presignUrl({ key, method: "GET" });
         return { type: "image" as const, image: imageUrl };

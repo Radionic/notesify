@@ -3,8 +3,8 @@ import { CgClose } from "react-icons/cg";
 import type { ImageContext } from "@/atoms/chat/contexts";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { useRemoveImageContext } from "@/hooks/chat/use-image-context-upload";
 import { cn } from "@/lib/utils";
+import { useRemoveImageContext } from "@/queries/chat/use-image-context-upload";
 import { useFileData } from "@/queries/file-system/use-file-system";
 
 export const ContextImage = ({

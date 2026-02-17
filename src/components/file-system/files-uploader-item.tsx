@@ -1,5 +1,6 @@
+import { useMutationState } from "@tanstack/react-query";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { BsFiletypePdf } from "react-icons/bs";
 import { CircularProgress } from "@/components/ui/circular-progress";
 import { useUploadPdf } from "@/queries/file-system/use-upload-pdf";
@@ -14,27 +15,35 @@ const formatFileSize = (size: number) => {
   return `${(size / 1024 / 1024).toFixed(1)} MB`;
 };
 
-type UploadStatus = "pending" | "success" | "error";
-
 export function FilesUploaderItem({
+  uploadKey,
   file,
   parentId,
 }: {
+  uploadKey: string;
   file: File;
   parentId: string | null;
 }) {
-  // useMutation status isn't updating, so we need to keep track of it ourselves
-  const { mutateAsync: uploadPdf } = useUploadPdf();
-
-  const [progress, setProgress] = useState(0);
-  const [status, setStatus] = useState<UploadStatus>("pending");
-  const [error, setError] = useState<Error | null>(null);
-
   const uploadStartedRef = useRef(false);
 
-  const onProgressCallback = useCallback((nextProgress: number) => {
-    setProgress(nextProgress);
-  }, []);
+  const { mutateAsync: uploadPdf, progress } = useUploadPdf({
+    mutationKey: uploadKey,
+  });
+  // https://github.com/TanStack/query/issues/9068#issuecomment-2831997048
+  const mutationStates = useMutationState({
+    filters: {
+      mutationKey: ["upload-pdf", uploadKey],
+      exact: true,
+    },
+    select: (mutation) => ({
+      status: mutation.state.status,
+      error: mutation.state.error,
+    }),
+  });
+  const { status, error } = mutationStates?.[0] ?? {
+    status: "idle",
+    error: null,
+  };
 
   useEffect(() => {
     if (uploadStartedRef.current) {
@@ -44,21 +53,14 @@ export function FilesUploaderItem({
     uploadStartedRef.current = true;
 
     const upload = async () => {
-      try {
-        await uploadPdf({
-          file,
-          parentId,
-          onProgress: onProgressCallback,
-        });
-        setStatus("success");
-      } catch (err) {
-        setStatus("error");
-        setError(err instanceof Error ? err : new Error("Upload failed"));
-      }
+      await uploadPdf({
+        file,
+        parentId,
+      });
     };
 
-    upload();
-  }, [file, parentId, uploadPdf, onProgressCallback]);
+    void upload();
+  }, [file, parentId, uploadPdf]);
 
   return (
     <div className="flex items-center gap-3 rounded-lg border bg-card p-2.5">

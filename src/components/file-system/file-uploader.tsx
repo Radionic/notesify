@@ -2,6 +2,7 @@ import { Plus, UploadCloud } from "lucide-react";
 import { useCallback, useState } from "react";
 import { type FileRejection, useDropzone } from "react-dropzone";
 import { toast } from "sonner";
+import { generateId } from "@/lib/id";
 import { cn } from "@/lib/utils";
 import { FilesUploaderItem } from "./files-uploader-item";
 
@@ -16,12 +17,16 @@ export const FilesUploader = ({
   thin?: boolean;
   parentId?: string | null;
 }) => {
-  const [queue, setQueue] = useState<File[]>([]);
+  const [queue, setQueue] = useState<{ id: string; file: File }[]>([]);
 
   const onDrop = useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
       if (acceptedFiles.length > 0) {
-        setQueue((prev) => [...prev, ...acceptedFiles]);
+        const nextItems = acceptedFiles.map((file) => ({
+          id: generateId(),
+          file,
+        }));
+        setQueue((prev) => [...prev, ...nextItems]);
       }
 
       rejectedFiles.forEach((rejectedFile) => {
@@ -91,13 +96,18 @@ export const FilesUploader = ({
         )}
       </div>
 
-      {queue.length > 0 ? (
+      {queue.length > 0 && (
         <div className="space-y-2">
-          {queue.map((file, i) => (
-            <FilesUploaderItem key={i} file={file} parentId={parentId} />
+          {queue.map((item) => (
+            <FilesUploaderItem
+              key={item.id}
+              uploadKey={item.id}
+              file={item.file}
+              parentId={parentId}
+            />
           ))}
         </div>
-      ) : null}
+      )}
     </div>
   );
 };

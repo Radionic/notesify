@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
 import { toast } from "sonner";
 import type { FileNode, Pdf } from "@/db/schema";
 import { extractPdfPageData } from "@/lib/pdf/extract-pdf-data";
@@ -7,22 +8,26 @@ import { completePdfUploadFn, createPdfUploadUrlsFn } from "@/server/upload";
 import type { FilesResult } from "./use-file-system";
 import { uploadFileToPresignedUrl } from "./use-file-upload";
 
-export const useUploadPdf = () => {
+export const useUploadPdf = ({
+  mutationKey,
+}: {
+  mutationKey?: string;
+} = {}) => {
+  const [progress, setProgress] = useState(0);
   const queryClient = useQueryClient();
   const createPdfUploadUrls = useServerFn(createPdfUploadUrlsFn);
   const completePdfUpload = useServerFn(completePdfUploadFn);
 
-  return useMutation({
+  const mutation = useMutation({
+    mutationKey: ["upload-pdf", mutationKey],
     mutationFn: async ({
       file,
       parentId,
       inLibrary = true,
-      onProgress,
     }: {
       file: File;
       parentId: string | null;
       inLibrary?: boolean;
-      onProgress?: (progress: number) => void;
     }) => {
       const name = file.name;
 
@@ -31,12 +36,12 @@ export const useUploadPdf = () => {
         throw new Error("PDF file too large");
       }
 
-      onProgress?.(5);
+      setProgress(5);
 
       const { texts, images, totalPages, bboxes } =
         await extractPdfPageData(file);
 
-      onProgress?.(15);
+      setProgress(15);
 
       const oversizedImage = images.find(
         (image) => image.size > 10 * 1024 * 1024,
@@ -52,7 +57,7 @@ export const useUploadPdf = () => {
         },
       });
 
-      onProgress?.(20);
+      setProgress(20);
 
       if (upload.imageUploads.length !== images.length) {
         throw new Error("Image upload metadata mismatch");
@@ -65,7 +70,8 @@ export const useUploadPdf = () => {
           uploadProgress.reduce((sum, progress) => sum + progress, 0) /
           totalUploads;
         const adjustedProgress = Math.round(20 + averageProgress * 0.7);
-        onProgress?.(Math.min(90, adjustedProgress));
+        const nextProgress = Math.min(90, adjustedProgress);
+        setProgress(nextProgress);
       };
 
       await Promise.all([
@@ -103,6 +109,8 @@ export const useUploadPdf = () => {
         },
       });
 
+      setProgress(100);
+
       return { newFile, newPdf };
     },
     onSuccess: ({ newFile, newPdf }, { file }) => {
@@ -121,4 +129,9 @@ export const useUploadPdf = () => {
       toast.error("Upload failed");
     },
   });
+
+  return {
+    ...mutation,
+    progress,
+  };
 };

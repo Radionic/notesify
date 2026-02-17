@@ -1,38 +1,18 @@
 import { useAtomValue } from "jotai";
-import { useState } from "react";
+import { type ClipboardEvent, useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { activeContextsAtom } from "@/atoms/chat/contexts";
-import { useChatAI } from "@/hooks/chat/use-chat-ai";
-import { useUploadImageContext } from "@/hooks/chat/use-image-context-upload";
+import { selectedModelAtom } from "@/atoms/setting/providers";
+import { ensureVisionModel } from "@/lib/ai/ensure-vision-model";
+import { generateId } from "@/lib/id";
 import { cn } from "@/lib/utils";
+import { ChatBranding } from "./chat-branding";
 import { ChatHeader } from "./chat-header";
 import { ChatInput } from "./chat-input";
 import { ChatMessageList } from "./chat-message-list";
 import { FileContextsPreview } from "./contexts/file-context-preview";
 import { TextContextsPreview } from "./contexts/text-context-preview";
 import { ThreadFinder } from "./threads/thread-finder";
-
-const ChatBranding = ({
-  chatId,
-  className,
-}: {
-  chatId?: string;
-  className?: string;
-}) => {
-  const { messages, isLoadingMessages } = useChatAI({ chatId });
-  if (messages.length > 0 || isLoadingMessages) return null;
-
-  return (
-    <div className={cn("flex items-center gap-4", className)}>
-      <img
-        src="/favicon.png"
-        alt="Notesify Icon"
-        className="w-10 h-10 rounded-sm"
-      />
-      <span className="font-ebg text-2xl">Notesify AI</span>
-    </div>
-  );
-};
 
 export const Chat = ({
   chatId,
@@ -47,7 +27,37 @@ export const Chat = ({
 }) => {
   const [threadFinderOpen, setThreadFinderOpen] = useState(false);
   const contexts = useAtomValue(activeContextsAtom);
-  const { handleImageUpload } = useUploadImageContext();
+  const selectedModel = useAtomValue(selectedModelAtom);
+  const [queue, setQueue] = useState<{ id: string; file: File }[]>([]);
+
+  const handleImageUpload = useCallback(
+    (file: File) => {
+      if (!ensureVisionModel({ model: selectedModel })) return;
+
+      setQueue((prev) => [...prev, { id: generateId(), file }]);
+    },
+    [selectedModel],
+  );
+
+  const handlePasteImage = useCallback(
+    (e: ClipboardEvent<HTMLTextAreaElement>) => {
+      const { files } = e.clipboardData;
+      if (!files || files.length === 0) return;
+
+      const imageFile = Array.from(files).find((file) =>
+        file.type.startsWith("image/"),
+      );
+      if (!imageFile) return;
+
+      e.preventDefault();
+      handleImageUpload(imageFile);
+    },
+    [handleImageUpload],
+  );
+
+  const removeQueueItem = useCallback((id: string) => {
+    setQueue((prev) => prev.filter((item) => item.id !== id));
+  }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (acceptedFiles) => {
@@ -112,13 +122,25 @@ export const Chat = ({
             </div>
           </>
         )}
-        <div className={cn(!centered && "space-y-2 flex-none p-2")}>
-          <FileContextsPreview contexts={contexts} removable />
+        <div
+          className={cn(
+            "w-full max-w-3xl mx-auto space-y-2",
+            !centered && "flex-none p-2",
+          )}
+        >
+          <FileContextsPreview
+            contexts={contexts}
+            uploadingQueue={queue}
+            onUploadSettled={removeQueueItem}
+            removable
+          />
           <TextContextsPreview contexts={contexts} removable />
           <ChatInput
             chatId={chatId}
             rows={centered ? 3 : undefined}
             isDragging={isDragActive}
+            onImageUpload={handleImageUpload}
+            onImagePaste={handlePasteImage}
           />
         </div>
       </div>

@@ -1,27 +1,28 @@
-import { useAtomValue } from "jotai";
 import { useState } from "react";
 import type { Context, ImageContext } from "@/atoms/chat/contexts";
-import { uploadingIdsAtom } from "@/atoms/upload";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { FileUploadPlaceholder } from "./file-upload-placeholder";
+import { FileContextUpload } from "./file-context-upload";
 import { ContextImage, ImageContextPreview } from "./image-context-preview";
 
 export const FileContextsPreview = ({
   contexts,
   removable,
   className,
+  uploadingQueue = [],
+  onUploadSettled,
 }: {
   contexts?: Context[];
   removable?: boolean;
   className?: string;
+  uploadingQueue?: { id: string; file: File }[];
+  onUploadSettled?: (id: string) => void;
 }) => {
   const [activePreviewContext, setActivePreviewContext] =
     useState<ImageContext>();
   const imageContexts = contexts?.filter((context) => context.type === "image");
-  const uploadingIds = useAtomValue(uploadingIdsAtom);
   const hasContent =
-    (imageContexts && imageContexts.length > 0) || uploadingIds.length > 0;
+    (imageContexts && imageContexts.length > 0) || uploadingQueue.length > 0;
 
   if (!hasContent) return null;
 
@@ -36,8 +37,13 @@ export const FileContextsPreview = ({
             onPreview={() => setActivePreviewContext(context)}
           />
         ))}
-        {uploadingIds.map((uploadId) => (
-          <FileUploadPlaceholder key={uploadId} uploadId={uploadId} />
+        {uploadingQueue.map((item) => (
+          <FileContextUpload
+            key={item.id}
+            uploadKey={item.id}
+            file={item.file}
+            onSettled={onUploadSettled}
+          />
         ))}
       </div>
       <Dialog

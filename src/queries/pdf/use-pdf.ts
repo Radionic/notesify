@@ -131,10 +131,10 @@ export const useNavigatePdf = () => {
       to: "/viewer",
       search: (prev: Record<string, unknown>) => ({
         ...prev,
-        sid: pdfId,
+        fid: pdfId,
         page,
         type: "pdf" as const,
-        so: true,
+        fo: true,
       }),
     });
   };

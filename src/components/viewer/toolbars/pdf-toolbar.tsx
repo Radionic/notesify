@@ -33,9 +33,9 @@ export const PdfToolbar = ({ pdfId }: { pdfId: string }) => {
             to: "/viewer",
             search: (prev) => ({
               ...prev,
-              sid: undefined,
+              fid: undefined,
               type: undefined,
-              so: true,
+              fo: true,
             }),
           })
         }

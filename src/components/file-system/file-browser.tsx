@@ -1,4 +1,4 @@
-import { FolderPlus, Plus, Search } from "lucide-react";
+import { FolderPlus, Plus, Search, Upload } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { useDebounceValue } from "usehooks-ts";
@@ -11,6 +11,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
   InputGroup,
@@ -118,9 +124,9 @@ export const FileBrowser = ({
         to: "/viewer",
         search: (prev: Record<string, unknown>) => ({
           ...prev,
-          sid: item.id,
+          fid: item.id,
           type: "webpage" as const,
-          so: true,
+          fo: true,
         }),
       });
       onFileSelected?.(item.id);
@@ -217,24 +223,24 @@ export const FileBrowser = ({
 
         {/* Actions */}
         {!readOnly && (
-          <div className="flex gap-2 w-full sm:w-auto">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setFolderDialog({ name: "" })}
-            >
-              <FolderPlus className="h-4 w-4 mr-1" />
-              New Folder
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setUploadDialog(true)}
-            >
-              <Plus className="h-4 w-4 mr-1" />
-              Add
-            </Button>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Plus className="h-4 w-4 mr-1" />
+                Add
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setFolderDialog({ name: "" })}>
+                <FolderPlus className="h-4 w-4 mr-2" />
+                Create folder
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setUploadDialog(true)}>
+                <Upload className="h-4 w-4 mr-2" />
+                Upload files
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         )}
       </div>
 

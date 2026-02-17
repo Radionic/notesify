@@ -41,11 +41,8 @@ const PanelToggle = ({
 };
 
 export const Header = () => {
-  const { sid, so, co } = useSearch({ from: "/viewer/" });
+  const { fo, co } = useSearch({ from: "/viewer/" });
   const isMobile = useIsMobile();
-
-  const sourceOpen = so ?? !!sid;
-  const chatOpen = isMobile && sourceOpen ? false : (co ?? !sourceOpen);
 
   const navigate = (updates: Record<string, unknown>) => {
     getRouter().navigate({
@@ -55,33 +52,29 @@ export const Header = () => {
     });
   };
 
-  const togglePanel = (panel: "source" | "chat") => {
+  const togglePanel = (panel: "library" | "chat") => {
     if (isMobile) {
-      const isOpen = panel === "source" ? sourceOpen : chatOpen;
-      if (isOpen) return;
-      if (panel === "source") {
-        navigate({ so: true, co: false });
+      if (panel === "library") {
+        if (fo) return;
+        navigate({ fo: true, co: false });
       } else {
-        navigate({ so: false, co: undefined });
+        if (co) return;
+        navigate({ fo: false, co: true });
       }
       return;
     }
 
-    const isOpen = panel === "source" ? sourceOpen : chatOpen;
-    if (isOpen) {
-      const activeCount = [sourceOpen, chatOpen].filter(Boolean).length;
-      if (activeCount <= 1) return;
-    }
-
-    if (panel === "source") {
+    if (panel === "library") {
+      if (fo && !co) return;
       navigate({
-        so: !sourceOpen,
-        co: chatOpen,
+        fo: !fo,
+        co,
       });
     } else {
+      if (co && !fo) return;
       navigate({
-        co: !chatOpen,
-        so: sourceOpen,
+        co: !co,
+        fo,
       });
     }
   };
@@ -101,14 +94,14 @@ export const Header = () => {
       <div className="flex items-center justify-start md:justify-center">
         <div className="flex flex-row items-center gap-1.5">
           <PanelToggle
-            active={sourceOpen}
-            onClick={() => togglePanel("source")}
+            active={fo}
+            onClick={() => togglePanel("library")}
             icon={<Library className="h-3.5 w-3.5" />}
-            title="Source"
+            title="Library"
           />
 
           <PanelToggle
-            active={chatOpen}
+            active={co}
             onClick={() => togglePanel("chat")}
             icon={<Sparkles className="h-3.5 w-3.5" />}
             title="AI"

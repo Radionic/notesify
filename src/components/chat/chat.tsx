@@ -37,12 +37,12 @@ const ChatBranding = ({
 export const Chat = ({
   chatId,
   onChatIdChange,
-  isCentered,
+  centered,
   minimal,
 }: {
   chatId?: string;
   onChatIdChange: (chatId?: string) => void;
-  isCentered?: boolean;
+  centered?: boolean;
   minimal?: boolean;
 }) => {
   const [threadFinderOpen, setThreadFinderOpen] = useState(false);
@@ -63,23 +63,6 @@ export const Chat = ({
     },
   });
 
-  if (isCentered) {
-    return (
-      <div
-        {...getRootProps()}
-        className="flex flex-col items-center justify-center h-full w-full bg-panel relative"
-      >
-        <input {...getInputProps()} />
-        <ChatBranding className="justify-center mb-6" />
-        <div className="w-full max-w-2xl space-y-2 px-4">
-          <FileContextsPreview contexts={contexts} removable />
-          <TextContextsPreview contexts={contexts} removable />
-          <ChatInput chatId={chatId} rows={3} isDragging={isDragActive} />
-        </div>
-      </div>
-    );
-  }
-
   if (threadFinderOpen) {
     return (
       <ThreadFinder
@@ -96,30 +79,47 @@ export const Chat = ({
   return (
     <div
       {...getRootProps()}
-      className="flex flex-col justify-between gap-1 h-full w-full bg-panel relative"
+      className={cn(
+        "flex flex-col h-full w-full bg-panel relative",
+        centered ? "items-center justify-center" : "justify-between gap-1",
+      )}
     >
       <input {...getInputProps()} />
-      <div className="flex flex-col grow min-h-0 w-full">
-        <div className={cn("w-full", minimal && "max-w-3xl mx-auto")}>
-          <ChatHeader
+      <div
+        className={cn(
+          "flex flex-col w-full",
+          centered ? "max-w-2xl space-y-2 px-4" : "grow min-h-0",
+        )}
+      >
+        {centered ? (
+          <ChatBranding className="justify-center mb-6" />
+        ) : (
+          <>
+            <div className={cn("w-full", minimal && "max-w-3xl mx-auto")}>
+              <ChatHeader
+                chatId={chatId}
+                onNewThread={() => onChatIdChange(undefined)}
+                onOpenHistory={() => setThreadFinderOpen(true)}
+                minimal={minimal}
+              />
+            </div>
+            <div className="flex flex-col grow min-h-0 w-full max-w-3xl mx-auto">
+              <ChatMessageList chatId={chatId} />
+              <ChatBranding
+                chatId={chatId}
+                className="flex grow items-center justify-center"
+              />
+            </div>
+          </>
+        )}
+        <div className={cn(!centered && "space-y-2 flex-none p-2")}>
+          <FileContextsPreview contexts={contexts} removable />
+          <TextContextsPreview contexts={contexts} removable />
+          <ChatInput
             chatId={chatId}
-            onNewThread={() => onChatIdChange(undefined)}
-            onOpenHistory={() => setThreadFinderOpen(true)}
-            minimal={minimal}
+            rows={centered ? 3 : undefined}
+            isDragging={isDragActive}
           />
-        </div>
-        <div className="flex flex-col grow min-h-0 w-full max-w-3xl mx-auto">
-          <ChatMessageList chatId={chatId} />
-          <ChatBranding
-            chatId={chatId}
-            className="flex grow items-center justify-center"
-          />
-          {/* <ChatGuide chatId={chatId} /> */}
-          <div className="space-y-2 flex-none p-2">
-            <FileContextsPreview contexts={contexts} removable />
-            <TextContextsPreview contexts={contexts} removable />
-            <ChatInput chatId={chatId} isDragging={isDragActive} />
-          </div>
         </div>
       </div>
     </div>

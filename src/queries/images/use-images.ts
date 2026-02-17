@@ -41,9 +41,9 @@ export const useNavigateImage = () => {
       to: "/viewer",
       search: (prev: Record<string, unknown>) => ({
         ...prev,
-        sid: imageId,
+        fid: imageId,
         type: "image" as const,
-        so: true,
+        fo: true,
       }),
     });
   };

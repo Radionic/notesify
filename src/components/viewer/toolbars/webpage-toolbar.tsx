@@ -20,9 +20,9 @@ export const WebpageToolbar = ({ webpageId }: { webpageId: string }) => {
             to: "/viewer",
             search: (prev) => ({
               ...prev,
-              sid: undefined,
+              fid: undefined,
               type: undefined,
-              so: true,
+              fo: true,
             }),
           })
         }

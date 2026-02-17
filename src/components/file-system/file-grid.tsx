@@ -1,43 +1,60 @@
-import {
-  Download,
-  FileText,
-  Folder,
-  FolderOpen,
-  Globe,
-  Image,
-  MoreVertical,
-  Pencil,
-  Trash2,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { FolderOpen } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { FileNode } from "@/db/schema";
+import { useFiles } from "@/queries/file-system/use-file-system";
+import { useNavigateImage } from "@/queries/images/use-images";
+import { useNavigatePdf } from "@/queries/pdf/use-pdf";
+import { getRouter } from "@/router";
+import { FileItem } from "./file-item";
 
 export const FileGrid = ({
-  files,
-  isLoading,
+  parentId,
+  search,
   readOnly,
-  onItemClick,
-  onRename,
-  onDownload,
-  onDelete,
+  onFileSelected,
+  onFolderNavigate,
   onUpload,
 }: {
-  files: FileNode[];
-  isLoading?: boolean;
+  parentId: string | null;
+  search?: string;
   readOnly?: boolean;
-  onItemClick: (item: FileNode) => void;
-  onRename?: (item: FileNode) => void;
-  onDelete?: (item: FileNode) => void;
-  onDownload?: (item: FileNode) => void;
+  onFileSelected?: (fileId: string) => void;
+  onFolderNavigate?: (folderId: string, folderName: string) => void;
   onUpload?: () => void;
 }) => {
+  const { data, isLoading } = useFiles({
+    parentId,
+    search,
+    includeBreadcrumbs: false,
+  });
+  const { navigatePdf } = useNavigatePdf();
+  const { navigateImage } = useNavigateImage();
+
+  const files = data?.files || [];
+
+  const handleItemClick = (item: FileNode) => {
+    if (item.type === "folder") {
+      onFolderNavigate?.(item.id, item.name);
+    } else if (item.type === "pdf") {
+      navigatePdf({ pdfId: item.id });
+      onFileSelected?.(item.id);
+    } else if (item.type === "webpage") {
+      getRouter().navigate({
+        to: "/viewer",
+        search: (prev: Record<string, unknown>) => ({
+          ...prev,
+          fid: item.id,
+          type: "webpage" as const,
+          fo: true,
+        }),
+      });
+      onFileSelected?.(item.id);
+    } else if (item.type === "image") {
+      navigateImage({ imageId: item.id });
+      onFileSelected?.(item.id);
+    }
+  };
+
   if (isLoading) {
     return (
       <div className="@container">
@@ -45,10 +62,10 @@ export const FileGrid = ({
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="flex items-center gap-3 p-3 rounded-lg border"
+              className="flex items-center gap-2 p-3 rounded-lg border"
             >
-              <Skeleton className="h-6 w-6 shrink-0 rounded" />
-              <Skeleton className="h-5 flex-1 rounded" />
+              <Skeleton className="h-5 w-5 shrink-0 rounded" />
+              <Skeleton className="h-4 flex-1 rounded" />
             </div>
           ))}
         </div>
@@ -58,7 +75,7 @@ export const FileGrid = ({
 
   if (files.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center pt-64 px-8 text-center">
+      <div className="flex flex-col items-center justify-center pt-16 md:pt-64 px-8 text-center">
         <div className="h-16 w-16 rounded-full bg-muted flex items-center justify-center mb-3">
           <FolderOpen className="h-8 w-8 text-muted-foreground" />
         </div>
@@ -82,69 +99,40 @@ export const FileGrid = ({
   const folders = files.filter((item) => item.type === "folder");
   const nonFolders = files.filter((item) => item.type !== "folder");
 
-  const renderItem = (item: FileNode) => (
-    <button
-      type="button"
-      key={item.id}
-      className="group flex items-center gap-3 p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors cursor-pointer"
-      onClick={() => onItemClick(item)}
-    >
-      {item.type === "folder" ? (
-        <Folder className="h-5 w-5 text-yellow-500 shrink-0" />
-      ) : item.type === "webpage" ? (
-        <Globe className="h-5 w-5 text-blue-500 shrink-0" />
-      ) : item.type === "image" ? (
-        <Image className="h-5 w-5 text-purple-500 shrink-0" />
-      ) : (
-        <FileText className="h-5 w-5 text-red-500 shrink-0" />
-      )}
-      <span className="text-sm truncate flex-1 text-left">{item.name}</span>
-
-      {!readOnly && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-            <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0">
-              <MoreVertical className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent onClick={(e) => e.stopPropagation()}>
-            {onRename && (
-              <DropdownMenuItem onClick={() => onRename(item)}>
-                <Pencil className="h-4 w-4 mr-2" />
-                Rename
-              </DropdownMenuItem>
-            )}
-            {onDownload && (item.type === "pdf" || item.type === "image") && (
-              <DropdownMenuItem onClick={() => onDownload(item)}>
-                <Download className="h-4 w-4 mr-2" />
-                Download
-              </DropdownMenuItem>
-            )}
-            {onDelete && (
-              <DropdownMenuItem
-                className="text-destructive"
-                onClick={() => onDelete(item)}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
-    </button>
-  );
-
   return (
-    <div className="@container space-y-6">
+    <div className="@container space-y-4">
       {folders.length > 0 && (
-        <div className="grid grid-cols-1 @min-[400px]:grid-cols-2 @min-[600px]:grid-cols-3 @min-[800px]:grid-cols-4 @min-[1000px]:grid-cols-5 @min-[1200px]:grid-cols-6 gap-2">
-          {folders.map(renderItem)}
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold text-muted-foreground px-1">
+            Folders
+          </h2>
+          <div className="grid grid-cols-1 @min-[400px]:grid-cols-2 @min-[600px]:grid-cols-3 @min-[800px]:grid-cols-4 @min-[1000px]:grid-cols-5 @min-[1200px]:grid-cols-6 gap-2">
+            {folders.map((item) => (
+              <FileItem
+                key={item.id}
+                file={item}
+                readOnly={readOnly}
+                onItemClick={handleItemClick}
+              />
+            ))}
+          </div>
         </div>
       )}
       {nonFolders.length > 0 && (
-        <div className="grid grid-cols-1 @min-[400px]:grid-cols-2 @min-[600px]:grid-cols-3 @min-[800px]:grid-cols-4 @min-[1000px]:grid-cols-5 @min-[1200px]:grid-cols-6 gap-2">
-          {nonFolders.map(renderItem)}
+        <div className="space-y-2">
+          <h2 className="text-sm font-semibold text-muted-foreground px-1">
+            Files
+          </h2>
+          <div className="grid grid-cols-1 @min-[400px]:grid-cols-2 @min-[600px]:grid-cols-3 @min-[800px]:grid-cols-4 @min-[1000px]:grid-cols-5 @min-[1200px]:grid-cols-6 gap-2">
+            {nonFolders.map((item) => (
+              <FileItem
+                key={item.id}
+                file={item}
+                readOnly={readOnly}
+                onItemClick={handleItemClick}
+              />
+            ))}
+          </div>
         </div>
       )}
     </div>

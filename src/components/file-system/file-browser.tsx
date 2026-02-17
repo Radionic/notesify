@@ -1,6 +1,5 @@
 import { FolderPlus, Plus, Search, Upload } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
+import { useRef, useState } from "react";
 import { useDebounceValue } from "usehooks-ts";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,19 +22,8 @@ import {
   InputGroupAddon,
   InputGroupInput,
 } from "@/components/ui/input-group";
-import type { FileNode } from "@/db/schema";
-import {
-  useAddFolder,
-  useFiles,
-  useRemoveFile,
-  useRenameFile,
-} from "@/queries/file-system/use-file-system";
-import {
-  useDownloadImage,
-  useNavigateImage,
-} from "@/queries/images/use-images";
-import { useDownloadPdf, useNavigatePdf } from "@/queries/pdf/use-pdf";
-import { getRouter } from "@/router";
+import { Label } from "@/components/ui/label";
+import { useAddFolder } from "@/queries/file-system/use-file-system";
 import { FileBreadcrumb, type PathItem } from "./file-breadcrumb";
 import { FileGrid } from "./file-grid";
 import { FilesUploader } from "./file-uploader";
@@ -58,10 +46,6 @@ export const FileBrowser = ({
   const [path, setPath] = useState<PathItem[]>([{ id: null, name: "Library" }]);
   const isInitialized = useRef(!initialFolderId);
 
-  const [renameDialog, setRenameDialog] = useState<{
-    file: FileNode;
-    newName: string;
-  } | null>(null);
   const [folderDialog, setFolderDialog] = useState<{ name: string } | null>(
     null,
   );
@@ -71,112 +55,17 @@ export const FileBrowser = ({
   const currentFolderId = isInitialized.current
     ? path[path.length - 1].id
     : (initialFolderId ?? null);
-  const { data, isLoading } = useFiles({
-    parentId: currentFolderId,
-    search: debouncedQuery,
-    // Only fetch breadcrumbs on initial page load, not on every navigation
-    includeBreadcrumbs: !isInitialized.current,
-  });
 
-  // Initialize path from breadcrumbs when we have an initialFolderId
-  useEffect(() => {
-    if (!isInitialized.current && data?.breadcrumbs) {
-      const newPath: PathItem[] = [{ id: null, name: "Library" }];
-      for (const crumb of data.breadcrumbs) {
-        newPath.push({ id: crumb.id, name: crumb.name });
-      }
-      setPath(newPath);
-      isInitialized.current = true;
-    }
-  }, [data?.breadcrumbs]);
+  const { mutateAsync: addFolder, isPending: isCreatingFolder } =
+    useAddFolder();
 
-  const { mutateAsync: addFolder } = useAddFolder();
-  const { mutateAsync: removeFile } = useRemoveFile();
-  const { mutateAsync: renameFile } = useRenameFile();
-  const { mutateAsync: downloadPdf } = useDownloadPdf();
-  const { mutateAsync: downloadImage } = useDownloadImage();
-  const { navigatePdf } = useNavigatePdf();
-  const { navigateImage } = useNavigateImage();
-
-  const handleCreateFolderSubmit = () => {
+  const handleCreateFolderSubmit = async () => {
     if (!folderDialog?.name.trim()) return;
-    toast.promise(
-      addFolder({ name: folderDialog.name.trim(), parentId: currentFolderId }),
-      {
-        loading: "Creating...",
-        success: "Created folder successfully",
-        error: "Failed to create folder",
-      },
-    );
+    await addFolder({
+      name: folderDialog.name.trim(),
+      parentId: currentFolderId,
+    });
     setFolderDialog(null);
-  };
-
-  const handleItemClick = (item: FileNode) => {
-    if (item.type === "folder") {
-      const newPath = [...path, { id: item.id, name: item.name }];
-      setPath(newPath);
-      onFolderIdChanged?.(item.id);
-    } else if (item.type === "pdf") {
-      navigatePdf({ pdfId: item.id });
-      onFileSelected?.(item.id);
-    } else if (item.type === "webpage") {
-      getRouter().navigate({
-        to: "/viewer",
-        search: (prev: Record<string, unknown>) => ({
-          ...prev,
-          fid: item.id,
-          type: "webpage" as const,
-          fo: true,
-        }),
-      });
-      onFileSelected?.(item.id);
-    } else if (item.type === "image") {
-      navigateImage({ imageId: item.id });
-      onFileSelected?.(item.id);
-    }
-  };
-
-  const handleDelete = (item: FileNode) => {
-    toast.promise(
-      removeFile({
-        fileId: item.id,
-        parentId: currentFolderId,
-        type: item.type,
-      }),
-      {
-        loading: "Deleting...",
-        success: "Deleted successfully",
-        error: "Failed to delete",
-      },
-    );
-  };
-
-  const handleDownload = (item: FileNode) => {
-    if (item.type === "pdf") {
-      downloadPdf({ pdfId: item.id, filename: item.name });
-    } else if (item.type === "image") {
-      downloadImage({
-        imageId: item.id,
-        filename: `${item.name}.${item.extension || "png"}`,
-      });
-    }
-  };
-
-  const handleRenameSubmit = () => {
-    if (!renameDialog || !renameDialog.newName.trim()) return;
-    toast.promise(
-      renameFile({
-        id: renameDialog.file.id,
-        parentId: currentFolderId,
-        newName: renameDialog.newName.trim(),
-      }),
-      {
-        loading: "Renaming...",
-        success: "Renamed successfully",
-        error: "Failed to rename",
-      },
-    );
-    setRenameDialog(null);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -189,6 +78,12 @@ export const FileBrowser = ({
     const newPath = path.slice(0, index + 1);
     setPath(newPath);
     onFolderIdChanged?.(newPath[newPath.length - 1].id);
+  };
+
+  const handleFolderNavigate = (folderId: string, folderName: string) => {
+    const newPath = [...path, { id: folderId, name: folderName }];
+    setPath(newPath);
+    onFolderIdChanged?.(folderId);
   };
 
   return (
@@ -246,86 +141,73 @@ export const FileBrowser = ({
 
       {/* Grid */}
       <FileGrid
-        files={data?.files || []}
-        isLoading={isLoading}
+        parentId={currentFolderId}
+        search={debouncedQuery}
         readOnly={readOnly}
-        onItemClick={handleItemClick}
-        onRename={
-          readOnly
-            ? undefined
-            : (item) => setRenameDialog({ file: item, newName: item.name })
-        }
-        onDelete={readOnly ? undefined : handleDelete}
-        onDownload={handleDownload}
+        onFileSelected={onFileSelected}
+        onFolderNavigate={handleFolderNavigate}
         onUpload={() => setUploadDialog(true)}
       />
 
-      {/* Rename Dialog */}
-      <Dialog
-        open={!!renameDialog}
-        onOpenChange={(open) => !open && setRenameDialog(null)}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              Rename {renameDialog?.file.type === "folder" ? "Folder" : "File"}
-            </DialogTitle>
-          </DialogHeader>
-          <Input
-            value={renameDialog?.newName ?? ""}
-            onChange={(e) =>
-              renameDialog &&
-              setRenameDialog({ ...renameDialog, newName: e.target.value })
-            }
-            onKeyDown={(e) => e.key === "Enter" && handleRenameSubmit()}
-            autoFocus
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setRenameDialog(null)}>
-              Cancel
-            </Button>
-            <Button onClick={handleRenameSubmit}>Save</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* New Folder Dialog */}
-      <Dialog
-        open={!!folderDialog}
-        onOpenChange={(open) => !open && setFolderDialog(null)}
-      >
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>New Folder</DialogTitle>
-            <DialogDescription>
-              Enter a name for the new folder.
-            </DialogDescription>
-          </DialogHeader>
-          <Input
-            placeholder="Folder name"
-            value={folderDialog?.name ?? ""}
-            onChange={(e) => setFolderDialog({ name: e.target.value })}
-            onKeyDown={(e) => e.key === "Enter" && handleCreateFolderSubmit()}
-            autoFocus
-          />
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setFolderDialog(null)}>
-              Cancel
-            </Button>
-            <Button onClick={handleCreateFolderSubmit}>Create</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* Create Folder Dialog */}
+      {!!folderDialog && (
+        <Dialog
+          open={!!folderDialog}
+          onOpenChange={(open) =>
+            !open && !isCreatingFolder && setFolderDialog(null)
+          }
+        >
+          <DialogContent className="w-md max-w-[90dvw] rounded-lg">
+            <DialogHeader>
+              <DialogTitle>New Folder</DialogTitle>
+              <DialogDescription>
+                Enter a name for the new folder.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-2">
+              <Label htmlFor="folder-name">Name</Label>
+              <Input
+                id="folder-name"
+                placeholder="Folder name"
+                value={folderDialog?.name ?? ""}
+                onChange={(e) => setFolderDialog({ name: e.target.value })}
+                onKeyDown={(e) =>
+                  e.key === "Enter" && handleCreateFolderSubmit()
+                }
+                disabled={isCreatingFolder}
+                autoFocus
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setFolderDialog(null)}
+                disabled={isCreatingFolder}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleCreateFolderSubmit}
+                disabled={isCreatingFolder}
+              >
+                {isCreatingFolder ? "Creating..." : "Create"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
 
       {/* Upload Dialog */}
-      <Dialog open={uploadDialog} onOpenChange={setUploadDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Upload files</DialogTitle>
-          </DialogHeader>
-          <FilesUploader parentId={currentFolderId} />
-        </DialogContent>
-      </Dialog>
+      {uploadDialog && (
+        <Dialog open={uploadDialog} onOpenChange={setUploadDialog}>
+          <DialogContent className="w-md max-w-[90dvw] rounded-lg">
+            <DialogHeader>
+              <DialogTitle>Upload files</DialogTitle>
+            </DialogHeader>
+            <FilesUploader parentId={currentFolderId} />
+          </DialogContent>
+        </Dialog>
+      )}
     </>
   );
 };

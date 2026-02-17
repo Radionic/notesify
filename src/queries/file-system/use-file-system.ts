@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import type { FileNode, Pdf } from "@/db/schema";
 import {
   addFolderFn,
@@ -88,6 +89,9 @@ export const useAddFolder = () => {
         }),
       );
     },
+    onError: () => {
+      toast.error("Failed to add folder");
+    },
   });
 };
 
@@ -130,6 +134,9 @@ export const useRemoveFile = () => {
         );
       }
     },
+    onError: () => {
+      toast.error("Failed to remove file");
+    },
   });
 };
 
@@ -169,6 +176,9 @@ export const useRenameFile = () => {
               }
             : undefined,
       );
+    },
+    onError: () => {
+      toast.error("Failed to rename file");
     },
   });
 };

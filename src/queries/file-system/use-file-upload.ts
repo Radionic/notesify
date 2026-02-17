@@ -5,7 +5,7 @@ import { completeUploadFn, createUploadUrlFn } from "@/server/upload";
 
 type UploadableFileType = "image" | "pdf";
 
-const uploadFile = ({
+export const uploadFileToPresignedUrl = ({
   file,
   uploadUrl,
   contentType,
@@ -73,7 +73,7 @@ export const useUploadFile = () => {
         },
       });
 
-      await uploadFile({
+      await uploadFileToPresignedUrl({
         file,
         uploadUrl: upload.uploadUrl,
         contentType: upload.contentType,

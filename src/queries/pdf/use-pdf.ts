@@ -53,38 +53,6 @@ export const useUpdatePdf = () => {
   });
 };
 
-export const useConvertPdf = () => {
-  return useMutation({
-    mutationFn: async ({
-      file,
-      filename,
-    }: {
-      file: Blob;
-      filename: string;
-    }) => {
-      const formData = new FormData();
-      formData.append("files", file, filename);
-
-      // Send the file to Gotenberg for conversion
-      const response = await fetch(
-        // TODO: use env variable / let user configure
-        "http://localhost:8123/forms/libreoffice/convert",
-        {
-          method: "POST",
-          body: formData,
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to convert to PDF");
-      }
-
-      const pdfBlob = await response.blob();
-      return pdfBlob;
-    },
-  });
-};
-
 export const useDownloadPdf = () => {
   const getFileData = useServerFn(getFileDataFn);
 

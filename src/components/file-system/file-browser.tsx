@@ -38,7 +38,7 @@ import { useDownloadPdf, useNavigatePdf } from "@/queries/pdf/use-pdf";
 import { getRouter } from "@/router";
 import { FileBreadcrumb, type PathItem } from "./file-breadcrumb";
 import { FileGrid } from "./file-grid";
-import { PdfFileUploader } from "./file-uploader";
+import { FilesUploader } from "./file-uploader";
 
 export const FileBrowser = ({
   readOnly,
@@ -319,11 +319,11 @@ export const FileBrowser = ({
 
       {/* Upload Dialog */}
       <Dialog open={uploadDialog} onOpenChange={setUploadDialog}>
-        <DialogContent>
+        <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Upload PDF</DialogTitle>
+            <DialogTitle>Upload files</DialogTitle>
           </DialogHeader>
-          <PdfFileUploader parentId={currentFolderId} />
+          <FilesUploader parentId={currentFolderId} />
         </DialogContent>
       </Dialog>
     </>

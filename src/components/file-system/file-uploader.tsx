@@ -1,52 +1,13 @@
-import { Plus } from "lucide-react";
-import { BsFiletypeDoc, BsFiletypePdf, BsFiletypePpt } from "react-icons/bs";
+import { Plus, UploadCloud } from "lucide-react";
+import { useCallback, useState } from "react";
+import { type FileRejection, useDropzone } from "react-dropzone";
 import { toast } from "sonner";
-import { FileInput, FileUploader } from "@/components/ui/file-uploader";
 import { cn } from "@/lib/utils";
-import { useAddPdf } from "@/queries/file-system/use-file-system";
-import { useConvertPdf, useNavigatePdf } from "@/queries/pdf/use-pdf";
-import { Spinner } from "../ui/spinner";
+import { FilesUploaderItem } from "./files-uploader-item";
 
-const FileSvgDraw = ({
-  thin,
-  uploading,
-}: {
-  thin?: boolean;
-  uploading?: boolean;
-}) => {
-  return (
-    <div
-      className={cn(
-        "flex items-center justify-center flex-col border border-dashed border-gray-400 rounded-md",
-        thin ? "h-fit w-full py-2 mt-2" : "h-48 w-80",
-        uploading && "opacity-60 pointer-events-none",
-      )}
-    >
-      {uploading ? (
-        <div className="flex items-center justify-center gap-2">
-          <Spinner />
-          Uploading...
-        </div>
-      ) : thin ? (
-        <Plus className="text-gray-500 w-4 h-4" />
-      ) : (
-        <>
-          <div className="flex items-center justify-center space-x-3 mb-2">
-            {/* <BsFiletypeDoc className="text-gray-500 w-8 h-8" /> */}
-            <BsFiletypePdf className="text-gray-500 w-8 h-8" />
-            {/* <BsFiletypePpt className="text-gray-500 w-8 h-8" /> */}
-          </div>
-          <p className="my-1 text-sm text-gray-500 font-semibold">
-            Drag and drop a file
-          </p>
-          <p className="text-xs text-gray-500">Or click to select</p>
-        </>
-      )}
-    </div>
-  );
-};
+const MAX_FILE_SIZE = 1024 * 1024 * 50;
 
-export const PdfFileUploader = ({
+export const FilesUploader = ({
   className,
   thin,
   parentId = null,
@@ -55,71 +16,88 @@ export const PdfFileUploader = ({
   thin?: boolean;
   parentId?: string | null;
 }) => {
-  const { navigatePdf } = useNavigatePdf();
-  const { mutateAsync: convertToPdf, isPending: convertingPdf } =
-    useConvertPdf();
-  const { mutateAsync: addPdf, isPending: addingPdf } = useAddPdf();
-  const isLoading = convertingPdf || addingPdf;
+  const [queue, setQueue] = useState<File[]>([]);
 
-  const loadPdfFromBlob = async (
-    data: Blob,
-    fileName: string,
-    originalType?: string,
-  ) => {
-    if (originalType !== "application/pdf") {
-      data = await toast
-        .promise(convertToPdf({ file: data, filename: fileName }), {
-          loading: `Converting ${fileName} to PDF...`,
-          success: `Converted ${fileName} to PDF`,
-          error: `Failed to convert ${fileName} to PDF`,
-        })
-        .unwrap();
-    }
+  const onDrop = useCallback(
+    (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
+      if (acceptedFiles.length > 0) {
+        setQueue((prev) => [...prev, ...acceptedFiles]);
+      }
 
-    const { newPdf } = await addPdf({
-      name: fileName,
-      pdfData: data,
-      parentId,
-    });
-    if (!newPdf) {
-      return;
-    }
-    navigatePdf({ pdfId: newPdf.id });
-  };
+      rejectedFiles.forEach((rejectedFile) => {
+        const rejection = rejectedFile.errors[0];
+        if (!rejection) {
+          return;
+        }
 
-  const dropZoneConfig = {
-    maxFiles: 1,
-    maxSize: 1024 * 1024 * 50,
-    multiple: false,
-    accept: {
-      "application/pdf": [".pdf"],
-      // "application/msword": [".doc"],
-      // "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-      //   [".docx"],
-      // "application/vnd.ms-powerpoint": [".ppt"],
-      // "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-      //   [".pptx"],
+        if (rejection.code === "file-too-large") {
+          toast.error("PDF file too large. Max size is 50MB");
+          return;
+        }
+
+        if (rejection.code === "file-invalid-type") {
+          toast.error("Only PDF files are supported right now");
+          return;
+        }
+
+        toast.error(rejection.message);
+      });
     },
-  };
+    [],
+  );
+
+  const { getRootProps, getInputProps, isDragActive, isDragReject } =
+    useDropzone({
+      maxFiles: 10,
+      maxSize: MAX_FILE_SIZE,
+      multiple: true,
+      accept: {
+        "application/pdf": [".pdf"],
+      },
+      onDrop,
+    });
 
   return (
-    <div className={cn("flex items-center justify-center", className)}>
-      <FileUploader
-        value={[]}
-        onValueChange={async (files) => {
-          if (isLoading) return;
-          const file = files?.[0];
-          if (file) {
-            const blob = new Blob([file], { type: file.type });
-            await loadPdfFromBlob(blob, file.name, file.type);
-          }
-        }}
-        dropzoneOptions={dropZoneConfig}
+    <div className={cn("w-full space-y-3", className)}>
+      <div
+        {...getRootProps()}
+        className={cn(
+          "group flex w-full cursor-pointer items-center justify-center rounded-xl border border-dashed px-4 text-center transition-colors",
+          thin ? "min-h-12 py-2" : "min-h-44 py-6",
+          isDragActive && "border-primary bg-primary/5",
+          isDragReject && "border-destructive bg-destructive/5",
+        )}
       >
-        <FileInput>
-          <FileSvgDraw uploading={isLoading} thin={thin} />
-        </FileInput>
-      </FileUploader>
+        <input {...getInputProps()} />
+        {thin ? (
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <Plus className="h-4 w-4" />
+            Add files
+          </div>
+        ) : (
+          <div className="space-y-3">
+            <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full border bg-background text-muted-foreground">
+              <UploadCloud className="h-5 w-5" />
+            </div>
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-foreground">
+                Drag and drop files
+              </p>
+              <p className="text-xs text-muted-foreground">
+                or click to select multiple files
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {queue.length > 0 ? (
+        <div className="space-y-2">
+          {queue.map((file, i) => (
+            <FilesUploaderItem key={i} file={file} parentId={parentId} />
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 };

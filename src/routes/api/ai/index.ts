@@ -87,8 +87,7 @@ export const Route = createFileRoute("/api/ai/")({
         const { messages } = await request.json();
 
         const lastMessage = messages[messages.length - 1];
-        const { source, contexts, modelId, chatId } =
-          lastMessage.metadata ?? {};
+        const { source, modelId, chatId } = lastMessage.metadata ?? {};
 
         const session = await getSession();
         if (!session?.user) {
@@ -104,11 +103,12 @@ export const Route = createFileRoute("/api/ai/")({
 
         const userId = session.user.id;
 
-        const [systemMessage, chat] = await Promise.all([
+        const [systemMessage, chatMessages, chat] = await Promise.all([
           buildSystemMessage({
             userId: session.user.id,
             source,
           }),
+          buildMessages(messages, userId),
           (async () => {
             const [chat] = await db
               .insert(chatsTable)
@@ -135,11 +135,6 @@ export const Route = createFileRoute("/api/ai/")({
             return chat;
           })(),
         ]);
-        const messagesWithContext = await buildMessages(
-          messages,
-          contexts,
-          userId,
-        );
 
         const stream = createUIMessageStream<MyUIMessage>({
           execute: async ({ writer }) => {
@@ -160,7 +155,7 @@ export const Route = createFileRoute("/api/ai/")({
               messageId: assistantMessageId,
               usageType: "chat",
               system: systemMessage,
-              messages: messagesWithContext,
+              messages: chatMessages,
               tools: tools({ userId, chatId, messageId: assistantMessageId }),
               stopWhen: stepCountIs(20),
             });

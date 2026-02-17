@@ -1,9 +1,10 @@
-import { convertToModelMessages, type ModelMessage, type UIMessage } from "ai";
+import { convertToModelMessages, type ModelMessage } from "ai";
 import { and, eq, getTableColumns, inArray } from "drizzle-orm";
 import type { Context } from "@/atoms/chat/contexts";
 import { db } from "@/db";
 import { filesTable, pdfsTable } from "@/db/schema";
 import { getObjectKey, presignUrl } from "@/lib/storage";
+import type { MyUIMessage } from "@/routes/api/ai";
 import { getTextFromMessage } from "./get-text-from-message";
 
 const buildTextContent = (content: string, contexts?: Context[]) => {
@@ -96,28 +97,29 @@ export const buildSystemMessage = async ({
 };
 
 export const buildMessages = async (
-  messages: UIMessage[],
-  contexts?: Context[],
+  messages: MyUIMessage[],
   userId?: string,
 ): Promise<ModelMessage[]> => {
-  const currentMessage = messages[messages.length - 1];
-  if (currentMessage.role !== "user") {
-    return await convertToModelMessages(messages);
-  }
-  const initialMessages = messages.slice(0, -1);
+  return await Promise.all(
+    messages.map(async (message) => {
+      if (message.role !== "user") {
+        return (await convertToModelMessages([message]))[0];
+      }
 
-  const textContent = buildTextContent(
-    getTextFromMessage(currentMessage),
-    contexts,
+      const contexts = message.metadata?.contexts;
+
+      const textContent = buildTextContent(
+        getTextFromMessage(message),
+        contexts,
+      );
+      const imageContent = userId
+        ? await buildImageContent({ contexts, userId })
+        : [];
+
+      return {
+        role: "user",
+        content: [textContent, ...imageContent].filter(Boolean),
+      } as ModelMessage;
+    }),
   );
-  const imageContent = userId
-    ? await buildImageContent({ contexts, userId })
-    : [];
-  return [
-    ...(await convertToModelMessages(initialMessages)),
-    {
-      role: "user",
-      content: [textContent, ...imageContent].filter(Boolean),
-    } as ModelMessage,
-  ];
 };

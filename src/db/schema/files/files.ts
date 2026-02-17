@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   type AnyPgColumn,
+  boolean,
   index,
   pgTable,
   text,
@@ -23,6 +24,7 @@ export const filesTable = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
+    inLibrary: boolean("in_library").notNull().default(true),
     createdAt: timestamp("created_at", { mode: "date" }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { mode: "date" }).notNull().defaultNow(),
   },
@@ -30,6 +32,7 @@ export const filesTable = pgTable(
     index("files_parent_id_idx").on(table.parentId),
     index("files_user_id_idx").on(table.userId),
     index("files_type_idx").on(table.type),
+    index("files_in_library_idx").on(table.inLibrary),
     index("files_created_at_idx").on(table.createdAt),
     index("files_updated_at_idx").on(table.updatedAt),
     index("files_name_trgm_idx").using("gin", sql`${table.name} gin_trgm_ops`),

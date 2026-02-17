@@ -7,6 +7,7 @@ import {
   filesTable,
   type PDFIndexItem,
   type Pdf,
+  type PdfBboxes,
   pdfBboxesTable,
   pdfIndexingTable,
   pdfsTable,
@@ -161,6 +162,7 @@ export const addPdfFn = createServerFn({ method: "POST" })
       type: "pdf",
       parentId: data.parentId,
       userId: session.user.id,
+      inLibrary: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -168,12 +170,7 @@ export const addPdfFn = createServerFn({ method: "POST" })
       data.bboxes.map((page) => [page.page, page.bboxes]),
     );
     const pdfIndexingItems: PDFIndexItem[] = [];
-    const pdfBboxesItems: {
-      id: string;
-      pdfIndexingId: string;
-      pageNumber: number;
-      bboxes: z.infer<typeof pdfTextBboxSchema>[];
-    }[] = [];
+    const pdfBboxesItems: PdfBboxes[] = [];
 
     for (const [i, rawText] of data.texts.entries()) {
       const pageNumber = i + 1;

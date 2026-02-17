@@ -26,7 +26,7 @@ const createUploadUrlSchema = z.object({
   type: uploadFileTypeSchema,
   contentType: z.string(),
   size: z.number().int().positive(),
-  parentId: z.string().nullable().optional(),
+  parentId: z.string().nullable(),
 });
 
 export const createUploadUrlFn = createServerFn()
@@ -70,7 +70,7 @@ export const createUploadUrlFn = createServerFn()
       fileType: data.type,
       fileName: nameWithoutExt,
       fileExtension: extension,
-      parentId: data.parentId ?? null,
+      parentId: data.parentId,
       contentType: data.contentType,
       uploadUrl,
     };
@@ -82,6 +82,7 @@ const completeUploadSchema = z.object({
   fileName: z.string().min(1),
   fileExtension: z.string().nullish(),
   parentId: z.string().nullable().optional(),
+  inLibrary: z.boolean().optional().default(true),
 });
 
 export const completeUploadFn = createServerFn()
@@ -99,6 +100,7 @@ export const completeUploadFn = createServerFn()
       type: data.fileType,
       parentId: data.parentId ?? null,
       userId: session.user.id,
+      inLibrary: data.inLibrary,
       createdAt: new Date(),
       updatedAt: new Date(),
     } as FileNode;

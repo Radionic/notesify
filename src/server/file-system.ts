@@ -97,6 +97,7 @@ export const getFilesFn = createServerFn()
       db.query.filesTable.findMany({
         where: and(
           eq(filesTable.userId, session.user.id),
+          eq(filesTable.inLibrary, true),
           search && search.trim().length > 0
             ? ilike(filesTable.name, `%${search}%`)
             : parentId

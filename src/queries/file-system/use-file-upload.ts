@@ -54,11 +54,13 @@ export const useUploadFile = () => {
       file,
       fileType,
       parentId,
+      inLibrary = true,
       onProgress,
     }: {
       file: File;
       fileType: UploadableFileType;
-      parentId?: string | null;
+      parentId: string | null;
+      inLibrary?: boolean;
       onProgress?: (progress: number) => void;
     }) => {
       const upload = await createUploadUrl({
@@ -67,7 +69,7 @@ export const useUploadFile = () => {
           type: fileType,
           contentType: file.type,
           size: file.size,
-          parentId: parentId ?? null,
+          parentId,
         },
       });
 
@@ -85,6 +87,7 @@ export const useUploadFile = () => {
           fileName: upload.fileName,
           fileExtension: upload.fileExtension,
           parentId: upload.parentId,
+          inLibrary,
         },
       });
       return newFile;

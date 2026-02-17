@@ -60,6 +60,7 @@ export const useUploadImageContext = () => {
           file,
           fileType: "image",
           parentId: null,
+          inLibrary: false,
           onProgress: (uploadProgress) =>
             updateStatus(uploadId, {
               status: "uploading",

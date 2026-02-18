@@ -47,6 +47,7 @@ export const FileItem = ({
   readOnly?: boolean;
   onItemClick?: (file: FileNode) => void;
 }) => {
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   const [newName, setNewName] = useState(file.name);
   const isMobile = useIsMobile();
@@ -61,14 +62,19 @@ export const FileItem = ({
   const isLoading =
     isDeleting || isDownloadingPdf || isDownloadingImage || isRenaming;
 
-  const handleDelete = async (e: React.MouseEvent) => {
+  const handleDelete = (e: React.MouseEvent) => {
     e.stopPropagation();
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
     try {
       await removeFile({
         fileId: file.id,
         parentId: file.parentId,
         type: file.type,
       });
+      setDeleteDialogOpen(false);
     } catch (error) {
       console.error("Failed to delete file:", error);
     }
@@ -212,6 +218,34 @@ export const FileItem = ({
               </Button>
               <Button onClick={handleRenameSubmit} disabled={isRenaming}>
                 {isRenaming ? "Renaming..." : "Rename"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {deleteDialogOpen && (
+        <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <DialogContent onClick={(e) => e.stopPropagation()}>
+            <DialogHeader>
+              <DialogTitle>
+                Delete {file.type === "folder" ? "Folder" : "File"}
+              </DialogTitle>
+              <DialogDescription>
+                Are you sure you want to delete "{file.name}"? This action
+                cannot be undone.
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setDeleteDialogOpen(false)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </Button>
+              <Button onClick={handleDeleteConfirm} disabled={isDeleting}>
+                {isDeleting ? "Deleting..." : "Delete"}
               </Button>
             </DialogFooter>
           </DialogContent>

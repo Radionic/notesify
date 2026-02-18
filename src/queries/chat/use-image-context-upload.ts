@@ -1,4 +1,4 @@
-import { useIsMutating, useMutation } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
 import { useAtom, useSetAtom } from "jotai";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -78,12 +78,4 @@ export const useUploadImageContext = ({
     ...mutation,
     progress,
   };
-};
-
-export const useHasPendingContextUpload = () => {
-  return (
-    useIsMutating({
-      mutationKey: ["upload-context"],
-    }) > 0
-  );
 };

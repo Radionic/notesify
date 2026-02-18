@@ -1,9 +1,10 @@
 import { useState } from "react";
-import type { Context, ImageContext } from "@/atoms/chat/contexts";
+import type { Context, ImageContext, PdfContext } from "@/atoms/chat/contexts";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { FileContextUpload } from "./file-context-upload";
 import { ContextImage, ImageContextPreview } from "./image-context-preview";
+import { PdfContextPreview } from "./pdf-context-preview";
 
 export const FileContextsPreview = ({
   contexts,
@@ -20,21 +21,37 @@ export const FileContextsPreview = ({
 }) => {
   const [activePreviewContext, setActivePreviewContext] =
     useState<ImageContext>();
-  const imageContexts = contexts?.filter((context) => context.type === "image");
+
+  const imageContexts = contexts?.filter(
+    (context): context is ImageContext => context.type === "image",
+  );
+  const pdfContexts = contexts?.filter(
+    (context): context is PdfContext => context.type === "pdf",
+  );
+
   const hasContent =
-    (imageContexts && imageContexts.length > 0) || uploadingQueue.length > 0;
+    (imageContexts && imageContexts.length > 0) ||
+    (pdfContexts && pdfContexts.length > 0) ||
+    uploadingQueue.length > 0;
 
   if (!hasContent) return null;
 
   return (
     <>
-      <div className={cn("flex flex-wrap gap-2", className)}>
+      <div className={cn("flex flex-wrap items-end gap-2", className)}>
         {imageContexts?.map((context) => (
           <ImageContextPreview
             key={context.fileId}
             context={context}
             removable={removable}
             onPreview={() => setActivePreviewContext(context)}
+          />
+        ))}
+        {pdfContexts?.map((context) => (
+          <PdfContextPreview
+            key={context.fileId}
+            context={context}
+            removable={removable}
           />
         ))}
         {uploadingQueue.map((item) => (

@@ -8,10 +8,15 @@ import { completePdfUploadFn, createPdfUploadUrlsFn } from "@/server/upload";
 import type { FilesResult } from "./use-file-system";
 import { uploadFileToPresignedUrl } from "./use-file-upload";
 
+type UploadResult = { newFile: FileNode; newPdf: Pdf };
+type UploadVars = { file: File; parentId: string | null; inLibrary?: boolean };
+
 export const useUploadPdf = ({
-  mutationKey,
+  mutationKey = ["upload-pdf"],
+  onSuccess: onSuccessCallback,
 }: {
-  mutationKey?: string;
+  mutationKey?: unknown[];
+  onSuccess?: (data: UploadResult, variables: UploadVars) => void;
 } = {}) => {
   const [progress, setProgress] = useState(0);
   const queryClient = useQueryClient();
@@ -19,7 +24,7 @@ export const useUploadPdf = ({
   const completePdfUpload = useServerFn(completePdfUploadFn);
 
   const mutation = useMutation({
-    mutationKey: ["upload-pdf", mutationKey],
+    mutationKey,
     mutationFn: async ({
       file,
       parentId,
@@ -113,17 +118,22 @@ export const useUploadPdf = ({
 
       return { newFile, newPdf };
     },
-    onSuccess: ({ newFile, newPdf }, { file }) => {
-      queryClient.setQueryData<FilesResult>(
-        ["files", newFile.parentId, ""],
-        (oldData) => ({
-          files: oldData ? [newFile, ...oldData.files] : [newFile],
-          breadcrumbs: oldData?.breadcrumbs ?? null,
-        }),
-      );
+    onSuccess: (data, variables) => {
+      const { newFile, newPdf } = data;
+      const { file, inLibrary } = variables;
+      if (inLibrary !== false) {
+        queryClient.setQueryData<FilesResult>(
+          ["files", newFile.parentId, ""],
+          (oldData) => ({
+            files: oldData ? [newFile, ...oldData.files] : [newFile],
+            breadcrumbs: oldData?.breadcrumbs ?? null,
+          }),
+        );
+      }
       queryClient.setQueryData<FileNode>(["file", newFile.id], newFile);
       queryClient.setQueryData<Blob>(["file-data", "pdfs", newPdf.id], file);
       queryClient.setQueryData<Pdf>(["pdf", newPdf.id], newPdf);
+      onSuccessCallback?.(data, variables);
     },
     onError: () => {
       toast.error("Upload failed");

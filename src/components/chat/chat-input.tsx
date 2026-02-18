@@ -1,9 +1,9 @@
+import { useIsMutating } from "@tanstack/react-query";
 import { ImagePlus } from "lucide-react";
 import { useRef, useState } from "react";
 import { useChatAI } from "@/hooks/chat/use-chat-ai";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { useHasPendingContextUpload } from "@/queries/chat/use-image-context-upload";
 import { ModelSelector } from "../pdf/model-selector";
 import { Textarea } from "../ui/textarea";
 import { AddContextButton } from "./action-button/add-context-button";
@@ -13,24 +13,23 @@ export const ChatInput = ({
   chatId,
   rows = 1,
   isDragging,
-  onImageUpload,
-  onImagePaste,
+  onFileUpload,
 }: {
   chatId?: string;
   rows?: number;
   isDragging?: boolean;
-  onImageUpload: (file: File) => void;
-  onImagePaste: (e: React.ClipboardEvent<HTMLTextAreaElement>) => void;
+  onFileUpload: (file: File) => void;
 }) => {
   const { error, isStreaming, handleSubmit, stop } = useChatAI({ chatId });
-  const isAnyPendingUpload = useHasPendingContextUpload();
+  const hasPendingUpload =
+    useIsMutating({ mutationKey: ["upload-context"] }) > 0;
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const isMobile = useIsMobile();
   const [isOver, setIsOver] = useState(false);
 
   const [input, setInput] = useState<string>("");
   const disableSending =
-    input.length === 0 || isStreaming || !!error || isAnyPendingUpload;
+    input.length === 0 || isStreaming || !!error || hasPendingUpload;
 
   const _handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,7 +87,15 @@ export const ChatInput = ({
           rows={rows}
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onPaste={onImagePaste}
+          onPaste={(e) => {
+            const imageFile = Array.from(e.clipboardData.files).find((f) =>
+              f.type.startsWith("image/"),
+            );
+            if (imageFile) {
+              e.preventDefault();
+              onFileUpload(imageFile);
+            }
+          }}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               _handleSubmit(e);
@@ -99,7 +106,7 @@ export const ChatInput = ({
         />
         <div className="flex flex-row justify-between items-center">
           <div className="flex flex-row items-center gap-1">
-            <AddContextButton onFileSelect={onImageUpload} />
+            <AddContextButton onFileSelect={onFileUpload} />
           </div>
           <div className="flex flex-row items-center gap-1">
             <ModelSelector />
@@ -125,10 +132,10 @@ const DragOverlay = ({ isOver }: { isOver: boolean }) => (
       </div>
       <div className="flex flex-col">
         <span className="text-sm font-semibold text-primary">
-          Drop images to upload
+          Drop files to upload
         </span>
         <span className="text-[10px] text-muted-foreground">
-          Supports JPG, PNG, WebP
+          Supports images and PDFs
         </span>
       </div>
     </div>

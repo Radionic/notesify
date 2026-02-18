@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { getRouter } from "@/router";
 import { removeFileFn } from "@/server/file-system";
 import { completeUploadFn, createUploadUrlFn } from "@/server/upload";
 
@@ -101,6 +102,19 @@ export const useDeleteFile = () => {
   return useMutation({
     mutationFn: async ({ fileId }: { fileId: string }) => {
       await removeFile({ data: { id: fileId } });
+    },
+    onSuccess: (_, { fileId }) => {
+      const router = getRouter();
+      const location = router.state.location;
+      if (location.pathname === "/viewer" && location.search.fid === fileId) {
+        router.navigate({
+          to: "/viewer",
+          search: (prev: Record<string, unknown>) => ({
+            ...prev,
+            fid: undefined,
+          }),
+        });
+      }
     },
   });
 };

@@ -1,5 +1,5 @@
 import { useAtomValue } from "jotai";
-import { type ClipboardEvent, useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import { activeContextsAtom } from "@/atoms/chat/contexts";
 import { selectedModelAtom } from "@/atoms/setting/providers";
@@ -30,29 +30,17 @@ export const Chat = ({
   const selectedModel = useAtomValue(selectedModelAtom);
   const [queue, setQueue] = useState<{ id: string; file: File }[]>([]);
 
-  const handleImageUpload = useCallback(
+  const handleFileUpload = useCallback(
     (file: File) => {
-      if (!ensureVisionModel({ model: selectedModel })) return;
-
+      if (
+        file.type.startsWith("image/") &&
+        !ensureVisionModel({ model: selectedModel })
+      ) {
+        return;
+      }
       setQueue((prev) => [...prev, { id: generateId(), file }]);
     },
     [selectedModel],
-  );
-
-  const handlePasteImage = useCallback(
-    (e: ClipboardEvent<HTMLTextAreaElement>) => {
-      const { files } = e.clipboardData;
-      if (!files || files.length === 0) return;
-
-      const imageFile = Array.from(files).find((file) =>
-        file.type.startsWith("image/"),
-      );
-      if (!imageFile) return;
-
-      e.preventDefault();
-      handleImageUpload(imageFile);
-    },
-    [handleImageUpload],
   );
 
   const removeQueueItem = useCallback((id: string) => {
@@ -62,14 +50,13 @@ export const Chat = ({
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: (acceptedFiles) => {
       for (const file of acceptedFiles) {
-        if (file.type.startsWith("image/")) {
-          handleImageUpload(file);
-        }
+        handleFileUpload(file);
       }
     },
     noClick: true,
     accept: {
       "image/*": [],
+      "application/pdf": [],
     },
   });
 
@@ -139,8 +126,7 @@ export const Chat = ({
             chatId={chatId}
             rows={centered ? 3 : undefined}
             isDragging={isDragActive}
-            onImageUpload={handleImageUpload}
-            onImagePaste={handlePasteImage}
+            onFileUpload={handleFileUpload}
           />
         </div>
       </div>

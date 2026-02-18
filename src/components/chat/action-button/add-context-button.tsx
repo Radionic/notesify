@@ -41,7 +41,7 @@ export const AddContextButton = ({
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,application/pdf"
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0];
@@ -55,7 +55,7 @@ export const AddContextButton = ({
       >
         <ContextRow
           icon={<Image className="h-4 w-4" />}
-          label="Upload Image"
+          label="Upload images or files"
           onClick={() => fileInputRef.current?.click()}
         />
       </TooltipDropdown>

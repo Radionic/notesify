@@ -74,7 +74,7 @@ export const buildSystemMessage = async ({
   source?: { type: "pdf"; pdfId: string; viewingPage: number };
 }) => {
   if (!source) {
-    return "You are a helpful AI assistant. The user has not opened any pdf or webpage.";
+    return "You are a helpful AI assistant.";
   }
 
   if (source.type === "pdf") {
@@ -96,9 +96,40 @@ export const buildSystemMessage = async ({
   }
 };
 
+const buildPdfContent = async ({
+  contexts,
+  userId,
+}: {
+  contexts?: Context[];
+  userId: string;
+}) => {
+  const pdfContexts = contexts?.filter((c) => c.type === "pdf");
+  if (!pdfContexts?.length) return [];
+
+  const files = await db
+    .select({ id: filesTable.id, name: filesTable.name })
+    .from(filesTable)
+    .where(
+      and(
+        eq(filesTable.userId, userId),
+        inArray(
+          filesTable.id,
+          pdfContexts.map((c) => c.fileId),
+        ),
+      ),
+    );
+
+  return files.map((file) => {
+    return {
+      type: "text" as const,
+      text: `<pdf name="${file.name}" id="${file.id}" />`,
+    };
+  });
+};
+
 export const buildMessages = async (
   messages: MyUIMessage[],
-  userId?: string,
+  userId: string,
 ): Promise<ModelMessage[]> => {
   return await Promise.all(
     messages.map(async (message) => {
@@ -112,13 +143,14 @@ export const buildMessages = async (
         getTextFromMessage(message),
         contexts,
       );
-      const imageContent = userId
-        ? await buildImageContent({ contexts, userId })
-        : [];
+      const [imageContent, pdfContent] = await Promise.all([
+        buildImageContent({ contexts, userId }),
+        buildPdfContent({ contexts, userId }),
+      ]);
 
       return {
         role: "user",
-        content: [textContent, ...imageContent].filter(Boolean),
+        content: [textContent, ...imageContent, ...pdfContent].filter(Boolean),
       } as ModelMessage;
     }),
   );

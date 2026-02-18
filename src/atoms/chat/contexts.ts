@@ -16,7 +16,12 @@ export type ImageContext = {
   fileId: string;
 };
 
-export type Context = TextContext | ImageContext;
+export type PdfContext = {
+  type: "pdf";
+  fileId: string;
+};
+
+export type Context = TextContext | ImageContext | PdfContext;
 
 export const activeContextsAtom = atom<Context[]>([]);
 export const activeBoundingContextAtom = atom<TextContext>();

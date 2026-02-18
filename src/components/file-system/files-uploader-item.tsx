@@ -1,9 +1,9 @@
-import { useMutationState } from "@tanstack/react-query";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { BsFiletypePdf } from "react-icons/bs";
 import { CircularProgress } from "@/components/ui/circular-progress";
 import { useUploadPdf } from "@/queries/file-system/use-upload-pdf";
+import { useUploadStatus } from "@/queries/file-system/use-upload-status";
 
 const formatFileSize = (size: number) => {
   if (size < 1024) {
@@ -27,23 +27,10 @@ export function FilesUploaderItem({
   const uploadStartedRef = useRef(false);
 
   const { mutateAsync: uploadPdf, progress } = useUploadPdf({
-    mutationKey: uploadKey,
+    mutationKey: ["upload-pdf", uploadKey],
   });
   // https://github.com/TanStack/query/issues/9068#issuecomment-2831997048
-  const mutationStates = useMutationState({
-    filters: {
-      mutationKey: ["upload-pdf", uploadKey],
-      exact: true,
-    },
-    select: (mutation) => ({
-      status: mutation.state.status,
-      error: mutation.state.error,
-    }),
-  });
-  const { status, error } = mutationStates?.[0] ?? {
-    status: "idle",
-    error: null,
-  };
+  const { status, error } = useUploadStatus(["upload-pdf", uploadKey]);
 
   useEffect(() => {
     if (uploadStartedRef.current) {

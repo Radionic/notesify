@@ -131,10 +131,10 @@ export const buildMessages = async (
   messages: MyUIMessage[],
   userId: string,
 ): Promise<ModelMessage[]> => {
-  return await Promise.all(
-    messages.map(async (message) => {
+  const results = await Promise.all(
+    messages.map(async (message): Promise<ModelMessage[]> => {
       if (message.role !== "user") {
-        return (await convertToModelMessages([message]))[0];
+        return await convertToModelMessages([message]);
       }
 
       const contexts = message.metadata?.contexts;
@@ -148,10 +148,15 @@ export const buildMessages = async (
         buildPdfContent({ contexts, userId }),
       ]);
 
-      return {
-        role: "user",
-        content: [textContent, ...imageContent, ...pdfContent].filter(Boolean),
-      } as ModelMessage;
+      return [
+        {
+          role: "user",
+          content: [textContent, ...imageContent, ...pdfContent].filter(
+            Boolean,
+          ),
+        } as ModelMessage,
+      ];
     }),
   );
+  return results.flat();
 };

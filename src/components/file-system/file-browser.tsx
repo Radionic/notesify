@@ -23,6 +23,7 @@ import {
   InputGroupInput,
 } from "@/components/ui/input-group";
 import { Label } from "@/components/ui/label";
+import type { FileNode } from "@/db/schema";
 import { useAddFolder } from "@/queries/file-system/use-file-system";
 import { FileBreadcrumb, type PathItem } from "./file-breadcrumb";
 import { FileGrid } from "./file-grid";
@@ -30,6 +31,7 @@ import { FilesUploader } from "./file-uploader";
 
 export const FileBrowser = ({
   readOnly,
+  withNavigation = true,
   onFileSelected,
   initialSearch,
   onSearchChanged,
@@ -37,7 +39,8 @@ export const FileBrowser = ({
   onFolderIdChanged,
 }: {
   readOnly?: boolean;
-  onFileSelected?: (fileId: string) => void;
+  withNavigation?: boolean;
+  onFileSelected?: (file: FileNode) => void;
   initialSearch?: string;
   onSearchChanged?: (value: string) => void;
   initialFolderId?: string | null;
@@ -144,6 +147,7 @@ export const FileBrowser = ({
         parentId={currentFolderId}
         search={debouncedQuery}
         readOnly={readOnly}
+        withNavigation={withNavigation}
         onFileSelected={onFileSelected}
         onFolderNavigate={handleFolderNavigate}
         onUpload={() => setUploadDialog(true)}

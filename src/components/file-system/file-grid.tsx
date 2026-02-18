@@ -11,6 +11,7 @@ export const FileGrid = ({
   parentId,
   search,
   readOnly,
+  withNavigation,
   onFileSelected,
   onFolderNavigate,
   onUpload,
@@ -18,7 +19,8 @@ export const FileGrid = ({
   parentId: string | null;
   search?: string;
   readOnly?: boolean;
-  onFileSelected?: (fileId: string) => void;
+  withNavigation?: boolean;
+  onFileSelected?: (file: FileNode) => void;
   onFolderNavigate?: (folderId: string, folderName: string) => void;
   onUpload?: () => void;
 }) => {
@@ -35,9 +37,14 @@ export const FileGrid = ({
   const handleItemClick = (item: FileNode) => {
     if (item.type === "folder") {
       onFolderNavigate?.(item.id, item.name);
-    } else if (item.type === "pdf") {
+      return;
+    }
+    onFileSelected?.(item);
+
+    if (!withNavigation) return;
+
+    if (item.type === "pdf") {
       navigatePdf({ pdfId: item.id });
-      onFileSelected?.(item.id);
     } else if (item.type === "webpage") {
       getRouter().navigate({
         to: "/viewer",
@@ -48,10 +55,8 @@ export const FileGrid = ({
           fo: true,
         }),
       });
-      onFileSelected?.(item.id);
     } else if (item.type === "image") {
       navigateImage({ imageId: item.id });
-      onFileSelected?.(item.id);
     }
   };
 

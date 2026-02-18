@@ -58,6 +58,10 @@ export const messageMetadataSchema = z.object({
           type: z.literal("pdf"),
           fileId: z.string(),
         }),
+        z.object({
+          type: z.literal("webpage"),
+          fileId: z.string(),
+        }),
       ]),
     )
     .optional(),

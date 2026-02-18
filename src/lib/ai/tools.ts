@@ -5,6 +5,7 @@ import { z } from "zod";
 import { db } from "@/db";
 import { assetsTable, pdfIndexingTable, pdfsTable } from "@/db/schema";
 import { generateId } from "@/lib/id";
+import { getWebpageContent } from "./get-webpage-content";
 import { extractVisualInfo } from "./ocr";
 import { searchKeywords } from "./search-keywords";
 import { fetchWebContent, searchWeb } from "./search-web";
@@ -78,6 +79,15 @@ export const tools = ({
       //     : item.content,
       // )
       return text;
+    },
+  }),
+  getWebpageContent: tool({
+    description: "Get the webpage content in database.",
+    inputSchema: z.object({
+      webpageId: z.string(),
+    }),
+    execute: async ({ webpageId }) => {
+      return await getWebpageContent({ webpageId, userId });
     },
   }),
   extractVisualInfoFromPDFPage: tool({

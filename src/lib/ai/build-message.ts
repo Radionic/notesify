@@ -2,7 +2,7 @@ import { convertToModelMessages, type ModelMessage } from "ai";
 import { and, eq, getTableColumns, inArray } from "drizzle-orm";
 import type { Context } from "@/atoms/chat/contexts";
 import { db } from "@/db";
-import { filesTable, pdfsTable } from "@/db/schema";
+import { filesTable, pdfsTable, webpagesTable } from "@/db/schema";
 import { getObjectKey, presignUrl } from "@/lib/storage";
 import type { MyUIMessage } from "@/routes/api/ai";
 import { getTextFromMessage } from "./get-text-from-message";
@@ -96,6 +96,40 @@ export const buildSystemMessage = async ({
   }
 };
 
+const buildWebpageContent = async ({
+  contexts,
+  userId,
+}: {
+  contexts?: Context[];
+  userId: string;
+}) => {
+  const webpageContexts = contexts?.filter((c) => c.type === "webpage");
+  if (!webpageContexts?.length) return [];
+
+  const webpages = await db
+    .select({
+      id: webpagesTable.id,
+      name: filesTable.name,
+      url: webpagesTable.url,
+    })
+    .from(webpagesTable)
+    .innerJoin(filesTable, eq(filesTable.id, webpagesTable.id))
+    .where(
+      and(
+        eq(filesTable.userId, userId),
+        inArray(
+          webpagesTable.id,
+          webpageContexts.map((c) => c.fileId),
+        ),
+      ),
+    );
+
+  return webpages.map((wp) => ({
+    type: "text" as const,
+    text: `<webpage name="${wp.name}" id="${wp.id}" />`,
+  }));
+};
+
 const buildPdfContent = async ({
   contexts,
   userId,
@@ -143,17 +177,21 @@ export const buildMessages = async (
         getTextFromMessage(message),
         contexts,
       );
-      const [imageContent, pdfContent] = await Promise.all([
+      const [imageContent, pdfContent, webpageContent] = await Promise.all([
         buildImageContent({ contexts, userId }),
         buildPdfContent({ contexts, userId }),
+        buildWebpageContent({ contexts, userId }),
       ]);
 
       return [
         {
           role: "user",
-          content: [textContent, ...imageContent, ...pdfContent].filter(
-            Boolean,
-          ),
+          content: [
+            textContent,
+            ...imageContent,
+            ...pdfContent,
+            ...webpageContent,
+          ].filter(Boolean),
         } as ModelMessage,
       ];
     }),

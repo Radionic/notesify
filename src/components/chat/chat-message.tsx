@@ -1,5 +1,6 @@
 import type { DynamicToolUIPart } from "ai";
 import { CopyIcon, RefreshCcwIcon } from "lucide-react";
+import { toast } from "sonner";
 import { match } from "ts-pattern";
 import {
   Message,
@@ -25,6 +26,7 @@ import { FetchWebContentTool } from "./tools/fetch-web-content-tool";
 import { GetPageTextTool } from "./tools/get-page-text-tool";
 import { GetTableOfContentsTool } from "./tools/get-table-of-contents-tool";
 import { GetViewingPdfMetadataTool } from "./tools/get-viewing-pdf-metadata-tool";
+import { GetWebpageContentTool } from "./tools/get-webpage-content-tool";
 import { SearchKeywordsTool } from "./tools/search-keywords-tool";
 import { SearchPagesTool } from "./tools/search-pages-tool";
 import { SearchWebTool } from "./tools/search-web-tool";
@@ -54,8 +56,9 @@ export const ChatMessage = ({
     if (!toolName) return null;
 
     return match(toolName)
-      .with("getPDFPageText", () => <GetPageTextTool tool={tool} />)
       .with("getTableOfContents", () => <GetTableOfContentsTool tool={tool} />)
+      .with("getPDFPageText", () => <GetPageTextTool tool={tool} />)
+      .with("getWebpageContent", () => <GetWebpageContentTool tool={tool} />)
       .with("getViewingPdfMetadata", () => (
         <GetViewingPdfMetadataTool tool={tool} />
       ))
@@ -132,7 +135,7 @@ export const ChatMessage = ({
       {message.role === "assistant" &&
         !isLoading &&
         message.parts?.length > 0 && (
-          <MessageActions>
+          <MessageActions className="gap-2">
             {isLast && onRegenerate && (
               <MessageAction
                 onClick={() => onRegenerate()}
@@ -149,6 +152,7 @@ export const ChatMessage = ({
                   .map((p) => (p as { type: "text"; text: string }).text)
                   .join("");
                 navigator.clipboard.writeText(text);
+                toast.success("Copied to clipboard");
               }}
               label="Copy"
               className="text-foreground/40 hover:text-foreground transition-colors"

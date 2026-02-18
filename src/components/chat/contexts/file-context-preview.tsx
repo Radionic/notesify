@@ -1,10 +1,16 @@
 import { useState } from "react";
-import type { Context, ImageContext, PdfContext } from "@/atoms/chat/contexts";
+import type {
+  Context,
+  ImageContext,
+  PdfContext,
+  WebpageContext,
+} from "@/atoms/chat/contexts";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { FileContextUpload } from "./file-context-upload";
 import { ContextImage, ImageContextPreview } from "./image-context-preview";
 import { PdfContextPreview } from "./pdf-context-preview";
+import { WebpageContextPreview } from "./webpage-context-preview";
 
 export const FileContextsPreview = ({
   contexts,
@@ -28,10 +34,14 @@ export const FileContextsPreview = ({
   const pdfContexts = contexts?.filter(
     (context): context is PdfContext => context.type === "pdf",
   );
+  const webpageContexts = contexts?.filter(
+    (context): context is WebpageContext => context.type === "webpage",
+  );
 
   const hasContent =
     (imageContexts && imageContexts.length > 0) ||
     (pdfContexts && pdfContexts.length > 0) ||
+    (webpageContexts && webpageContexts.length > 0) ||
     uploadingQueue.length > 0;
 
   if (!hasContent) return null;
@@ -49,6 +59,13 @@ export const FileContextsPreview = ({
         ))}
         {pdfContexts?.map((context) => (
           <PdfContextPreview
+            key={context.fileId}
+            context={context}
+            removable={removable}
+          />
+        ))}
+        {webpageContexts?.map((context) => (
+          <WebpageContextPreview
             key={context.fileId}
             context={context}
             removable={removable}

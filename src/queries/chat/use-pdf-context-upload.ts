@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useSetAtom } from "jotai";
 import { toast } from "sonner";
-import { activeContextsAtom } from "@/atoms/chat/contexts";
+import { activeContextsAtom, type WebpageContext } from "@/atoms/chat/contexts";
 import type { FileNode } from "@/db/schema";
 import { getFileFn } from "@/server/file-system";
 import { useDeleteFile } from "../file-system/use-file-upload";
@@ -16,7 +16,11 @@ export const useAddLibraryContext = () => {
       setContexts((prev) => {
         const alreadyAdded = prev.some((c) => c.fileId === file.id);
         if (alreadyAdded) return prev;
-        if (file.type === "pdf" || file.type === "image")
+        if (
+          file.type === "pdf" ||
+          file.type === "image" ||
+          file.type === "webpage"
+        )
           return [...prev, { type: file.type, fileId: file.id }];
         return prev;
       });
@@ -42,6 +46,21 @@ export const useUploadPdfContext = ({
     upload({ file, parentId: null, inLibrary: false });
 
   return { mutateAsync, ...rest };
+};
+
+export const useRemoveWebpageContext = () => {
+  const setContexts = useSetAtom(activeContextsAtom);
+
+  return useMutation({
+    mutationFn: async (fileId: string) => {
+      setContexts((prev) =>
+        prev.filter(
+          (c): c is Exclude<typeof c, WebpageContext> =>
+            c.type !== "webpage" || c.fileId !== fileId,
+        ),
+      );
+    },
+  });
 };
 
 export const useRemovePdfContext = () => {

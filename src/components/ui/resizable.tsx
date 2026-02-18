@@ -2,8 +2,8 @@
 
 import { GripVertical } from "lucide-react";
 import { useEffect, useRef } from "react";
-import * as ResizablePrimitive from "react-resizable-panels";
 import type { ImperativePanelHandle } from "react-resizable-panels";
+import * as ResizablePrimitive from "react-resizable-panels";
 
 import { cn } from "@/lib/utils";
 

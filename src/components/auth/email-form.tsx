@@ -49,7 +49,6 @@ export function EmailAuthForm({
         toast.success(
           "Sent the password reset link. Please check your inbox.",
           {
-            position: "bottom-right",
             duration: 10000,
           },
         );
@@ -72,7 +71,6 @@ export function EmailAuthForm({
         });
 
         toast.success("Verification email sent. Please check your inbox.", {
-          position: "bottom-right",
           duration: 10000,
         });
       }

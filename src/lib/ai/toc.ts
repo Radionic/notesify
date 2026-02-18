@@ -130,17 +130,8 @@ export const extractToCByTexts = async ({
       output: Output.object({
         schema: tocSchema,
       }),
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: `${instruction}\n\n${text}`,
-            },
-          ],
-        },
-      ],
+      system: instruction,
+      prompt: text,
     });
 
     return output.map((section: z.infer<typeof tocSchema>[number]) => ({

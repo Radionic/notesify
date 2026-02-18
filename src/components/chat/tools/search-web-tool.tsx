@@ -1,5 +1,10 @@
 import type { DynamicToolUIPart } from "ai";
-import { ChevronRightIcon, CircleAlert, ExternalLinkIcon, GlobeIcon } from "lucide-react";
+import {
+  ChevronRightIcon,
+  CircleAlert,
+  ExternalLinkIcon,
+  GlobeIcon,
+} from "lucide-react";
 import { useState } from "react";
 import {
   Collapsible,

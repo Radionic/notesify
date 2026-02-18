@@ -49,7 +49,6 @@ export function ResetPasswordForm() {
       });
 
       toast.success("Password has been reset. Please login again.", {
-        position: "bottom-right",
         duration: 8000,
       });
 
@@ -61,7 +60,7 @@ export function ResetPasswordForm() {
 
   return (
     <div className="bg-panel min-h-screen flex items-center justify-center px-4">
-      <Card className="w-sm">
+      <Card className="w-80 max-w-[90dvw]">
         <CardHeader>
           <CardTitle className="text-2xl text-center">Reset Password</CardTitle>
         </CardHeader>

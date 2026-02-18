@@ -6,6 +6,7 @@ import { Header } from "@/components/landing/header";
 export const Route = createFileRoute("/auth/login/")({
   component: RouteComponent,
   validateSearch: z.object({
+    redirect: z.string().optional(),
     mode: z.enum(["signIn", "signUp", "forgotPassword"]).optional(),
   }),
   head: () => ({

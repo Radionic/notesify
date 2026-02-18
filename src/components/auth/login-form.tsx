@@ -43,7 +43,7 @@ export function LoginForm({
               : "Welcome to Notesify AI"}
           </CardTitle>
         </CardHeader>
-        <CardContent className="w-sm">
+        <CardContent className="w-80 max-w-[90dvw]">
           {showEmailForm ? (
             <EmailAuthForm
               onBack={() => {

@@ -40,7 +40,7 @@ export const Header = () => {
         )}
 
         <nav className="hidden md:flex items-center justify-center">
-          <ThemeSwitch />
+          {!user && <ThemeSwitch />}
           <UserIcon />
         </nav>
 

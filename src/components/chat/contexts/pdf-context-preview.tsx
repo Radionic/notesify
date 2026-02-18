@@ -23,8 +23,9 @@ export const PdfContextPreview = ({
   return (
     <div
       className={cn(
-        "flex items-center gap-1 rounded-lg border bg-card pl-2.5 pr-1 py-1.5 max-w-52",
+        "flex items-center gap-1 rounded-lg border bg-card pl-3 py-2 max-w-52",
         isDeleting && "opacity-50",
+        removable ? "pr-1.5" : "pr-3",
       )}
     >
       <button

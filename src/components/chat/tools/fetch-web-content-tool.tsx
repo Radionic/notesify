@@ -1,5 +1,10 @@
 import type { DynamicToolUIPart } from "ai";
-import { ChevronRightIcon, CircleAlert, ExternalLinkIcon, GlobeIcon } from "lucide-react";
+import {
+  ChevronRightIcon,
+  CircleAlert,
+  ExternalLinkIcon,
+  GlobeIcon,
+} from "lucide-react";
 import { useState } from "react";
 import {
   Collapsible,
@@ -37,7 +42,8 @@ export const FetchWebContentTool = ({
   const results: FetchWebContentResult[] =
     isDone && Array.isArray(tool.output) ? tool.output : [];
 
-  const urlCountLabel = urlCount === 1 ? "from 1 web URL" : `from ${urlCount} web URLs`;
+  const urlCountLabel =
+    urlCount === 1 ? "from 1 web URL" : `from ${urlCount} web URLs`;
 
   const triggerLabel = hasError
     ? `Failed to retrieve content ${urlCountLabel}`

@@ -48,7 +48,7 @@ function RootLayout() {
       <body>
         <TooltipProvider delayDuration={100}>
           <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
-            <Toaster position="top-right" expand />
+            <Toaster position="bottom-right" expand />
             <Outlet />
           </ThemeProvider>
         </TooltipProvider>

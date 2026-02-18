@@ -1,9 +1,9 @@
 // @ts-ignore
 import { waitUntil } from "cloudflare:workers";
 import { getRequest } from "@tanstack/react-start/server";
-import { betterAuth } from "better-auth/minimal";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { createAuthMiddleware } from "better-auth/api";
+import { betterAuth } from "better-auth/minimal";
 import { db } from "@/db";
 import { sendMessage } from "@/lib/discord";
 import { sendResetPasswordEmail, sendVerifyEmail } from "./email";

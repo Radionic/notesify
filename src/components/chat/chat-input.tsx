@@ -97,7 +97,7 @@ export const ChatInput = ({
             }
           }}
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
+            if (e.key === "Enter" && !isMobile && !e.shiftKey) {
               _handleSubmit(e);
             }
           }}

@@ -5,11 +5,11 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { authClient } from "@/lib/auth-client";
+import { ThemeSwitch } from "../theme-switch";
 
 export const UserIcon = () => {
   const router = useRouter();
@@ -49,18 +49,17 @@ export const UserIcon = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>
-          <div className="flex flex-col gap-0.5">
-            <span className="text-sm font-medium leading-none">
-              {user.name ?? "Me"}
+        <div className="flex items-center justify-between px-2 py-2">
+          <div className="flex flex-col gap-0.5 overflow-hidden">
+            <span className="text-sm font-medium leading-none truncate">
+              {user.name}
             </span>
-            {user.email && (
-              <span className="text-xs text-muted-foreground truncate">
-                {user.email}
-              </span>
-            )}
+            <span className="text-xs text-muted-foreground truncate">
+              {user.email}
+            </span>
           </div>
-        </DropdownMenuLabel>
+          <ThemeSwitch />
+        </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
           <LogOut className="h-4 w-4" />

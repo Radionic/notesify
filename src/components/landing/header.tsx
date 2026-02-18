@@ -1,4 +1,4 @@
-import { Link, useLocation, useRouter } from "@tanstack/react-router";
+import { Link, useRouter } from "@tanstack/react-router";
 import { LogOut, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,10 +13,7 @@ import { UserIcon } from "../auth/user-icon";
 import { Logo } from "../logo";
 import { ThemeSwitch } from "../theme-switch";
 
-const HEADER_PATHS = ["/", "/models", "/pricing"];
-
 export const Header = () => {
-  const path = useLocation();
   const router = useRouter();
   const { data } = authClient.useSession();
   const user = data?.user;
@@ -31,13 +28,11 @@ export const Header = () => {
       <div className="flex justify-between items-center px-4 py-3 w-full max-w-6xl mx-auto">
         <Logo />
 
-        {HEADER_PATHS.includes(path.pathname) && (
-          <div className="hidden md:flex items-center gap-4 font-ebg text-muted-foreground text-lg">
-            <Link to="/">Blogs</Link>
-            <Link to="/models">AI</Link>
-            <Link to="/pricing">Pricing</Link>
-          </div>
-        )}
+        <div className="hidden md:flex items-center gap-4 font-ebg text-muted-foreground text-lg">
+          <Link to="/blogs">Blogs</Link>
+          <Link to="/models">AI</Link>
+          <Link to="/pricing">Pricing</Link>
+        </div>
 
         <nav className="hidden md:flex items-center justify-center">
           {!user && <ThemeSwitch />}
@@ -53,7 +48,7 @@ export const Header = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 font-ebg">
               <DropdownMenuItem asChild>
-                <Link to="/models">Blogs</Link>
+                <Link to="/blogs">Blogs</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
                 <Link to="/models">AI</Link>

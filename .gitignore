@@ -2,6 +2,8 @@
 *.tsbuildinfo
 .wrangler
 wrangler.jsonc
+.content-collections
+src/blogs
 
 # Logs
 logs

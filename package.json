@@ -19,6 +19,8 @@
   "dependencies": {
     "@ai-sdk/openai-compatible": "^2.0.30",
     "@ai-sdk/react": "^3.0.92",
+    "@content-collections/core": "^0.14.0",
+    "@content-collections/vite": "^0.2.9",
     "@dnd-kit/core": "^6.3.1",
     "@lobehub/icons": "^4.6.0",
     "@neondatabase/serverless": "^1.0.2",
@@ -69,6 +71,7 @@
     "drizzle-orm": "^0.45.1",
     "embla-carousel-react": "^8.6.0",
     "fastest-levenshtein": "^1.0.16",
+    "gray-matter": "^4.0.3",
     "input-otp": "^1.4.2",
     "jotai": "^2.17.1",
     "jotai-family": "^1.0.1",
@@ -131,6 +134,7 @@
     "typescript": "~5.9.3",
     "vite": "^7.3.1",
     "vite-tsconfig-paths": "^6.1.1",
-    "wrangler": "^4.66.0"
+    "wrangler": "^4.66.0",
+    "yaml": "^2.8.2"
   }
 }
